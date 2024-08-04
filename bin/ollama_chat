@@ -1,0 +1,258 @@
+#!/usr/bin/env ruby
+
+require 'ollama'
+include Ollama
+require 'term/ansicolor'
+include Term::ANSIColor
+require 'tins/go'
+include Tins::GO
+require 'reline'
+
+class FollowChat
+  include Ollama::Handlers::Concern
+  include Term::ANSIColor
+
+  def initialize(messages:, markdown: false, voice: nil, output: $stdout)
+    super(output:)
+    @output.sync = true
+    @markdown = markdown
+    @say = voice ? Ollama::Handlers::Say.new(voice:) : NOP
+    @messages = messages
+    @user     = nil
+  end
+
+  def call(response)
+    ENV['DEBUG'].to_i == 1 and jj response
+    if response&.message&.role == 'assistant'
+      if @messages.last.role != 'assistant'
+        @messages << Ollama::Message.new(role: 'assistant', content: '')
+        @user = message_type(@messages.last.images) + " " +
+          bold { color(111) { 'assistant:' } }
+        puts @user unless @markdown
+      end
+      content = response.message&.content
+      @messages.last.content << content
+      if @markdown and @messages.last.content.present?
+        markdown_content = Ollama::Utils::ANSIMarkdown.parse(@messages.last.content)
+        @output.print clear_screen, move_home, @user, ?\n, markdown_content
+      else
+        @output.print content
+      end
+      @say.call(response)
+    end
+    response.done and @output.puts
+    self
+  end
+end
+
+def pull_model_unless_present(client, model, options)
+  retried = false
+  begin
+    client.show(name: model) { |response|
+      puts green {
+        "Model with architecture #{response.model_info['general.architecture']} found."
+      }
+      if options
+        puts "Model options are:"
+        jj options
+      end
+      if system = response.system
+        puts "Configured model system prompt is:\n#{italic { system }}"
+        return system
+      else
+        return
+      end
+    }
+  rescue Errors::NotFoundError
+    puts "Model #{model} not found, attempting to pull it now…"
+    client.pull(name: model)
+    if retried
+      exit 1
+    else
+      retried = true
+      retry
+    end
+  rescue Errors::Error => e
+    warn "Caught #{e.class}: #{e} => Exiting."
+    exit 1
+  end
+end
+
+def load_conversation(filename)
+  unless File.exist?(filename)
+    puts "File #{filename} doesn't exist. Choose another filename."
+    return
+  end
+  File.open(filename, 'r') do |output|
+    return JSON(output.read, create_additions: true)
+  end
+end
+
+def save_conversation(filename, messages)
+  if File.exist?(filename)
+    puts "File #{filename} already exists. Choose another filename."
+    return
+  end
+  File.open(filename, 'w') do |output|
+    output.puts JSON(messages)
+  end
+end
+
+def message_type(images)
+  if images.present?
+    ?📸
+  else
+    ?📨
+  end
+end
+
+def list_conversation(messages, markdown)
+  messages.each do |m|
+    role_color = case m.role
+                 when 'user' then 172
+                 when 'assistant' then 111
+                 when 'system' then 213
+                 else 210
+                 end
+    content = if markdown && m.content.present?
+                Ollama::Utils::ANSIMarkdown.parse(m.content)
+              else
+                m.content
+              end
+    puts message_type(m.images) + " " +
+      bold { color(role_color) { m.role } } + ":\n#{content}"
+  end
+end
+
+def display_chat_help
+  puts <<~end
+      /paste          to paste content
+      /list           list the messages of the conversation
+      /clear          clear the conversation messages
+      /pop n          pop the last n message, defaults to 1
+      /regenerate     the last answer message
+      /save filename  store conversation messages
+      /load filename  load conversation messages
+      /image filename attach image to the next message
+      /quit           to quit.
+      /help           to view this help.
+  end
+end
+
+def usage
+  puts <<~end
+    #{File.basename($0)} [OPTIONS]
+
+      -u URL     the ollama base url, OLLAMA_URL
+      -m MODEL   the ollama model to chat with, OLLAMA_MODEL
+      -M OPTIONS the model options as JSON file, see Ollama::Options
+      -s SYSTEM  the system prompt to use as a file
+      -c CHAT    a saved chat conversation to load
+      -v VOICE   use VOICE (e. g. Samantha) to speak with say command
+      -d         use markdown to display the chat messages
+      -h         this help
+
+  end
+  exit 0
+end
+
+opts = go 'u:m:M:s:c:v:dh'
+
+opts[?h] and usage
+
+base_url = opts[?u] || ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
+model    = opts[?m] || ENV.fetch('OLLAMA_MODEL', 'llama3.1')
+options = if options_file = opts[?M]
+            JSON(File.read(options_file), create_additions: true)
+          end
+
+client   = Client.new(base_url:)
+
+model_system = pull_model_unless_present(client, model, options)
+
+puts green { "Connecting to #{model}@#{base_url} now…" }
+
+messages = []
+
+if opts[?c]
+  messages.concat load_conversation(opts[?c])
+else
+  system = nil
+  if system_prompt_file = opts[?s]
+    system = File.read(system_prompt_file)
+  end
+  system ||= ENV['OLLAMA_SYSTEM']
+
+  if system
+    messages << Message.new(role: 'system', content: system)
+    puts "Configured system prompt is:\n#{italic { system }}"
+  elsif model_system.present?
+    puts "Using model system prompt."
+  end
+end
+
+puts "Type /help to display the chat help."
+
+images = nil
+loop do
+  prompt = bold { color(172) { message_type(images) + " user" } } + bold { "> " }
+  case content = Reline.readline(prompt, true)&.chomp
+  when %r(^/paste$)
+    puts bold { "Paste your content and then press C-d!" }
+    content = STDIN.read
+  when %r(^/quit$)
+    puts "Goodbye."
+    exit 0
+  when %r(^/list$)
+    list_conversation(messages, opts[?d])
+    next
+  when %r(^/clear$)
+    messages.clear
+    puts "Cleared messages."
+    next
+  when %r(^/pop\s*(\d*)$)
+    n = $1.to_i.clamp(1, Float::INFINITY)
+    messages.pop(n)
+    puts "Popped the last #{n} messages."
+    next
+  when %r(^/regenerate$)
+    if content = messages[-2]&.content
+      images = messages[-2]&.images
+      messages.pop(2)
+    else
+      puts "Not enough messages in this conversation."
+      redo
+    end
+  when %r(^/save (.+)$)
+    save_conversation($1, messages)
+    puts "Saved conversation to #$1."
+    next
+  when %r(^/load (.+)$)
+    messages = load_conversation($1)
+    puts "Loaded conversation from #$1."
+    next
+  when %r(^/image (.+)$)
+    filename = File.expand_path($1)
+    if File.exist?(filename)
+      images = Image.for_filename(filename)
+      puts "Attached image #$1 to the next message."
+      redo
+    else
+      puts "Filename #$1 doesn't exist. Choose another one."
+      next
+    end
+  when %r(^/help$)
+    display_chat_help
+    next
+  when nil
+    puts "Type /quit to quit."
+    next
+  end
+  messages << Message.new(role: 'user', content:, images:)
+  handler = FollowChat.new(messages:, markdown: opts[?d], voice: opts[?v])
+  client.chat(model:, messages:, options:, stream: true, &handler)
+  ENV['DEBUG'].to_i == 1 and jj messages
+  images = nil
+rescue Interrupt
+  puts "Type /quit to quit."
+end

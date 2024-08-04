@@ -1,0 +1,15 @@
+dockerfile: |-
+  RUN apk add --no-cache build-base git
+  RUN gem update --system
+  RUN gem install gem_hadar bundler
+
+script: &script |-
+  echo -e "\e[1m"
+  ruby -v
+  bundle
+  echo -e "\e[0m"
+  rake test
+
+images:
+  ruby:3.3-alpine: *script
+  ruby:3.2-alpine: *script
