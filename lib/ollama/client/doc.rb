@@ -15,7 +15,8 @@ class Ollama::Client::Doc
       delete:           'https://github.com/ollama/ollama/blob/main/docs/api.md#delete-a-model',
       pull:             'https://github.com/ollama/ollama/blob/main/docs/api.md#pull-a-model',
       push:             'https://github.com/ollama/ollama/blob/main/docs/api.md#push-a-model',
-      embeddings:       'https://github.com/ollama/ollama/blob/main/docs/api.md#generate-embeddings',
+      embeddings:       'https://github.com/ollama/ollama/blob/main/docs/api.md#generate-embeddings', # superseded by /api/embed
+      embed:            'https://github.com/ollama/ollama/blob/main/docs/api.md#generate-embeddings',
       ps:               'https://github.com/ollama/ollama/blob/main/docs/api.md#list-running-models',
     )[name]
   end
