@@ -153,12 +153,12 @@ In your own software the library can be used as shown in this example:
 require "ollama"
 include Ollama
 
-client = Client.new(base_url: 'http://localhost:11434')
+ollama = Client.new(base_url: 'http://localhost:11434')
 messages = Message.new(role: 'user', content: 'Why is the sky blue?')
-client.chat(model: 'llama3.1', stream: true, messages:, &Print) # or
-print client.chat(model: 'llama3.1', stream: true, messages:).map { |response|
+ollama.chat(model: 'llama3.1', stream: true, messages:, &Print) # or
+print ollama.chat(model: 'llama3.1', stream: true, messages:).lazy.map { |response|
 	response.message.content
-}.join
+}
 ```
 
 ## API
