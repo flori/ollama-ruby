@@ -5,12 +5,12 @@ RSpec.describe Ollama::Client do
     'https://ai.foo.bar'
   end
 
-  let :client do
+  let :ollama do
     described_class.new base_url:
   end
 
   it 'can be instantiated' do
-    expect(client).to be_a described_class
+    expect(ollama).to be_a described_class
   end
 
   it 'can be configured via environment variable' do
@@ -20,7 +20,7 @@ RSpec.describe Ollama::Client do
   end
 
   it 'can disable ssl peer verification' do
-    expect(client).to be_ssl_verify_peer
+    expect(ollama).to be_ssl_verify_peer
     client2 = described_class.new(
       base_url: 'https://ai.foo.bar?ssl_verify_peer=false'
     )
@@ -28,7 +28,7 @@ RSpec.describe Ollama::Client do
   end
 
   it 'has a string representation' do
-    expect(client.to_s).to eq '#<Ollama::Client@https://ai.foo.bar>'
+    expect(ollama.to_s).to eq '#<Ollama::Client@https://ai.foo.bar>'
   end
 
   let :excon do
@@ -42,35 +42,35 @@ RSpec.describe Ollama::Client do
   it 'can raise error based on status code 500' do
     expect(excon).to receive(:send).and_return(double(status: 500, body: '{}'))
     expect {
-      client.generate(model: 'llama3.1', prompt: 'Hello World')
+      ollama.generate(model: 'llama3.1', prompt: 'Hello World')
     }.to raise_error(Ollama::Errors::Error)
   end
 
   it 'can raise error based on status code 404' do
     expect(excon).to receive(:send).and_return(double(status: 404, body: '{}'))
     expect {
-      client.generate(model: 'llama3.1', prompt: 'Hello World')
+      ollama.generate(model: 'llama3.1', prompt: 'Hello World')
     }.to raise_error(Ollama::Errors::NotFoundError)
   end
 
   it 'can raise error on connection error' do
     allow(excon).to receive(:post).and_raise Excon::Error::Socket
     expect {
-      client.generate(model: 'llama3.1', prompt: 'Hello World')
+      ollama.generate(model: 'llama3.1', prompt: 'Hello World')
     }.to raise_error(Ollama::Errors::SocketError)
   end
 
   it 'can raise error on timeout' do
     allow(excon).to receive(:post).and_raise Excon::Errors::Timeout
     expect {
-      client.generate(model: 'llama3.1', prompt: 'Hello World')
+      ollama.generate(model: 'llama3.1', prompt: 'Hello World')
     }.to raise_error(Ollama::Errors::TimeoutError)
   end
 
   it 'can raise a generic error' do
     allow(excon).to receive(:post).and_raise Excon::Errors::Error
     expect {
-      client.generate(model: 'llama3.1', prompt: 'Hello World')
+      ollama.generate(model: 'llama3.1', prompt: 'Hello World')
     }.to raise_error(Ollama::Errors::Error)
   end
 
@@ -95,20 +95,20 @@ RSpec.describe Ollama::Client do
 
     it 'can use procs directly' do
       response = nil
-      client.ps { |r| response = r }
+      ollama.ps { |r| response = r }
       expect(response).to eq expected_response
     end
 
     it 'can convert from handler instance to proc' do
       handler = Ollama::Handlers::NOP.new
       expect(handler).to receive(:call).with(expected_response)
-      client.ps(&handler)
+      ollama.ps(&handler)
     end
 
     it 'can convert from handler class to proc' do
       handler = Ollama::Handlers::NOP
       expect_any_instance_of(handler).to receive(:call).with(expected_response)
-      client.ps(&handler)
+      ollama.ps(&handler)
     end
   end
 
@@ -121,7 +121,7 @@ RSpec.describe Ollama::Client do
           'Content-Type' => 'application/json; charset=utf-8',
         )
       ).and_return(double(status: 200, body: '{}'))
-      client.generate(model: 'llama3.1', prompt: 'Hello World')
+      ollama.generate(model: 'llama3.1', prompt: 'Hello World')
     end
 
     it 'can generate with stream' do
@@ -133,12 +133,12 @@ RSpec.describe Ollama::Client do
         ),
         response_block: an_instance_of(Proc)
       ).and_return(double(status: 200, body: '{}'))
-      client.generate(model: 'llama3.1', prompt: 'Hello World', stream: true)
+      ollama.generate(model: 'llama3.1', prompt: 'Hello World', stream: true)
     end
   end
 
   it 'can help' do
     expect($stdout).to receive(:puts).with(/Commands:.*?chat/)
-    client.help
+    ollama.help
   end
 end

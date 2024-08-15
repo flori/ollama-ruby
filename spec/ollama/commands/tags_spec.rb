@@ -14,8 +14,8 @@ RSpec.describe Ollama::Commands::Tags do
   end
 
   it 'can perform' do
-    tags.client = client = double('client')
-    expect(client).to receive(:request).
+    tags.client = ollama = double('Ollama::Client')
+    expect(ollama).to receive(:request).
       with(method: :get, path: '/api/tags', stream: false, handler: Ollama::Handlers::NOP)
     tags.perform(Ollama::Handlers::NOP)
   end

@@ -18,8 +18,8 @@ RSpec.describe Ollama::Commands::Delete do
 
   it 'can perform' do
     delete = described_class.new(name: 'llama3.1')
-    delete.client = client = double('client')
-    expect(client).to receive(:request).with(
+    delete.client = ollama = double('Ollama::Client')
+    expect(ollama).to receive(:request).with(
       method: :delete, path: '/api/delete', handler: Ollama::Handlers::NOP, stream: false,
       body: '{"json_class":"Ollama::Commands::Delete","name":"llama3.1","stream":false}'
     )

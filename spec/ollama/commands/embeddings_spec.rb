@@ -27,8 +27,8 @@ RSpec.describe Ollama::Commands::Embeddings do
       model: 'mxbai-embed-large',
       prompt: 'Here are the coordinates of all Soviet military installations: …'
     )
-    embeddings.client = client = double('client')
-    expect(client).to receive(:request).
+    embeddings.client = ollama = double('Ollama::Client')
+    expect(ollama).to receive(:request).
       with(
         method: :post, path: '/api/embeddings', handler: Ollama::Handlers::NOP, stream: false,
         body: '{"json_class":"Ollama::Commands::Embeddings","model":"mxbai-embed-large","prompt":"Here are the coordinates of all Soviet military installations: …","stream":false}'

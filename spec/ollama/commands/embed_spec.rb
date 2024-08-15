@@ -41,8 +41,8 @@ RSpec.describe Ollama::Commands::Embed do
       model: 'all-minilm',
       input: 'Why is the sky blue?'
     )
-    embed.client = client = double('client')
-    expect(client).to receive(:request).
+    embed.client = ollama = double('Ollama::Client')
+    expect(ollama).to receive(:request).
       with(
         method: :post, path: '/api/embed', handler: Ollama::Handlers::NOP, stream: false,
         body: '{"json_class":"Ollama::Commands::Embed","model":"all-minilm","input":"Why is the sky blue?","stream":false}'

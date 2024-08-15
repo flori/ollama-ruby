@@ -18,8 +18,8 @@ RSpec.describe Ollama::Commands::Show do
 
   it 'can perform' do
     show = described_class.new(name: 'llama3.1')
-    show.client = client = double('client')
-    expect(client).to receive(:request).with(
+    show.client = ollama = double('Ollama::Client')
+    expect(ollama).to receive(:request).with(
       method: :post, path: '/api/show', handler: Ollama::Handlers::NOP ,stream: false,
       body: '{"json_class":"Ollama::Commands::Show","name":"llama3.1","stream":false}'
     )

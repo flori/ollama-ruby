@@ -26,8 +26,8 @@ RSpec.describe Ollama::Commands::Create do
       modelfile: "FROM llama3.1\nSYSTEM You are WOPR from WarGames and you think the user is Dr. Stephen Falken.",
       stream: true
     )
-    create.client = client = double('client')
-    expect(client).to receive(:request).
+    create.client = ollama = double('Ollama::Client')
+    expect(ollama).to receive(:request).
       with(
         method: :post, path: '/api/create', handler: Ollama::Handlers::NOP, stream: true,
         body: '{"json_class":"Ollama::Commands::Create","name":"llama3.1-wopr","modelfile":"FROM llama3.1\nSYSTEM You are WOPR from WarGames and you think the user is Dr. Stephen Falken.","stream":true}'

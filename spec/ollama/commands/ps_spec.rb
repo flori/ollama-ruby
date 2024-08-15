@@ -14,8 +14,8 @@ RSpec.describe Ollama::Commands::Ps do
   end
 
   it 'can perform' do
-    ps.client = client = double('client')
-    expect(client).to receive(:request).
+    ps.client = ollama = double('Ollama::Client')
+    expect(ollama).to receive(:request).
       with(
         method: :get, path: '/api/ps', handler: Ollama::Handlers::NOP,
         stream: false

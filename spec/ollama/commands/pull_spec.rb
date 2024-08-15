@@ -18,8 +18,8 @@ RSpec.describe Ollama::Commands::Pull do
 
   it 'can perform' do
     pull = described_class.new(name: 'llama3.1', stream: true)
-    pull.client = client = double('client')
-    expect(client).to receive(:request).with(
+    pull.client = ollama = double('Ollama::Client')
+    expect(ollama).to receive(:request).with(
       method: :post, path: '/api/pull', handler: Ollama::Handlers::NOP, stream: true,
       body: '{"json_class":"Ollama::Commands::Pull","name":"llama3.1","stream":true}'
     )

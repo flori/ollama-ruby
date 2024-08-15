@@ -41,8 +41,8 @@ RSpec.describe Ollama::Commands::Chat do
       Ollama::Message.new(role: 'user', content: "Let's play Global Thermonuclear War.")
     ]
     chat = described_class.new(model: 'llama3.1', messages:, stream: true)
-    chat.client = client = double('client')
-    expect(client).to receive(:request).
+    chat.client = ollama = double('Ollama::Client')
+    expect(ollama).to receive(:request).
       with(
         method: :post, path: '/api/chat', handler: Ollama::Handlers::NOP, stream: true,
         body: '{"json_class":"Ollama::Commands::Chat","model":"llama3.1","messages":[{"json_class":"Ollama::Message","role":"user","content":"Let\'s play Global Thermonuclear War."}],"stream":true}'
