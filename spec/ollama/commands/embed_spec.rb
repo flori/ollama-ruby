@@ -12,13 +12,14 @@ RSpec.describe Ollama::Commands::Embed do
   it 'can be converted to JSON' do
     embed = described_class.new(
       model: 'all-minilm',
+      options: Ollama::Options.new(num_ctx: 666),
       input: 'Why is the sky blue?'
     )
     expect(embed.as_json).to include(
       model: 'all-minilm', input: 'Why is the sky blue?',
     )
     expect(embed.to_json).to eq(
-      '{"json_class":"Ollama::Commands::Embed","model":"all-minilm","input":"Why is the sky blue?","stream":false}'
+      '{"json_class":"Ollama::Commands::Embed","model":"all-minilm","input":"Why is the sky blue?","options":{"json_class":"Ollama::Options","num_ctx":666},"stream":false}'
     )
   end
 

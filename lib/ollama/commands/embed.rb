@@ -5,13 +5,13 @@ class Ollama::Commands::Embed
     '/api/embed'
   end
 
-  def initialize(model:, input:, truncate: nil, keep_alive: nil)
-    @model, @input, @truncate, @keep_alive =
-      model, input, truncate, keep_alive
+  def initialize(model:, input:, options: nil, truncate: nil, keep_alive: nil)
+    @model, @input, @options, @truncate, @keep_alive =
+      model, input, options, truncate, keep_alive
     @stream = false
   end
 
-  attr_reader :model, :input, :truncate, :keep_alive, :stream
+  attr_reader :model, :input, :options, :truncate, :keep_alive, :stream
 
   attr_writer :client
 
