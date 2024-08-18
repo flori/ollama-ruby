@@ -20,4 +20,8 @@ RSpec.describe Ollama::Image do
     expect(image.to_s.sum).to eq 42460
     expect(image.to_s[0, 40]).to eq '/9j/4AAQSkZJRgABAQAASABIAAD/4QBYRXhpZgAA'
   end
+
+  it 'tracks path of file' do
+    expect(image.path).to eq asset('kitten.jpg')
+  end
 end
