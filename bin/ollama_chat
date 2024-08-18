@@ -193,7 +193,7 @@ end
 
 puts "Type /help to display the chat help."
 
-images = nil
+images = []
 loop do
   prompt = bold { color(172) { message_type(images) + " user" } } + bold { "> " }
   case content = Reline.readline(prompt, true)&.chomp
@@ -210,31 +210,31 @@ loop do
     messages.clear
     puts "Cleared messages."
     next
-  when %r(^/pop\s*(\d*)$)
+  when %r(^/pop\s+(\d*)$)
     n = $1.to_i.clamp(1, Float::INFINITY)
     messages.pop(n)
     puts "Popped the last #{n} messages."
     next
   when %r(^/regenerate$)
     if content = messages[-2]&.content
-      images = messages[-2]&.images
+      images = Array(messages[-2]&.images)
       messages.pop(2)
     else
       puts "Not enough messages in this conversation."
       redo
     end
-  when %r(^/save (.+)$)
+  when %r(^/save\s+(.+)$)
     save_conversation($1, messages)
     puts "Saved conversation to #$1."
     next
-  when %r(^/load (.+)$)
+  when %r(^/load\s+(.+)$)
     messages = load_conversation($1)
     puts "Loaded conversation from #$1."
     next
-  when %r(^/image (.+)$)
+  when %r(^/image\s+(.+)$)
     filename = File.expand_path($1)
     if File.exist?(filename)
-      images = Image.for_filename(filename)
+      (images << Image.for_filename(filename)).uniq!
       puts "Attached image #$1 to the next message."
       redo
     else
@@ -252,7 +252,7 @@ loop do
   handler = FollowChat.new(messages:, markdown: opts[?d], voice: opts[?v])
   client.chat(model:, messages:, options:, stream: true, &handler)
   ENV['DEBUG'].to_i == 1 and jj messages
-  images = nil
+  images = []
 rescue Interrupt
   puts "Type /quit to quit."
 end
