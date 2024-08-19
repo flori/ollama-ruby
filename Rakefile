@@ -30,6 +30,7 @@ GemHadar do
   development_dependency 'all_images',            '~>0.4'
   development_dependency 'rspec',                 '~>3.2'
   development_dependency 'utils'
+  development_dependency 'webmock'
 
   licenses << 'MIT'
 end

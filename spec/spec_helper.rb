@@ -9,6 +9,8 @@ begin
   require 'debug'
 rescue LoadError
 end
+require 'webmock/rspec'
+WebMock.disable_net_connect!
 require 'ollama'
 
 def asset(name)
