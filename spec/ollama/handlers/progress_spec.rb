@@ -7,7 +7,7 @@ RSpec.describe Ollama::Handlers::Progress do
   end
 
   it 'can display progress' do
-    response = double('response', status: 'testing', completed: 23, total: 666)
+    response = double('response', status: 'testing', completed: 23, total: 666, error: nil)
     expect(infobar.counter).to receive(:progress).with(by: 23).and_call_original
     expect(infobar.display).to receive(:update).and_call_original
     described_class.new.call(response)

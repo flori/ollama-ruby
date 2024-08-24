@@ -1,4 +1,5 @@
 require 'infobar'
+require 'tins/unit'
 
 class Ollama::Handlers::Progress
   include Ollama::Handlers::Concern
@@ -13,7 +14,9 @@ class Ollama::Handlers::Progress
 
   def call(response)
     infobar.display.output = @output
-    status = response.status
+    if status = response.status
+      infobar.label = status
+    end
     if response.total && response.completed
       if !@last_status or @last_status != status
         @last_status and infobar.newline
@@ -24,13 +27,23 @@ class Ollama::Handlers::Progress
       end
       infobar.counter.progress(by: response.completed - @current)
       @current = response.completed
+      infobar.update(
+        message: message(response.completed, response.total),
+        force: true
+      )
     end
-    if status
-      infobar.label = status
-      infobar.update(message: '%l %c/%t in %te, ETA %e @%E', force: true)
-    elsif error = response.error
+    if error = response.error
       infobar.puts bold { "Error: " } + red { error }
     end
     self
+  end
+
+  private
+
+  def message(current, total)
+    progress = '%s/%s' % [ current, total ].map {
+      Tins::Unit.format(_1, format: '%.2f %U')
+    }
+    '%l ' + progress + ' in %te, ETA %e @%E'
   end
 end
