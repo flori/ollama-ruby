@@ -8,7 +8,6 @@ include Ollama
 
 base_url = ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
 ollama = Client.new(base_url:)
-include Ollama
 ollama.tags.models.each do |model|
   name, modified_at = model.name, Time.parse(model.modified_at)
   infobar.puts(

@@ -18,7 +18,7 @@ GemHadar do
      '.utilsrc', '.rspec', *Dir.glob('.github/**/*', File::FNM_DOTMATCH)
   readme      'README.md'
 
-  executables << 'ollama_console' << 'ollama_chat'
+  executables << 'ollama_console' << 'ollama_chat' << 'ollama_update'
 
   required_ruby_version  '~> 3.1'
 
