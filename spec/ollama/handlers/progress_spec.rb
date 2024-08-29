@@ -16,7 +16,7 @@ RSpec.describe Ollama::Handlers::Progress do
   it 'can display errors in progress' do
     response = double('response', error: 'foo', status: nil, completed: nil, total: nil)
     progress = described_class.new
-    expect(progress.output).to receive(:puts).with(/Error: .*foo/)
+    expect(infobar).to receive(:puts).with(/Error: .*foo/)
     progress.call(response)
   end
 end

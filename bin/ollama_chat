@@ -7,6 +7,75 @@ include Term::ANSIColor
 require 'tins/go'
 include Tins::GO
 require 'reline'
+require 'reverse_markdown'
+require 'complex_config'
+require 'fileutils'
+
+class OllamaChatConfig
+  include ComplexConfig
+  include FileUtils
+
+  DEFAULT_CONFIG = <<~end
+    ---
+    url: <%= ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST') %>
+    model:
+      name: <%= ENV.fetch('OLLAMA_CHAT_MODEL', 'llama3.1') %>
+      options:
+        num_ctx: 8192
+    system: <%= ENV.fetch('OLLAMA_CHAT_SYSTEM', 'null') %>
+    voice: Samantha
+    markdown: true
+    embedding:
+      enabled: true
+      model:
+        name: mxbai-embed-large
+        options: {}
+        # Retrieval prompt template:
+        prompt: 'Represent this sentence for searching relevant passages: %s'
+      collection: <%= ENV.fetch('OLLAMA_CHAT_COLLECTION', 'ollama_chat') %>
+      found_texts_size: 4096
+      splitter:
+        name: RecursiveCharacter
+        chunk_size: 1024
+    cache: Ollama::Documents::RedisCache
+    redis:
+      url: <%= ENV.fetch('REDIS_URL', 'null') %>
+    debug: <%= ENV['OLLAMA_CHAT_DEBUG'].to_i == 1 ? true : false %>
+  end
+
+  def initialize(filename = nil)
+    @filename = filename || default_path
+    @config = Provider.config(@filename)
+    retried = false
+  rescue ConfigurationFileMissing
+    if @filename == default_path && !retried
+      retried = true
+      mkdir_p File.dirname(default_path)
+      File.secure_write(default_path, DEFAULT_CONFIG)
+      retry
+    else
+      raise
+    end
+  end
+
+  attr_reader :filename
+
+  attr_reader :config
+
+  def default_path
+    File.join(config_dir_path, 'config.yml')
+  end
+
+  def config_dir_path
+    File.join(
+      ENV.fetch(
+        'XDG_CONFIG_HOME',
+        File.join(ENV.fetch('HOME'), '.config')
+      ),
+      'ollama_chat'
+    )
+  end
+end
 
 class FollowChat
   include Ollama::Handlers::Concern
@@ -16,16 +85,16 @@ class FollowChat
     super(output:)
     @output.sync = true
     @markdown = markdown
-    @say = voice ? Ollama::Handlers::Say.new(voice:) : NOP
+    @say = voice ? Handlers::Say.new(voice:) : NOP
     @messages = messages
     @user     = nil
   end
 
   def call(response)
-    ENV['DEBUG'].to_i == 1 and jj response
+    $config.debug and jj response
     if response&.message&.role == 'assistant'
       if @messages.last.role != 'assistant'
-        @messages << Ollama::Message.new(role: 'assistant', content: '')
+        @messages << Message.new(role: 'assistant', content: '')
         @user = message_type(@messages.last.images) + " " +
           bold { color(111) { 'assistant:' } }
         puts @user unless @markdown
@@ -33,7 +102,7 @@ class FollowChat
       content = response.message&.content
       @messages.last.content << content
       if @markdown and @messages.last.content.present?
-        markdown_content = Ollama::Utils::ANSIMarkdown.parse(@messages.last.content)
+        markdown_content = Utils::ANSIMarkdown.parse(@messages.last.content)
         @output.print clear_screen, move_home, @user, ?\n, markdown_content
       else
         @output.print content
@@ -45,37 +114,28 @@ class FollowChat
   end
 end
 
-def pull_model_unless_present(client, model, options)
-  retried = false
-  begin
-    client.show(name: model) { |response|
-      puts green {
-        "Model with architecture #{response.model_info['general.architecture']} found."
-      }
-      if options
-        puts "Model options are:"
-        jj options
-      end
-      if system = response.system
-        puts "Configured model system prompt is:\n#{italic { system }}"
-        return system
-      else
-        return
-      end
-    }
-  rescue Errors::NotFoundError
-    puts "Model #{model} not found, attempting to pull it now…"
-    client.pull(name: model)
-    if retried
-      exit 1
+def pull_model_unless_present(model, options, retried = false)
+  ollama.show(name: model) { |response|
+    puts "Model #{bold{model}} with architecture #{response.model_info['general.architecture']} found."
+    if system = response.system
+      puts "Configured model system prompt is:\n#{italic { system }}"
+      return system
     else
-      retried = true
-      retry
+      return
     end
-  rescue Errors::Error => e
-    warn "Caught #{e.class}: #{e} => Exiting."
+  }
+rescue Errors::NotFoundError
+  puts "Model #{bold{model}} not found, attempting to pull it now…"
+  ollama.pull(name: model)
+  if retried
     exit 1
+  else
+    retried = true
+    retry
   end
+rescue Errors::Error => e
+  warn "Caught #{e.class}: #{e} => Exiting."
+  exit 1
 end
 
 def load_conversation(filename)
@@ -115,27 +175,198 @@ def list_conversation(messages, markdown)
                  else 210
                  end
     content = if markdown && m.content.present?
-                Ollama::Utils::ANSIMarkdown.parse(m.content)
+                Utils::ANSIMarkdown.parse(m.content)
               else
                 m.content
               end
-    puts message_type(m.images) + " " +
-      bold { color(role_color) { m.role } } + ":\n#{content}"
+    message_text = message_type(m.images) + " "
+    message_text += bold { color(role_color) { m.role } }
+    message_text += ":\n#{content}"
+    if m.images.present?
+      message_text += "\nImages: " + italic { m.images.map(&:path) * ', ' }
+    end
+    puts message_text
+  end
+end
+
+def parse_source(source_io)
+  case source_io&.content_type&.sub_type
+  when 'html'
+    ReverseMarkdown.convert(
+      source_io.read,
+      unknown_tags: :bypass,
+      github_flavored: true,
+      tag_border: ''
+    )
+  when 'plain', 'csv', 'xml'
+    source_io.read
+  else
+    STDERR.puts "Cannot import #{source_io.content_type} document."
+    return
+  end
+end
+
+def import_document(source_io, source)
+  unless $config.embedding.enabled
+    STDOUT.puts "Embedding disabled, I won't import any documents, try: /summarize"
+    return
+  end
+  STDOUT.puts "Importing #{source_io.content_type} document #{source.to_s.inspect}."
+  text = parse_source(source_io) or return
+  text.downcase!
+  splitter_config = $config.embedding.splitter
+  inputs = case splitter_config.name
+           when 'Character'
+             Ollama::Documents::Splitters::Character.new(
+               chunk_size: splitter_config.chunk_size,
+             ).split(text)
+           when 'RecursiveCharacter'
+             Ollama::Documents::Splitters::RecursiveCharacter.new(
+               chunk_size: splitter_config.chunk_size,
+             ).split(text)
+           when 'Semantic'
+             Ollama::Documents::Splitters::Semantic.new(
+               ollama:, model: $config.embedding.model.name,
+               chunk_size: splitter_config.chunk_size,
+             ).split(
+               text,
+               breakpoint: splitter_config.breakpoint.to_sym,
+               percentage: splitter_config.percentage?,
+               percentile: splitter_config.percentile?,
+             )
+           end
+  $documents.add(inputs, source: source.to_s)
+end
+
+def add_image(images, source_io, source)
+  STDERR.puts "Adding #{source_io.content_type} image #{source.to_s.inspect}."
+  image = Image.for_io(source_io, path: source.to_s)
+  (images << image).uniq!
+end
+
+def fetch_source(source, &block)
+  case source
+  when %r(\Ahttps?://\S+)
+    Utils::Fetcher.get(source) do |tmp|
+      block.(tmp)
+    end
+  when %r(\Afile://(?:(?:[.-]|[[:alnum:]])*)(/\S*)|([~.]?/\S*))
+    filename = $~.captures.compact.first
+    filename = File.expand_path(filename)
+    Utils::Fetcher.read(filename) do |tmp|
+      block.(tmp)
+    end
+  else
+    raise "invalid source"
+  end
+rescue => e
+  STDERR.puts "Cannot add source #{source.to_s.inspect}: #{e}\n#{e.backtrace * ?\n}"
+end
+
+def summarize(source)
+  puts  "Now summarizing #{source.inspect}."
+  source_content =
+    fetch_source(source) do |source_io|
+      parse_source(source_io) or return
+    end
+  <<~end
+    # Generate an abstract summary of the content in this document:
+
+    #{source_content}
+  end
+end
+
+def parse_content(content, images)
+  images.clear
+  tags = Utils::Tags.new
+
+  content.scan(%r([.~]?/\S+|https?://\S+|#\S+)).each do |source|
+    case source
+    when /\A#(\S+)/
+      tags << $1
+    else
+      source = source.sub(/(["')]|\*+)\z/, '')
+      fetch_source(source) do |source_io|
+        case source_io&.content_type&.media_type
+        when 'image'
+          add_image(images, source_io, source)
+        when 'text'
+          import_document(source_io, source)
+        else
+          STDERR.puts(
+            "Cannot fetch #{source.to_s.inspect} with content type "\
+            "#{source_io&.content_type.inspect}"
+          )
+        end
+      end
+    end
+  end
+
+  return content, (tags unless tags.empty?)
+end
+
+def choose_model(cli_model, default_model)
+  models = ollama.tags.models.map(&:name).sort
+  model = if cli_model == ''
+            Ollama::Utils::Chooser.choose(models) || default_model
+          else
+            cli_model || default_model
+          end
+ensure
+  puts green { "Connecting to #{model}@#{ollama.base_url} now…" }
+end
+
+def choose_collection(default_collection)
+  collections = [ default_collection ] + $documents.collections
+  collections = collections.uniq.sort
+  $documents.collection = collection =
+    Ollama::Utils::Chooser.choose(collections) || default_collection
+ensure
+  puts "Changing to collection #{bold{collection}}."
+  collection_stats
+end
+
+def collection_stats
+  puts <<~end
+    Collection
+      Name: #{bold{$documents.collection}}
+      #Embeddings: #{$documents.size}
+      Tags: #{$documents.tags}
+  end
+end
+
+def configure_cache
+  Object.const_get($config.cache)
+rescue => e
+  STDERR.puts "Caught #{e.class}: #{e} => Falling back to MemoryCache."
+  Ollama::Documents::MemoryCache
+end
+
+def set_markdown(value)
+  if value
+    puts "Using ANSI markdown to output content."
+    true
+  else
+    puts "Using plaintext for outputting content."
+    false
   end
 end
 
 def display_chat_help
   puts <<~end
-      /paste          to paste content
-      /list           list the messages of the conversation
-      /clear          clear the conversation messages
-      /pop n          pop the last n message, defaults to 1
-      /regenerate     the last answer message
-      /save filename  store conversation messages
-      /load filename  load conversation messages
-      /image filename attach image to the next message
-      /quit           to quit.
-      /help           to view this help.
+    /paste                             to paste content
+    /markdown                          toggle markdown output
+    /list                              list the messages of the conversation
+    /clear                             clear the conversation messages
+    /pop [n]                           pop the last n exchanges, defaults to 1
+    /model                             change the model
+    /regenerate                        the last answer message
+    /collection clear|stats|change|new clear or show stats of current collection
+    /summarize source                  summarize the URL/file source's content
+    /save filename                     store conversation messages
+    /load filename                     load conversation messages
+    /quit                              to quit
+    /help                              to view this help
   end
 end
 
@@ -143,36 +374,90 @@ def usage
   puts <<~end
     #{File.basename($0)} [OPTIONS]
 
-      -u URL     the ollama base url, OLLAMA_URL
-      -m MODEL   the ollama model to chat with, OLLAMA_MODEL
-      -M OPTIONS the model options as JSON file, see Ollama::Options
-      -s SYSTEM  the system prompt to use as a file
-      -c CHAT    a saved chat conversation to load
-      -v VOICE   use VOICE (e. g. Samantha) to speak with say command
-      -d         use markdown to display the chat messages
-      -h         this help
+      -f CONFIG      config file to read
+      -u URL         the ollama base url, OLLAMA_URL
+      -m MODEL       the ollama model to chat with, OLLAMA_CHAT_MODEL
+      -s SYSTEM      the system prompt to use as a file, OLLAMA_CHAT_SYSTEM
+      -c CHAT        a saved chat conversation to load
+      -C COLLECTION  name of the collection used in this conversation
+      -D DOCUMENT    load document and add to collection (multiple)
+      -d             use markdown to display the chat messages
+      -v             use voice output
+      -h             this help
 
   end
   exit 0
 end
 
-opts = go 'u:m:M:s:c:v:dh'
+def ollama
+  $ollama
+end
+
+opts = go 'f:u:m:s:c:C:D:dvh'
+
+config = OllamaChatConfig.new(opts[?f])
+$config = config.config
 
 opts[?h] and usage
 
-base_url = opts[?u] || ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
-model    = opts[?m] || ENV.fetch('OLLAMA_MODEL', 'llama3.1')
-options = if options_file = opts[?M]
-            JSON(File.read(options_file), create_additions: true)
-          end
+puts "Configuration read from #{config.filename.inspect} is:"
+y $config.to_h
 
-client   = Client.new(base_url:)
+base_url = opts[?u] || $config.url
+$ollama      = Client.new(base_url:, debug: $config.debug)
 
-model_system = pull_model_unless_present(client, model, options)
+model        = choose_model(opts[?m], $config.model.name)
+options      = $config.model.options
+model_system = pull_model_unless_present(model, options)
+messages     = []
 
-puts green { "Connecting to #{model}@#{base_url} now…" }
+if $config.embedding.enabled
+  embedding_model         = $config.embedding.model.name
+  embedding_model_options = $config.embedding.model.options
+  pull_model_unless_present(embedding_model, embedding_model_options)
+  collection = opts[?C] || $config.embedding.collection
+  $documents = Documents.new(
+    ollama:,
+    model:         $config.embedding.model.name,
+    model_options: $config.embedding.model.options,
+    collection:,
+    cache:         configure_cache,
+    redis_url:     $config.redis.url?,
+  )
 
-messages = []
+  document_list = opts[?D].to_a
+  if document_list.any?(&:empty?)
+    puts "Clearing collection #{bold{collection}}."
+    $documents.clear
+    document_list.reject!(&:empty?)
+  end
+  unless document_list.empty?
+    document_list.map! do |doc|
+      if doc =~ %r(\Ahttps?://)
+        doc
+      else
+        File.expand_path(doc)
+      end
+    end
+    infobar.puts "Collection #{bold{collection}}: Adding #{document_list.size} documents…"
+    document_list.each_slice(25) do |docs|
+      docs.each do |doc|
+        fetch_source(doc) do |doc_io|
+          import_document(doc_io, doc)
+        end
+      end
+    end
+  end
+  collection_stats
+else
+  $documents = Documents.new(ollama:, model:)
+end
+
+if voice = ($config.voice if opts[?v])
+  puts "Using voice #{bold{voice}} to speak."
+end
+
+markdown = set_markdown(opts[?d] || $config.markdown)
 
 if opts[?c]
   messages.concat load_conversation(opts[?c])
@@ -181,7 +466,7 @@ else
   if system_prompt_file = opts[?s]
     system = File.read(system_prompt_file)
   end
-  system ||= ENV['OLLAMA_SYSTEM']
+  system ||= $config.system
 
   if system
     messages << Message.new(role: 'system', content: system)
@@ -191,38 +476,65 @@ else
   end
 end
 
-puts "Type /help to display the chat help."
+puts "\nType /help to display the chat help."
 
 images = []
 loop do
-  prompt = bold { color(172) { message_type(images) + " user" } } + bold { "> " }
-  case content = Reline.readline(prompt, true)&.chomp
+  parse_content = true
+
+  input_prompt = bold { color(172) { message_type(images) + " user" } } + bold { "> " }
+  case content = Reline.readline(input_prompt, true)&.chomp
   when %r(^/paste$)
     puts bold { "Paste your content and then press C-d!" }
     content = STDIN.read
   when %r(^/quit$)
     puts "Goodbye."
     exit 0
+  when %r(^/markdown)
+    markdown = set_markdown(!markdown)
+    next
   when %r(^/list$)
-    list_conversation(messages, opts[?d])
+    list_conversation(messages, markdown)
     next
   when %r(^/clear$)
     messages.clear
     puts "Cleared messages."
     next
-  when %r(^/pop\s+(\d*)$)
+  when %r(^/collection (clear|stats|change|new)$)
+    case $1
+    when 'clear'
+      $documents.clear
+      puts "Cleared collection #{bold{collection}}."
+    when 'stats'
+      collection_stats
+    when 'change'
+      choose_collection(collection)
+    when 'new'
+      print "Enter name of the new collection: "
+      $documents.collection = collection = STDIN.gets.chomp
+      collection_stats
+    end
+    next
+  when %r(^/pop?(?:\s+(\d*))?$)
     n = $1.to_i.clamp(1, Float::INFINITY)
-    messages.pop(n)
-    puts "Popped the last #{n} messages."
+    r =  messages.pop(2 * n)
+    m = r.size
+    puts "Popped the last #{m} exchanges."
+    next
+  when %r(^/model$)
+    model = choose_model('', model)
     next
   when %r(^/regenerate$)
     if content = messages[-2]&.content
-      images = Array(messages[-2]&.images)
+      content.gsub!(/\nConsider these chunks for your answer.*\z/, '')
       messages.pop(2)
     else
       puts "Not enough messages in this conversation."
       redo
     end
+  when %r(^/summarize\s+(.+))
+    parse_content = false
+    content       = summarize($1)
   when %r(^/save\s+(.+)$)
     save_conversation($1, messages)
     puts "Saved conversation to #$1."
@@ -231,28 +543,49 @@ loop do
     messages = load_conversation($1)
     puts "Loaded conversation from #$1."
     next
-  when %r(^/image\s+(.+)$)
-    filename = File.expand_path($1)
-    if File.exist?(filename)
-      (images << Image.for_filename(filename)).uniq!
-      puts "Attached image #$1 to the next message."
-      redo
-    else
-      puts "Filename #$1 doesn't exist. Choose another one."
-      next
-    end
   when %r(^/help$)
     display_chat_help
     next
-  when nil
+  when nil, ''
     puts "Type /quit to quit."
     next
   end
+
+  content, tags = if parse_content
+                    parse_content(content, images.clear)
+                  else
+                    [ content, Utils::Tags.new ]
+                  end
+
+  if $config.embedding.enabled
+    records = $documents.find(
+      content.downcase,
+      tags:,
+      prompt: $config.embedding.model.prompt?
+    )
+    s, found_texts_size = 0, $config.embedding.found_texts_size
+    records = records.take_while {
+      (s += _1.text.size) <= found_texts_size
+    }
+    found_texts = records.map(&:text)
+    unless found_texts.empty?
+      content += "\nConsider these chunks for your answer:\n#{found_texts.join("\n\n---\n\n")}"
+    end
+  end
+
   messages << Message.new(role: 'user', content:, images:)
-  handler = FollowChat.new(messages:, markdown: opts[?d], voice: opts[?v])
-  client.chat(model:, messages:, options:, stream: true, &handler)
-  ENV['DEBUG'].to_i == 1 and jj messages
-  images = []
+  handler = FollowChat.new(messages:, markdown:, voice:)
+  ollama.chat(model:, messages:, options:, stream: true, &handler)
+
+  puts records.map { |record|
+    link = if record.source =~ %r(\Ahttps?://)
+             record.source
+           else
+             'file://%s' % File.expand_path(record.source)
+           end
+    [ link, record.tags.first ]
+  }.uniq.map { |l, t| hyperlink(l, t) }.join(' ')
+  $config.debug and jj messages
 rescue Interrupt
   puts "Type /quit to quit."
 end

@@ -1,6 +1,5 @@
 require 'tins/xt/string_camelize'
 require 'tins/annotate'
-require 'excon'
 
 class Ollama::Client
 end
@@ -30,6 +29,8 @@ class Ollama::Client
   end
 
   attr_accessor :output
+
+  attr_reader :base_url
 
   def ssl_verify_peer?
     !!@ssl_verify_peer
@@ -113,9 +114,13 @@ class Ollama::Client
 
   def headers
     {
-      'User-Agent'   => '%s/%s' % [ self.class, Ollama::VERSION ],
+      'User-Agent'   => self.class.user_agent,
       'Content-Type' => 'application/json; charset=utf-8',
     }
+  end
+
+  def self.user_agent
+    '%s/%s' % [ self.class, Ollama::VERSION ]
   end
 
   def excon(url)

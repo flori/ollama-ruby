@@ -28,7 +28,7 @@ to your Gemfile and run `bundle install` in your terminal.
 
 ## Executables
 
-### ollama_chat
+### ollama\_chat
 
 This a chat client, that can be used to connect to an ollama server and enter a
 chat converstation with a LLM. It can be called with the following arguments:
@@ -36,19 +36,58 @@ chat converstation with a LLM. It can be called with the following arguments:
 ```
 ollama_chat [OPTIONS]
 
-  -u URL     the ollama base url, OLLAMA_URL
-  -m MODEL   the ollama model to chat with, OLLAMA_MODEL
-  -M OPTIONS the model options as JSON file, see Ollama::Options
-  -s SYSTEM  the system prompt to use as a file
-  -c CHAT    a saved chat conversation to load
-  -v VOICE   use VOICE (e. g. Samantha) to speak with say command
-  -d         use markdown to display the chat messages
-  -h         this help
+  -f CONFIG      config file to read
+  -u URL         the ollama base url, OLLAMA_URL
+  -m MODEL       the ollama model to chat with, OLLAMA_CHAT_MODEL
+  -s SYSTEM      the system prompt to use as a file, OLLAMA_CHAT_SYSTEM
+  -c CHAT        a saved chat conversation to load
+  -C COLLECTION  name of the collection used in this conversation
+  -D DOCUMENT    load document and add to collection (multiple)
+  -d             use markdown to display the chat messages
+  -v             use voice output
+  -h             this help
 ```
 
 The base URL can be either set by the environment variable `OLLAMA_URL` or it
 is derived from the environment variable `OLLAMA_HOST`. The default model to
 connect can be configured in the environment variable `OLLAMA_MODEL`.
+
+The YAML config file in `$XDG_CONFIG_HOME/ollama_chat/config.yml`, that you can
+use for more complex settings, it looks like this:
+
+```
+---
+url: <%= ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST') %>
+model:
+  name: <%= ENV.fetch('OLLAMA_CHAT_MODEL', 'llama3.1') %>
+  options:
+    num_ctx: 8192
+system: <%= ENV.fetch('OLLAMA_CHAT_SYSTEM', 'null') %>
+voice: Samantha
+markdown: true
+embedding:
+  enabled: true
+  model:
+    name: mxbai-embed-large
+    options: {}
+  collection: <%= ENV.fetch('OLLAMA_CHAT_COLLECTION', 'ollama_chat') %>
+  found_texts_size: 4096
+  splitter:
+    name: RecursiveCharacter
+    chunk_size: 1024
+cache: Ollama::Documents::RedisCache
+redis:
+  url: <%= ENV.fetch('REDIS_URL', 'null') %>
+debug: <%= ENV['OLLAMA_CHAT_DEBUG'].to_i == 1 ? true : false %>
+```
+
+If you want to store embeddings persistently, set an environment variable
+`REDIS_URL` or update the `redis.url` setting in your `config.yml` file to
+connect to a Redis server. Without this setup, embeddings will only be stored
+in process memory, which is less durable.
+
+Some settings can be passed as arguments as well, e. g. if you want to choose a
+specific system prompt:
 
 ```
 $ ollama_chat -s sherlock.txt
@@ -86,9 +125,7 @@ $ ollama_chat -m llava-llama3
 Model with architecture llama found.
 Connecting to llava-llama3@http://localhost:11434 now…
 Type /help to display the chat help.
-📨 user> /image spec/assets/kitten.jpg
-Attached image spec/assets/kitten.jpg to the next message.
-📸 user> What's on this image?
+📸 user> What's on this image? ./spec/assets/kitten.jpg
 📨 assistant:
 The image captures a moment of tranquility featuring a young cat. The cat,
 adorned with gray and white fur marked by black stripes on its face and legs,
@@ -116,19 +153,22 @@ subject - the young, blue-eyed cat.
 The following commands can be given inside the chat, if prefixed by a `/`:
 
 ```
-/paste          to paste content
-/list           list the messages of the conversation
-/clear          clear the conversation messages
-/pop n          pop the last n message, defaults to 1
-/regenerate     the last answer message
-/save filename  store conversation messages
-/load filename  load conversation messages
-/image filename attach image to the next message
-/quit           to quit.
-/help           to view this help.
+/paste                             to paste content
+/markdown                          toggle markdown output
+/list                              list the messages of the conversation
+/clear                             clear the conversation messages
+/pop [n]                           pop the last n exchanges, defaults to 1
+/model                             change the model
+/regenerate                        the last answer message
+/collection clear|stats|change|new clear or show stats of current collection
+/summarize source                  summarize the URL/file source's content
+/save filename                     store conversation messages
+/load filename                     load conversation messages
+/quit                              to quit
+/help                              to view this help
 ```
 
-### ollama_console
+### ollama\_console
 
 This is an interactive console, that can be used to try the different commands
 provided by an `Ollama::Client` instance. For example this command generate a

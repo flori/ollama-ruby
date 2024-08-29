@@ -30,6 +30,10 @@ class Ollama::Image
     private :new
   end
 
+  def ==(other)
+    @data == other..data
+  end
+
   def to_s
     @data
   end

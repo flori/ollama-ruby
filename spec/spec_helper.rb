@@ -16,3 +16,9 @@ require 'ollama'
 def asset(name)
   File.join(__dir__, 'assets', name)
 end
+
+RSpec.configure do |config|
+  config.before(:suite) do
+    infobar.show = nil
+  end
+end

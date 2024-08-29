@@ -3,6 +3,7 @@
 .bundle
 .yardoc
 Gemfile.lock
+corpus
 coverage
 cscope.out
 errors.lst
