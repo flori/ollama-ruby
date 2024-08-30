@@ -65,4 +65,8 @@ class Ollama::Options
       #{@@types.keys.map { "self.#{_1} = #{_1}" }.join(?\n)}
     end
   }
+
+  def self.[](value)
+    new(**value.to_h)
+  end
 end
