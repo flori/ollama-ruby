@@ -518,7 +518,7 @@ loop do
   when %r(^/pop?(?:\s+(\d*))?$)
     n = $1.to_i.clamp(1, Float::INFINITY)
     r =  messages.pop(2 * n)
-    m = r.size
+    m = r.size / 2
     puts "Popped the last #{m} exchanges."
     next
   when %r(^/model$)
