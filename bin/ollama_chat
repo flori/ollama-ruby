@@ -4,7 +4,7 @@ require 'ollama'
 include Ollama
 require 'term/ansicolor'
 include Term::ANSIColor
-require 'tins/go'
+require 'tins'
 include Tins::GO
 require 'reline'
 require 'reverse_markdown'
@@ -109,7 +109,18 @@ class FollowChat
       end
       @say.call(response)
     end
-    response.done and @output.puts
+    if response.done
+      @output.puts
+      eval_stats = {
+        eval_duration:        Tins::Duration.new(response.eval_duration / 1e9),
+        eval_count:           response.eval_count,
+        prompt_eval_duration: Tins::Duration.new(response.prompt_eval_duration / 1e9),
+        prompt_eval_count:    response.prompt_eval_count,
+        total_duration:       Tins::Duration.new(response.total_duration / 1e9),
+        load_duration:        Tins::Duration.new(response.load_duration / 1e9),
+      }.map { _1 * '=' } * ' '
+      @output.puts '📊 ' + color(111) { Utils::Width.wrap(eval_stats, percentage: 90) }
+    end
     self
   end
 end
@@ -211,7 +222,7 @@ def import_document(source_io, source)
     STDOUT.puts "Embedding disabled, I won't import any documents, try: /summarize"
     return
   end
-  STDOUT.puts "Importing #{source_io.content_type} document #{source.to_s.inspect}."
+  STDOUT.puts "Importing #{italic { source_io.content_type }} document #{source.to_s.inspect}."
   text = parse_source(source_io) or return
   text.downcase!
   splitter_config = $config.embedding.splitter
