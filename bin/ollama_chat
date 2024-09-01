@@ -15,7 +15,7 @@ class OllamaChatConfig
   include ComplexConfig
   include FileUtils
 
-  DEFAULT_CONFIG = <<~end
+  DEFAULT_CONFIG = <<~EOT
     ---
     url: <%= ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST') %>
     model:
@@ -41,7 +41,7 @@ class OllamaChatConfig
     redis:
       url: <%= ENV.fetch('REDIS_URL', 'null') %>
     debug: <%= ENV['OLLAMA_CHAT_DEBUG'].to_i == 1 ? true : false %>
-  end
+  EOT
 
   def initialize(filename = nil)
     @filename = filename || default_path
