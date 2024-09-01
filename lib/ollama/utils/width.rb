@@ -12,7 +12,7 @@ module Ollama::Utils::Width
       raise ArgumentError, "either pass percentage or length argument"
     percentage and length ||= width(percentage:)
     text.gsub(/(?<!\n)\n(?!\n)/, ' ').lines.map do |line|
-      if line.length > length
+      if length >= 1 && line.length > length
         line.gsub(/(.{1,#{length}})(\s+|$)/, "\\1\n").strip
       else
         line.strip
