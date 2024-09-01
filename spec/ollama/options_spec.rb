@@ -13,7 +13,7 @@ RSpec.describe Ollama::Options do
     expect(options).to be_a described_class
   end
 
-  it 'can used to cast hashes' do
+  it 'can be used to cast hashes' do
     expect(described_class[{
       penalize_newline: true,
       num_ctx: 8192,
