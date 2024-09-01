@@ -43,7 +43,6 @@ ollama_chat [OPTIONS]
   -c CHAT        a saved chat conversation to load
   -C COLLECTION  name of the collection used in this conversation
   -D DOCUMENT    load document and add to collection (multiple)
-  -d             use markdown to display the chat messages
   -v             use voice output
   -h             this help
 ```

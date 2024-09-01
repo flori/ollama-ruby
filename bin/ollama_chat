@@ -392,7 +392,6 @@ def usage
       -c CHAT        a saved chat conversation to load
       -C COLLECTION  name of the collection used in this conversation
       -D DOCUMENT    load document and add to collection (multiple)
-      -d             use markdown to display the chat messages
       -v             use voice output
       -h             this help
 
@@ -404,7 +403,7 @@ def ollama
   $ollama
 end
 
-opts = go 'f:u:m:s:c:C:D:dvh'
+opts = go 'f:u:m:s:c:C:D:vh'
 
 config = OllamaChatConfig.new(opts[?f])
 $config = config.config
@@ -467,8 +466,7 @@ end
 if voice = ($config.voice if opts[?v])
   puts "Using voice #{bold{voice}} to speak."
 end
-
-markdown = set_markdown(opts[?d] || $config.markdown)
+markdown = set_markdown($config.markdown)
 
 if opts[?c]
   messages.concat load_conversation(opts[?c])
