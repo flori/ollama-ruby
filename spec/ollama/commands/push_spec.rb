@@ -12,7 +12,7 @@ RSpec.describe Ollama::Commands::Push do
       name: 'llama3.1', stream: true
     )
     expect(push.to_json).to eq(
-      '{"json_class":"Ollama::Commands::Push","name":"llama3.1","stream":true}'
+      '{"name":"llama3.1","stream":true}'
     )
   end
 
@@ -21,7 +21,7 @@ RSpec.describe Ollama::Commands::Push do
     push.client = ollama = double('Ollama::Client')
     expect(ollama).to receive(:request).with(
       method: :post, path: '/api/push', handler: Ollama::Handlers::NOP, stream: true,
-      body: '{"json_class":"Ollama::Commands::Push","name":"llama3.1","stream":true}'
+      body: '{"name":"llama3.1","stream":true}'
     )
     push.perform(Ollama::Handlers::NOP)
   end

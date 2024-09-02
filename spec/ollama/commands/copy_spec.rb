@@ -12,7 +12,7 @@ RSpec.describe Ollama::Commands::Copy do
       source: 'llama3.1', destination: 'camell3', stream: false
     )
     expect(copy.to_json).to eq(
-      '{"json_class":"Ollama::Commands::Copy","source":"llama3.1","destination":"camell3","stream":false}'
+      '{"source":"llama3.1","destination":"camell3","stream":false}'
     )
   end
 
@@ -21,7 +21,7 @@ RSpec.describe Ollama::Commands::Copy do
     copy.client = ollama = double('Ollama::Client')
     expect(ollama).to receive(:request).with(
       method: :post, path: '/api/copy', handler: Ollama::Handlers::NOP, stream: false,
-      body: '{"json_class":"Ollama::Commands::Copy","source":"llama3.1","destination":"camell3","stream":false}'
+      body: '{"source":"llama3.1","destination":"camell3","stream":false}'
     )
     copy.perform(Ollama::Handlers::NOP)
   end

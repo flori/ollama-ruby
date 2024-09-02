@@ -8,8 +8,8 @@ module Ollama::DTO
   module ClassMethods
     attr_accessor :attributes
 
-    def json_create(object)
-      new(**object.transform_keys(&:to_sym))
+    def from_hash(hash)
+      new(**hash.transform_keys(&:to_sym))
     end
 
     def attr_reader(*names)
@@ -27,11 +27,8 @@ module Ollama::DTO
   end
 
   def as_json(*)
-    {
-      json_class: self.class.name
-    }.merge(
-      self.class.attributes.each_with_object({}) { |a, h| h[a] = send(a) }
-    ).reject { _2.nil? || _2.ask_and_send(:size) == 0 }
+    self.class.attributes.each_with_object({}) { |a, h| h[a] = send(a) }.
+      reject { _2.nil? || _2.ask_and_send(:size) == 0 }
   end
 
   alias to_hash as_json

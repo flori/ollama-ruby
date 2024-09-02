@@ -19,7 +19,7 @@ RSpec.describe Ollama::Commands::Embed do
       model: 'all-minilm', input: 'Why is the sky blue?',
     )
     expect(embed.to_json).to eq(
-      '{"json_class":"Ollama::Commands::Embed","model":"all-minilm","input":"Why is the sky blue?","options":{"json_class":"Ollama::Options","num_ctx":666},"stream":false}'
+      '{"model":"all-minilm","input":"Why is the sky blue?","options":{"num_ctx":666},"stream":false}'
     )
   end
 
@@ -32,7 +32,7 @@ RSpec.describe Ollama::Commands::Embed do
       model: 'all-minilm', input: [ 'Why is the sky blue?', 'Why is the grass green?' ],
     )
     expect(embed.to_json).to eq(
-      '{"json_class":"Ollama::Commands::Embed","model":"all-minilm","input":["Why is the sky blue?","Why is the grass green?"],"stream":false}'
+      '{"model":"all-minilm","input":["Why is the sky blue?","Why is the grass green?"],"stream":false}'
     )
   end
 
@@ -46,7 +46,7 @@ RSpec.describe Ollama::Commands::Embed do
     expect(ollama).to receive(:request).
       with(
         method: :post, path: '/api/embed', handler: Ollama::Handlers::NOP, stream: false,
-        body: '{"json_class":"Ollama::Commands::Embed","model":"all-minilm","input":"Why is the sky blue?","stream":false}'
+        body: '{"model":"all-minilm","input":"Why is the sky blue?","stream":false}'
       )
     embed.perform(Ollama::Handlers::NOP)
   end

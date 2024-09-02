@@ -116,7 +116,7 @@ RSpec.describe Ollama::Client do
     it 'can generate without stream' do
       expect(excon).to receive(:send).with(
         :post,
-        body:  '{"json_class":"Ollama::Commands::Generate","model":"llama3.1","prompt":"Hello World"}',
+        body:  '{"model":"llama3.1","prompt":"Hello World"}',
         headers: hash_including(
           'Content-Type' => 'application/json; charset=utf-8',
         )
@@ -127,7 +127,7 @@ RSpec.describe Ollama::Client do
     it 'can generate with stream' do
       expect(excon).to receive(:send).with(
         :post,
-        body:  '{"json_class":"Ollama::Commands::Generate","model":"llama3.1","prompt":"Hello World","stream":true}',
+        body:  '{"model":"llama3.1","prompt":"Hello World","stream":true}',
         headers: hash_including(
           'Content-Type' => 'application/json; charset=utf-8',
         ),

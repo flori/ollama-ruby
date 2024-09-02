@@ -12,7 +12,7 @@ RSpec.describe Ollama::Commands::Delete do
       name: 'llama3.1', stream: false
     )
     expect(delete.to_json).to eq(
-      '{"json_class":"Ollama::Commands::Delete","name":"llama3.1","stream":false}'
+      '{"name":"llama3.1","stream":false}'
     )
   end
 
@@ -21,7 +21,7 @@ RSpec.describe Ollama::Commands::Delete do
     delete.client = ollama = double('Ollama::Client')
     expect(ollama).to receive(:request).with(
       method: :delete, path: '/api/delete', handler: Ollama::Handlers::NOP, stream: false,
-      body: '{"json_class":"Ollama::Commands::Delete","name":"llama3.1","stream":false}'
+      body: '{"name":"llama3.1","stream":false}'
     )
     delete.perform(Ollama::Handlers::NOP)
   end

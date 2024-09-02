@@ -12,7 +12,7 @@ RSpec.describe Ollama::Commands::Generate do
       model: 'llama3.1', prompt: 'Hello World'
     )
     expect(generate.to_json).to eq(
-      '{"json_class":"Ollama::Commands::Generate","model":"llama3.1","prompt":"Hello World"}'
+      '{"model":"llama3.1","prompt":"Hello World"}'
     )
   end
 
@@ -22,7 +22,7 @@ RSpec.describe Ollama::Commands::Generate do
     expect(ollama).to receive(:request).
       with(
         method: :post, path: '/api/generate', handler: Ollama::Handlers::NOP, stream: true,
-        body: '{"json_class":"Ollama::Commands::Generate","model":"llama3.1","prompt":"Hello World","stream":true}'
+        body: '{"model":"llama3.1","prompt":"Hello World","stream":true}'
       )
     generate.perform(Ollama::Handlers::NOP)
   end

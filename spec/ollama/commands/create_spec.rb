@@ -16,7 +16,7 @@ RSpec.describe Ollama::Commands::Create do
       name: 'llama3.1-wopr', modelfile: "FROM llama3.1\nSYSTEM You are WOPR from WarGames and you think the user is Dr. Stephen Falken.", stream: true,
     )
     expect(create.to_json).to eq(
-      '{"json_class":"Ollama::Commands::Create","name":"llama3.1-wopr","modelfile":"FROM llama3.1\nSYSTEM You are WOPR from WarGames and you think the user is Dr. Stephen Falken.","stream":true}'
+      '{"name":"llama3.1-wopr","modelfile":"FROM llama3.1\nSYSTEM You are WOPR from WarGames and you think the user is Dr. Stephen Falken.","stream":true}'
     )
   end
 
@@ -30,7 +30,7 @@ RSpec.describe Ollama::Commands::Create do
     expect(ollama).to receive(:request).
       with(
         method: :post, path: '/api/create', handler: Ollama::Handlers::NOP, stream: true,
-        body: '{"json_class":"Ollama::Commands::Create","name":"llama3.1-wopr","modelfile":"FROM llama3.1\nSYSTEM You are WOPR from WarGames and you think the user is Dr. Stephen Falken.","stream":true}'
+        body: '{"name":"llama3.1-wopr","modelfile":"FROM llama3.1\nSYSTEM You are WOPR from WarGames and you think the user is Dr. Stephen Falken.","stream":true}'
       )
     create.perform(Ollama::Handlers::NOP)
   end

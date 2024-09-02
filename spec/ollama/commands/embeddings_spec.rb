@@ -18,7 +18,7 @@ RSpec.describe Ollama::Commands::Embeddings do
       model: 'mxbai-embed-large', prompt: 'Here are the coordinates of all Soviet military installations: …',
     )
     expect(embeddings.to_json).to eq(
-      '{"json_class":"Ollama::Commands::Embeddings","model":"mxbai-embed-large","prompt":"Here are the coordinates of all Soviet military installations: …","stream":false}'
+      '{"model":"mxbai-embed-large","prompt":"Here are the coordinates of all Soviet military installations: …","stream":false}'
     )
   end
 
@@ -31,7 +31,7 @@ RSpec.describe Ollama::Commands::Embeddings do
     expect(ollama).to receive(:request).
       with(
         method: :post, path: '/api/embeddings', handler: Ollama::Handlers::NOP, stream: false,
-        body: '{"json_class":"Ollama::Commands::Embeddings","model":"mxbai-embed-large","prompt":"Here are the coordinates of all Soviet military installations: …","stream":false}'
+        body: '{"model":"mxbai-embed-large","prompt":"Here are the coordinates of all Soviet military installations: …","stream":false}'
       )
     embeddings.perform(Ollama::Handlers::NOP)
   end

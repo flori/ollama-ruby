@@ -32,7 +32,7 @@ RSpec.describe Ollama::Commands::Chat do
       model: 'llama3.1', messages: messages.map(&:as_json), stream: true,
     )
     expect(chat.to_json).to eq(
-      '{"json_class":"Ollama::Commands::Chat","model":"llama3.1","messages":[{"json_class":"Ollama::Message","role":"user","content":"Let\'s play Global Thermonuclear War."}],"stream":true}'
+      '{"model":"llama3.1","messages":[{"role":"user","content":"Let\'s play Global Thermonuclear War."}],"stream":true}'
     )
   end
 
@@ -45,7 +45,7 @@ RSpec.describe Ollama::Commands::Chat do
     expect(ollama).to receive(:request).
       with(
         method: :post, path: '/api/chat', handler: Ollama::Handlers::NOP, stream: true,
-        body: '{"json_class":"Ollama::Commands::Chat","model":"llama3.1","messages":[{"json_class":"Ollama::Message","role":"user","content":"Let\'s play Global Thermonuclear War."}],"stream":true}'
+        body: '{"model":"llama3.1","messages":[{"role":"user","content":"Let\'s play Global Thermonuclear War."}],"stream":true}'
       )
     chat.perform(Ollama::Handlers::NOP)
   end

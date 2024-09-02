@@ -181,7 +181,7 @@ def load_conversation(filename)
     return
   end
   File.open(filename, 'r') do |output|
-    return JSON(output.read, create_additions: true)
+    return JSON(output.read).map { Ollama::Message.from_hash(_1) }
   end
 end
 
@@ -248,7 +248,7 @@ def import_document(source_io, source)
     STDOUT.puts "Embedding disabled, I won't import any documents, try: /summarize"
     return
   end
-  STDOUT.puts "Importing #{italic { source_io.content_type }} document #{source.to_s.inspect}."
+  infobar.puts "Importing #{italic { source_io.content_type }} document #{source.to_s.inspect}."
   text = parse_source(source_io) or return
   text.downcase!
   splitter_config = $config.embedding.splitter

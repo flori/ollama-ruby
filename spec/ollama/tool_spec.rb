@@ -45,23 +45,18 @@ RSpec.describe Ollama::Tool do
 
   it 'cannot be converted to JSON' do
     expect(tool.as_json).to eq(
-      json_class: described_class.name,
       type: 'function',
       function: {
-        json_class: "Ollama::Tool::Function",
         name: 'get_current_weather',
         description: "Get the current weather for a location",
         parameters: {
-          json_class: "Ollama::Tool::Function::Parameters",
           type: "object",
           properties: {
             location: {
-              json_class: "Ollama::Tool::Function::Parameters::Property",
               type: "string",
               description: "The location to get the weather for, e.g. Berlin, Berlin"
             },
             format: {
-              json_class: "Ollama::Tool::Function::Parameters::Property",
               type: "string",
               description: "The format to return the weather in, e.g. 'celsius' or 'fahrenheit'",
               enum: ["celsius", "fahrenheit"]
@@ -72,7 +67,7 @@ RSpec.describe Ollama::Tool do
       }
     )
     expect(tool.to_json).to eq(
-      %{{"json_class":"Ollama::Tool","type":"function","function":{"json_class":"Ollama::Tool::Function","name":"get_current_weather","description":"Get the current weather for a location","parameters":{"json_class":"Ollama::Tool::Function::Parameters","type":"object","properties":{"location":{"json_class":"Ollama::Tool::Function::Parameters::Property","type":"string","description":"The location to get the weather for, e.g. Berlin, Berlin"},"format":{"json_class":"Ollama::Tool::Function::Parameters::Property","type":"string","description":"The format to return the weather in, e.g. 'celsius' or 'fahrenheit'","enum":["celsius","fahrenheit"]}},"required":["location","format"]}}}}
+      %{{"type":"function","function":{"name":"get_current_weather","description":"Get the current weather for a location","parameters":{"type":"object","properties":{"location":{"type":"string","description":"The location to get the weather for, e.g. Berlin, Berlin"},"format":{"type":"string","description":"The format to return the weather in, e.g. 'celsius' or 'fahrenheit'","enum":["celsius","fahrenheit"]}},"required":["location","format"]}}}}
     )
   end
 end
