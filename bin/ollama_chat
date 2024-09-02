@@ -10,6 +10,8 @@ require 'reline'
 require 'reverse_markdown'
 require 'complex_config'
 require 'fileutils'
+require 'uri'
+require 'nokogiri'
 
 class OllamaChatConfig
   include ComplexConfig
@@ -125,6 +127,30 @@ class FollowChat
   end
 end
 
+def search_web(query, n = 5)
+  query = URI.encode_uri_component(query)
+  url = "https://www.duckduckgo.com/html/?q=#{query}"
+  Ollama::Utils::Fetcher.new.get(url) do |tmp|
+    result = []
+    doc = Nokogiri::HTML(tmp)
+    doc.css('.results_links').each do |link|
+      if n > 0
+        url = link.css('.result__a').first&.[]('href')
+        url.sub!(%r(\A/l/\?uddg=), '')
+        url.sub!(%r(&rut=.*), '')
+        url = URI.decode_uri_component(url)
+        url = URI.parse(url)
+        url.host =~ /duckduckgo\.com/ and next
+        result << url
+        n -= 1
+      else
+        break
+      end
+    end
+    result
+  end
+end
+
 def pull_model_unless_present(model, options, retried = false)
   ollama.show(name: model) { |response|
     puts "Model #{bold{model}} with architecture #{response.model_info['general.architecture']} found."
@@ -212,7 +238,7 @@ def parse_source(source_io)
   when 'plain', 'csv', 'xml'
     source_io.read
   else
-    STDERR.puts "Cannot import #{source_io.content_type} document."
+    STDERR.puts "Cannot import #{source_io&.content_type} document."
     return
   end
 end
@@ -487,12 +513,13 @@ end
 
 puts "\nType /help to display the chat help."
 
-images = []
+images           = []
 loop do
   parse_content = true
-
   input_prompt = bold { color(172) { message_type(images) + " user" } } + bold { "> " }
-  case content = Reline.readline(input_prompt, true)&.chomp
+  content = Reline.readline(input_prompt, true)&.chomp
+
+  case content
   when %r(^/paste$)
     puts bold { "Paste your content and then press C-d!" }
     content = STDIN.read
@@ -543,7 +570,15 @@ loop do
     end
   when %r(^/summarize\s+(.+))
     parse_content = false
-    content       = summarize($1)
+    content       = summarize($1) or next
+  when %r(^/web\s+(.+)$)
+    parse_content = true
+    urls = search_web($1)
+    content = <<~end
+      Answer the the query #{$1.inspect} using these sources:
+
+      #{urls * ?\n}
+    end
   when %r(^/save\s+(.+)$)
     save_conversation($1, messages)
     puts "Saved conversation to #$1."
@@ -566,7 +601,7 @@ loop do
                     [ content, Utils::Tags.new ]
                   end
 
-  if $config.embedding.enabled
+  if $config.embedding.enabled && content
     records = $documents.find(
       content.downcase,
       tags:,
@@ -586,15 +621,17 @@ loop do
   handler = FollowChat.new(messages:, markdown:, voice:)
   ollama.chat(model:, messages:, options:, stream: true, &handler)
 
-  puts records.map { |record|
-    link = if record.source =~ %r(\Ahttps?://)
-             record.source
-           else
-             'file://%s' % File.expand_path(record.source)
-           end
-    [ link, record.tags.first ]
-  }.uniq.map { |l, t| hyperlink(l, t) }.join(' ')
-  $config.debug and jj messages
+  if records
+    puts records.map { |record|
+      link = if record.source =~ %r(\Ahttps?://)
+               record.source
+             else
+               'file://%s' % File.expand_path(record.source)
+             end
+      [ link, record.tags.first ]
+    }.uniq.map { |l, t| hyperlink(l, t) }.join(' ')
+    $config.debug and jj messages
+  end
 rescue Interrupt
   puts "Type /quit to quit."
 end
