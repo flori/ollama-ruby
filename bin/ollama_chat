@@ -12,6 +12,7 @@ require 'complex_config'
 require 'fileutils'
 require 'uri'
 require 'nokogiri'
+require 'rss'
 
 class OllamaChatConfig
   include ComplexConfig
@@ -226,16 +227,69 @@ def list_conversation(messages, markdown)
   end
 end
 
+def reverse_markdown(html)
+  ReverseMarkdown.convert(
+    html,
+    unknown_tags: :bypass,
+    github_flavored: true,
+    tag_border: ''
+  )
+end
+
+def parse_rss(source_io)
+  feed = RSS::Parser.parse(source_io, true, false)
+  title = <<~end
+    # #{feed&.channel&.title}
+
+  end
+  feed.items.inject(title) do |text, item|
+    text << <<~end
+      ## #{item&.title}
+
+      updated on #{item&.pubDate}
+
+      #{reverse_markdown(item&.description)}
+
+    end
+  end
+end
+
+def parse_atom(source_io)
+  feed = RSS::Parser.parse(source_io, true, false)
+  title = <<~end
+    # #{feed.title.content}
+
+  end
+  feed.items.inject(title) do |text, item|
+    text << <<~end
+      ## #{item&.title&.content}
+
+      updated on #{item&.updated&.content}
+
+      #{reverse_markdown(item&.content&.content)}
+
+    end
+  end
+end
+
 def parse_source(source_io)
-  case source_io&.content_type&.sub_type
-  when 'html'
-    ReverseMarkdown.convert(
-      source_io.read,
-      unknown_tags: :bypass,
-      github_flavored: true,
-      tag_border: ''
-    )
-  when 'plain', 'csv', 'xml'
+  case source_io&.content_type
+  when 'text/html'
+    reverse_markdown(source_io.read)
+  when 'text/xml'
+    if source_io.readline =~ %r(^\s*<rss\s)
+      source_io.rewind
+      return parse_rss(source_io)
+    end
+    source_io.rewind
+    source_io.read
+  when %r(\Atext/)
+    source_io.read
+  when 'application/rss+xml'
+    parse_rss(source_io)
+  when 'application/atom+xml'
+    parse_atom(source_io)
+  when 'application/json'
     source_io.read
   else
     STDERR.puts "Cannot import #{source_io&.content_type} document."
