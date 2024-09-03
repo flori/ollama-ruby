@@ -244,7 +244,7 @@ def parse_rss(source_io)
   end
   feed.items.inject(title) do |text, item|
     text << <<~end
-      ## #{item&.title}
+      ## [#{item&.title}](#{item&.link})
 
       updated on #{item&.pubDate}
 
@@ -262,7 +262,7 @@ def parse_atom(source_io)
   end
   feed.items.inject(title) do |text, item|
     text << <<~end
-      ## #{item&.title&.content}
+      ## [#{item&.title&.content}](#{item&.link&.href})
 
       updated on #{item&.updated&.content}
 
