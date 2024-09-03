@@ -87,8 +87,18 @@ class Ollama::Documents
     @cache.size
   end
 
-  def clear
-    @cache.clear
+  def clear(tags: nil)
+    if tags
+      tags = Ollama::Utils::Tags.new(Array(tags)).to_a
+      @cache.each do |key, record|
+        if (tags & record.tags).size >= 1
+          @cache.delete(@cache.unpre(key))
+        end
+      end
+    else
+      @cache.clear
+    end
+    self
   end
 
   def find(string, tags: nil, prompt: nil)
@@ -96,7 +106,7 @@ class Ollama::Documents
     needle_norm = norm(needle)
     records = @cache
     if tags
-      tags = Ollama::Utils::Tags.new(tags)
+      tags = Ollama::Utils::Tags.new(tags).to_a
       records = records.select { |_key, record| (tags & record.tags).size >= 1 }
     end
     records = records.sort_by { |key, record|

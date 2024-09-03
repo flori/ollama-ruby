@@ -445,20 +445,20 @@ end
 
 def display_chat_help
   puts <<~end
-    /paste                             to paste content
-    /markdown                          toggle markdown output
-    /list                              list the messages of the conversation
-    /clear                             clear the conversation messages
-    /pop [n]                           pop the last n exchanges, defaults to 1
-    /model                             change the model
-    /regenerate                        the last answer message
-    /collection clear|stats|change|new clear or show stats of current collection
-    /summarize source                  summarize the URL/file source's content
-    /web [n] query                     query web search & return n or 1 results
-    /save filename                     store conversation messages
-    /load filename                     load conversation messages
-    /quit                              to quit
-    /help                              to view this help
+    /paste                                   to paste content
+    /markdown                                toggle markdown output
+    /list                                    list the messages of the conversation
+    /clear                                   clear the conversation messages
+    /pop [n]                                 pop the last n exchanges, defaults to 1
+    /model                                   change the model
+    /regenerate                              the last answer message
+    /collection clear [tag]|stats|change|new clear or show stats of current collection
+    /summarize source                        summarize the URL/file source's content
+    /web [n] query                           query web search & return n or 1 results
+    /save filename                           store conversation messages
+    /load filename                           load conversation messages
+    /quit                                    to quit
+    /help                                    to view this help
   end
 end
 
@@ -600,11 +600,18 @@ loop do
     messages.clear
     puts "Cleared messages."
     next
-  when %r(^/collection (clear|stats|change|new)$)
-    case $1
+  when %r(^/collection\s+(clear|stats|change|new)(?:\s+(.+))?$)
+    command, arg = $1, $2
+    case command
     when 'clear'
-      $documents.clear
-      puts "Cleared collection #{bold{collection}}."
+      tags = arg.present? ? arg.sub(/\A#*/, '') : nil
+      if tags
+        $documents.clear(tags:)
+        puts "Cleared tag ##{tags} from collection #{bold{collection}}."
+      else
+        $documents.clear
+        puts "Cleared collection #{bold{collection}}."
+      end
     when 'stats'
       collection_stats
     when 'change'

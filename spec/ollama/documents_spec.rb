@@ -103,6 +103,20 @@ RSpec.describe Ollama::Documents do
       }.to change { documents.size }.from(1).to(0)
     end
 
+    it 'can clear texts with tags' do
+      allow(ollama).to receive(:embed).
+        with(model:, input: %w[ bar ], options: nil).
+        and_return(double(embeddings: [ [ 0.1 ] ]))
+      expect(documents.add('foo', tags: %i[ test ])).to eq documents
+      expect(documents.add('bar', tags: %i[ test2 ])).to eq documents
+      expect {
+        documents.clear tags: 'test'
+      }.to change { documents.size }.from(2).to(1)
+      expect {
+        documents.clear tags: :test2
+      }.to change { documents.size }.from(1).to(0)
+    end
+
     it 'returns collections' do
       expect(documents.collections).to eq [ :default ]
     end

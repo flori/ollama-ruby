@@ -74,5 +74,13 @@ RSpec.describe Ollama::Documents::RedisCache do
       expect(redis).to receive(:scan_each).with(match: 'test-*')
       redis_cache.to_a
     end
+
+    it 'can compute prefix with pre' do
+      expect(redis_cache.pre('foo')).to eq 'test-foo'
+    end
+
+    it 'can remove prefix with unpre' do
+      expect(redis_cache.unpre('test-foo')).to eq 'foo'
+    end
   end
 end

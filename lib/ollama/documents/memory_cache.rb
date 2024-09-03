@@ -36,9 +36,11 @@ class Ollama::Documents::MemoryCache
   end
   include Enumerable
 
-  private
-
   def pre(key)
     [ @prefix, key ].join
+  end
+
+  def unpre(key)
+    key.sub(/\A#@prefix/, '')
   end
 end

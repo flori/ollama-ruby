@@ -13,7 +13,10 @@ class Ollama::Documents::RedisCache
   end
 
   def [](key)
-    JSON(redis.get(pre(key)), object_class: Ollama::Documents::Record)
+    value = redis.get(pre(key))
+    unless value.nil?
+      JSON(value, object_class: Ollama::Documents::Record)
+    end
   end
 
   def []=(key, value)
@@ -44,8 +47,6 @@ class Ollama::Documents::RedisCache
     self
   end
   include Enumerable
-
-  private
 
   def pre(key)
     [ @prefix, key ].join
