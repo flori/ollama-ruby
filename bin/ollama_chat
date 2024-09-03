@@ -498,8 +498,17 @@ if opts[?c]
   messages.concat load_conversation(opts[?c])
 else
   system = nil
-  if system_prompt_file = opts[?s]
-    system = File.read(system_prompt_file)
+  if system_prompt = opts[?s]
+    case system_prompt
+    when %r(\A[/.])
+      if File.exist?(system_prompt)
+        system = File.read(system_prompt)
+      else
+        fail "file #{system_prompt.inspect} doesn't exist"
+      end
+    else
+      system = system_prompt
+    end
   end
   system ||= $config.system
 
