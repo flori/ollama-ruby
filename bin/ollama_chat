@@ -237,7 +237,7 @@ def reverse_markdown(html)
 end
 
 def parse_rss(source_io)
-  feed = RSS::Parser.parse(source_io, true, false)
+  feed = RSS::Parser.parse(source_io, false, false)
   title = <<~end
     # #{feed&.channel&.title}
 
@@ -255,7 +255,7 @@ def parse_rss(source_io)
 end
 
 def parse_atom(source_io)
-  feed = RSS::Parser.parse(source_io, true, false)
+  feed = RSS::Parser.parse(source_io, false, false)
   title = <<~end
     # #{feed.title.content}
 
