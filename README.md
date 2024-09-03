@@ -161,6 +161,7 @@ The following commands can be given inside the chat, if prefixed by a `/`:
 /regenerate                        the last answer message
 /collection clear|stats|change|new clear or show stats of current collection
 /summarize source                  summarize the URL/file source's content
+/web [n] query                     query web search & return n or 1 results
 /save filename                     store conversation messages
 /load filename                     load conversation messages
 /quit                              to quit
