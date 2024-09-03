@@ -556,7 +556,10 @@ else
   if system_prompt = opts[?s]
     case system_prompt
     when %r(\A[/.])
-      if File.exist?(system_prompt)
+      if system_prompt.size < 2 ** 15 &&
+          File.basename(system_prompt).size < 2 ** 8 &&
+          File.exist?(system_prompt)
+      then
         system = File.read(system_prompt)
       else
         fail "file #{system_prompt.inspect} doesn't exist"
