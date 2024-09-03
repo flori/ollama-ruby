@@ -5,8 +5,13 @@ include Ollama
 require 'irb'
 require 'irb/history'
 
-base_url = ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
-ollama = Client.new(base_url:)
+def base_url
+  ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
+end
+
+def ollama
+  $ollama ||= Client.new(base_url:)
+end
 IRB.setup nil
 IRB.conf[:MAIN_CONTEXT] = IRB::Irb.new.context
 IRB.conf[:HISTORY_FILE] = File.join(ENV.fetch('HOME'), '.ollama_console-history')
