@@ -13,6 +13,7 @@ require 'fileutils'
 require 'uri'
 require 'nokogiri'
 require 'rss'
+require 'pdf/reader'
 
 class OllamaChatConfig
   include ComplexConfig
@@ -291,6 +292,13 @@ def parse_source(source_io)
     parse_atom(source_io)
   when 'application/json'
     source_io.read
+  when 'application/pdf'
+    reader = PDF::Reader.new(source_io)
+    result = +''
+    reader.pages.each do |page|
+      result << page.text
+    end
+    result
   else
     STDERR.puts "Cannot import #{source_io&.content_type} document."
     return
@@ -381,7 +389,7 @@ def parse_content(content, images)
         case source_io&.content_type&.media_type
         when 'image'
           add_image(images, source_io, source)
-        when 'text'
+        when 'text', 'application'
           import_document(source_io, source)
         else
           STDERR.puts(

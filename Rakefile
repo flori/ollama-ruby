@@ -36,6 +36,7 @@ GemHadar do
   dependency             'complex_config',        '~> 0.20'
   dependency             'search_ui',             '~> 0.0'
   dependency             'amatch',                '~> 0.4.1'
+  dependency             'pdf-reader',            '~> 2.0'
   development_dependency 'all_images',            '~> 0.4'
   development_dependency 'rspec',                 '~> 3.2'
   development_dependency 'utils'

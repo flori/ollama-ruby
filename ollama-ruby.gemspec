@@ -43,4 +43,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<complex_config>.freeze, ["~> 0.20".freeze])
   s.add_runtime_dependency(%q<search_ui>.freeze, ["~> 0.0".freeze])
   s.add_runtime_dependency(%q<amatch>.freeze, ["~> 0.4.1".freeze])
+  s.add_runtime_dependency(%q<pdf-reader>.freeze, ["~> 2.0".freeze])
 end

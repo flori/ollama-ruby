@@ -42,7 +42,7 @@ class Ollama::Documents
   def add(inputs, batch_size: 10, source: nil, tags: [])
     inputs = Array(inputs)
     tags   = Ollama::Utils::Tags.new(tags)
-    source and tags.add File.basename(source)
+    source and tags.add File.basename(source).gsub(/\?.*/, '')
     inputs.map! { |i|
       text = i.respond_to?(:read) ? i.read : i.to_s
       text
