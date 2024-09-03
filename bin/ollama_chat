@@ -571,11 +571,11 @@ loop do
   when %r(^/summarize\s+(.+))
     parse_content = false
     content       = summarize($1) or next
-  when %r(^/web\s+(.+)$)
+  when %r(^/web\s+(?:(\d+)\s+)(.+)$)
     parse_content = true
-    urls = search_web($1)
+    urls = search_web($2, $1.to_i)
     content = <<~end
-      Answer the the query #{$1.inspect} using these sources:
+      Answer the the query #{$2.inspect} using these sources:
 
       #{urls * ?\n}
     end
