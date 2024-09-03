@@ -613,7 +613,8 @@ loop do
     }
     found_texts = records.map(&:text)
     unless found_texts.empty?
-      content += "\nConsider these chunks for your answer:\n#{found_texts.join("\n\n---\n\n")}"
+      content += "\nConsider these chunks for your answer:\n"\
+        "#{found_texts.join("\n\n---\n\n")}"
     end
   end
 
