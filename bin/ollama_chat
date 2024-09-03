@@ -581,7 +581,7 @@ loop do
   when %r(^/summarize\s+(.+))
     parse_content = false
     content       = summarize($1) or next
-  when %r(^/web\s+(?:(\d+)\s+)(.+)$)
+  when %r(^/web\s+(?:(\d+)\s+)?(.+)$)
     parse_content = true
     urls = search_web($2, $1.to_i)
     content = <<~end
