@@ -156,7 +156,8 @@ end
 
 def pull_model_unless_present(model, options, retried = false)
   ollama.show(name: model) { |response|
-    puts "Model #{bold{model}} with architecture #{response.model_info['general.architecture']} found."
+    puts "Model #{bold{model}} with architecture "\
+      "#{response.model_info['general.architecture']} found."
     if system = response.system
       puts "Configured model system prompt is:\n#{italic { system }}"
       return system

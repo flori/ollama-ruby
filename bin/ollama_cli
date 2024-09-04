@@ -1,0 +1,68 @@
+#!/usr/bin/env ruby
+
+require 'ollama'
+include Ollama
+include Ollama::Utils::FileArgument
+require 'tins'
+include Tins::GO
+require 'json'
+
+def usage
+  puts <<~end
+    #{File.basename($0)} [OPTIONS]
+
+      -u URL         the ollama base url, OLLAMA_URL
+      -m MODEL       the ollama model to chat with, OLLAMA_MODEL
+      -M OPTIONS     the ollama model options to use, OLLAMA_MODEL_OPTIONS
+      -s SYSTEM      the system prompt to use as a file, OLLAMA_SYSTEM
+      -p PROMPT      the user prompt to use as a file, OLLAMA_PROMPT
+      -H HANDLER     the handler to use for the response, defaults to Print
+      -S             use streaming for generation
+      -h             this help
+
+  end
+  exit 0
+end
+
+opts = go 'u:m:M:s:p:H:Sh', defaults: { ?H => 'Print', ?M => '{}' }
+
+opts[?h] and usage
+
+base_url = opts[?u] || ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
+model    = opts[?m] || ENV.fetch('OLLAMA_MODEL', 'llama3.1')
+options  = Ollama::Options.from_hash(JSON(
+  get_file_argument(opts[?M], default: ENV['OLLAMA_MODEL_OPTIONS'])
+))
+system   = get_file_argument(opts[?s], default: ENV['OLLAMA_SYSTEM'])
+prompt   = get_file_argument(opts[?p], default: ENV['OLLAMA_PROMPT'])
+
+if prompt.nil?
+  prompt = STDIN.read
+elsif c = prompt.scan('%s').size
+  case c
+  when 0
+  when 1
+    prompt = prompt % STDIN.read
+  else
+    STDERR.puts "Found more than one plaeceholder %s. => Ignoring."
+  end
+end
+
+if ENV['DEBUG'].to_i == 1
+  puts <<~EOT
+    base_url = #{base_url.inspect}
+    model    = #{model.inspect}
+    system   = #{system.inspect}
+    prompt   = #{prompt.inspect}
+    options  = #{options.to_json}
+  EOT
+end
+
+Client.new(base_url:, read_timeout: 120).generate(
+  model:,
+  system:,
+  prompt:,
+  options:,
+  stream: !!opts[?S],
+  &Object.const_get(opts[?H])
+)
