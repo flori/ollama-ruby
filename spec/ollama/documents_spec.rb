@@ -76,6 +76,34 @@ RSpec.describe Ollama::Documents do
     expect(records[0].to_s).to eq '#<Ollama::Documents::Record "foo" #test 1.0>'
   end
 
+  it 'can find strings conditionally' do
+    allow(ollama).to receive(:embed).
+      with(model:, input: [ 'foobar' ], options: nil).
+      and_return(double(embeddings: [ [ 0.01 ] ]))
+    allow(ollama).to receive(:embed).
+      with(model:, input: [ 'foo' ], options: nil).
+      and_return(double(embeddings: [ [ 0.1 ] ]))
+    expect(documents << 'foobar').to eq documents
+    expect(documents << 'foo').to eq documents
+    expect(ollama).to receive(:embed).at_least(:once).
+      with(model:, input: 'foo', options: nil).
+      and_return(double(embeddings: [ [ 0.1 ] ]))
+    records = documents.find_where('foo', text_count: 1)
+    expect(records).to eq [
+      Ollama::Documents::Record[text: 'foo', embedding: [ 0.1 ], similarity: 1.0 ],
+    ]
+    records = documents.find_where('foo', text_size: 3)
+    expect(records).to eq [
+      Ollama::Documents::Record[text: 'foo', embedding: [ 0.1 ], similarity: 1.0 ],
+    ]
+    records = documents.find_where('foo')
+    expect(records).to eq [
+      Ollama::Documents::Record[text: 'foo', embedding: [ 0.1 ], similarity: 1.0 ],
+      Ollama::Documents::Record[text: 'foobar', embedding: [ 0.1 ], similarity: 1.0 ],
+    ]
+  end
+
+
   context 'it uses cache' do
     before do
       allow(ollama).to receive(:embed).

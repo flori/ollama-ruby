@@ -38,6 +38,7 @@ class OllamaChatConfig
         prompt: 'Represent this sentence for searching relevant passages: %s'
       collection: <%= ENV.fetch('OLLAMA_CHAT_COLLECTION', 'ollama_chat') %>
       found_texts_size: 4096
+      found_texts_count: null
       splitter:
         name: RecursiveCharacter
         chunk_size: 1024
@@ -684,15 +685,13 @@ loop do
                   end
 
   if $config.embedding.enabled && content
-    records = $documents.find(
+    records = $documents.find_where(
       content.downcase,
       tags:,
-      prompt: $config.embedding.model.prompt?
+      prompt:     $config.embedding.model.prompt?,
+      text_size:  $config.embedding.found_texts_size?,
+      text_count: $config.embedding.found_texts_count?,
     )
-    s, found_texts_size = 0, $config.embedding.found_texts_size
-    records = records.take_while {
-      (s += _1.text.size) <= found_texts_size
-    }
     found_texts = records.map(&:text)
     unless found_texts.empty?
       content += "\nConsider these chunks for your answer:\n"\

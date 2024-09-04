@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
   s.authors = ["Florian Frank".freeze]
-  s.date = "2024-09-03"
+  s.date = "2024-09-04"
   s.description = "Library that allows interacting with the Ollama API".freeze
   s.email = "flori@ping.de".freeze
   s.executables = ["ollama_console".freeze, "ollama_chat".freeze, "ollama_update".freeze]
@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.licenses = ["MIT".freeze]
   s.rdoc_options = ["--title".freeze, "Ollama-ruby - Interacting with the Ollama API".freeze, "--main".freeze, "README.md".freeze]
   s.required_ruby_version = Gem::Requirement.new("~> 3.1".freeze)
-  s.rubygems_version = "3.5.11".freeze
+  s.rubygems_version = "3.5.16".freeze
   s.summary = "Interacting with the Ollama API".freeze
   s.test_files = ["spec/ollama/client/doc_spec.rb".freeze, "spec/ollama/client_spec.rb".freeze, "spec/ollama/commands/chat_spec.rb".freeze, "spec/ollama/commands/copy_spec.rb".freeze, "spec/ollama/commands/create_spec.rb".freeze, "spec/ollama/commands/delete_spec.rb".freeze, "spec/ollama/commands/embed_spec.rb".freeze, "spec/ollama/commands/embeddings_spec.rb".freeze, "spec/ollama/commands/generate_spec.rb".freeze, "spec/ollama/commands/ps_spec.rb".freeze, "spec/ollama/commands/pull_spec.rb".freeze, "spec/ollama/commands/push_spec.rb".freeze, "spec/ollama/commands/show_spec.rb".freeze, "spec/ollama/commands/tags_spec.rb".freeze, "spec/ollama/documents/memory_cache_spec.rb".freeze, "spec/ollama/documents/redis_cache_spec.rb".freeze, "spec/ollama/documents/splitters/character_spec.rb".freeze, "spec/ollama/documents/splitters/semantic_spec.rb".freeze, "spec/ollama/documents_spec.rb".freeze, "spec/ollama/handlers/collector_spec.rb".freeze, "spec/ollama/handlers/dump_json_spec.rb".freeze, "spec/ollama/handlers/dump_yaml_spec.rb".freeze, "spec/ollama/handlers/markdown_spec.rb".freeze, "spec/ollama/handlers/nop_spec.rb".freeze, "spec/ollama/handlers/print_spec.rb".freeze, "spec/ollama/handlers/progress_spec.rb".freeze, "spec/ollama/handlers/say_spec.rb".freeze, "spec/ollama/handlers/single_spec.rb".freeze, "spec/ollama/image_spec.rb".freeze, "spec/ollama/message_spec.rb".freeze, "spec/ollama/options_spec.rb".freeze, "spec/ollama/tool_spec.rb".freeze, "spec/ollama/utils/ansi_markdown_spec.rb".freeze, "spec/ollama/utils/fetcher_spec.rb".freeze, "spec/ollama/utils/tags_spec.rb".freeze, "spec/spec_helper.rb".freeze]
 

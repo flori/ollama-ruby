@@ -122,6 +122,20 @@ class Ollama::Documents
     records.transpose.last&.reverse.to_a
   end
 
+  def find_where(string, text_size: nil, text_count: nil, **opts)
+    records = find(string, **opts)
+    size, count = 0, 0
+    records.take_while do |record|
+      if text_size and (size += record.text.size) > text_size
+        next false
+      end
+      if text_count and (count += 1) > text_count
+        next false
+      end
+      true
+    end
+  end
+
   def collections
     case @cache
     when MemoryCache
