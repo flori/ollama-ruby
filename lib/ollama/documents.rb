@@ -12,6 +12,7 @@ require 'ollama/documents/splitters/semantic'
 
 class Ollama::Documents
   include Ollama::Utils::Math
+  include Ollama::Utils::Width
 
   class Record < JSON::GenericObject
     def to_s
@@ -51,7 +52,7 @@ class Ollama::Documents
     inputs.empty? and return self
     batches = inputs.each_slice(batch_size).
       with_infobar(
-        label: "Add #{tags}",
+        label: "Add #{truncate(tags.to_s, percentage: 25)}",
         total: inputs.size
       )
     batches.each do |batch|

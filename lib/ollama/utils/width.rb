@@ -19,4 +19,17 @@ module Ollama::Utils::Width
       end
     end * ?\n
   end
+
+  def truncate(text, percentage: nil, length: nil, ellipsis: ?…)
+    percentage.nil? ^ length.nil? or
+      raise ArgumentError, "either pass percentage or length argument"
+    percentage and length ||= width(percentage:)
+    if length < 1
+      +''
+    elsif text.size > length
+      text[0, length - 1] + ?…
+    else
+      text
+    end
+  end
 end
