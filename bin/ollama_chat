@@ -561,35 +561,16 @@ markdown = set_markdown($config.markdown)
 if opts[?c]
   messages.concat load_conversation(opts[?c])
 else
-  system = nil
-  if system_prompt = opts[?s]
-    case system_prompt
-    when %r(\A[/.])
-      if system_prompt.size < 2 ** 15 &&
-          File.basename(system_prompt).size < 2 ** 8 &&
-          File.exist?(system_prompt)
-      then
-        system = File.read(system_prompt)
-      else
-        fail "file #{system_prompt.inspect} doesn't exist"
-      end
-    else
-      system = system_prompt
-    end
-  end
-  system ||= $config.system
-
-  if system
+  if system = Ollama::Utils::FileArgument.
+      get_file_argument(opts[?s], default: $config.system? || model_system)
     messages << Message.new(role: 'system', content: system)
     puts "Configured system prompt is:\n#{italic { system }}"
-  elsif model_system.present?
-    puts "Using model system prompt."
   end
 end
 
 puts "\nType /help to display the chat help."
 
-images           = []
+images = []
 loop do
   parse_content = true
   input_prompt = bold { color(172) { message_type(images) + " user" } } + bold { "> " }

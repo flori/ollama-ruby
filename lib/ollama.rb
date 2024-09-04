@@ -18,6 +18,7 @@ require 'ollama/utils/math'
 require 'ollama/utils/colorize_texts'
 require 'ollama/utils/fetcher'
 require 'ollama/utils/chooser'
+require 'ollama/utils/file_argument'
 
 require 'ollama/version'
 require 'ollama/errors'
