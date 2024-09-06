@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
   s.authors = ["Florian Frank".freeze]
-  s.date = "2024-09-04"
+  s.date = "2024-09-06"
   s.description = "Library that allows interacting with the Ollama API".freeze
   s.email = "flori@ping.de".freeze
   s.executables = ["ollama_console".freeze, "ollama_chat".freeze, "ollama_update".freeze, "ollama_cli".freeze]

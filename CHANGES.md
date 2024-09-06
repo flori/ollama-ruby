@@ -1,5 +1,32 @@
 # Changes
 
+## 2024-09-05 v0.3.0
+
+* **New Features**
+  * Created new file `ollama_cli` with Ollama CLI functionality.
+  * Added executable `ollama_cli` to s.executables in ollama-ruby.gemspec.
+  * Added `find_where` method in `documents.rb` to filter records by text size
+    and count.
+  * Added test for `find_where` method in `documents_spec.rb`.
+  * Features for `ollama_chat`
+      * Added `found_texts_count` option to `OllamaChatConfig`.
+      * Implemented `parse_rss` method for RSS feeds and `parse_atom` method
+        for Atom feeds.
+      * Added links to titles in RSS feed item summaries and Atom feed item
+        summaries.
+      * Updated `parse_source` method to handle different content types,
+        including HTML, XML, and RSS/Atom feeds.
+      * Added `/web [n] query` command to search web and return n or 1 results
+        in chat interface.
+* **Improvements**
+  * Improved validation for system prompts
+  * Extracted file argument handling into a separate module and method
+  * Added default value for config or model system prompt
+  * Improved input validation for `system_prompt` path
+  * Updated collection clearing logic to accept optional tags parameter
+  * Updated `Tags` class to overload `to_a` method for converting to array of
+    strings
+
 ## 2024-09-03 v0.2.0
 
 ### Changes
