@@ -24,7 +24,7 @@ GemHadar do
   required_ruby_version  '~> 3.1'
 
   dependency             'excon',                 '~> 0.111'
-  dependency             'infobar',               '~> 0.7'
+  dependency             'infobar',               '~> 0.8'
   dependency             'term-ansicolor',        '~> 1.11'
   dependency             'kramdown-parser-gfm',   '~> 1.1'
   dependency             'terminal-table',        '~> 3.0'
