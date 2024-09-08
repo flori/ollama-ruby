@@ -26,7 +26,12 @@ class OllamaChatConfig
       name: <%= ENV.fetch('OLLAMA_CHAT_MODEL', 'llama3.1') %>
       options:
         num_ctx: 8192
-    system: <%= ENV.fetch('OLLAMA_CHAT_SYSTEM', 'null') %>
+    prompts:
+      system: <%= ENV.fetch('OLLAMA_CHAT_SYSTEM', 'null') %>
+      summarize: |
+        Generate an abstract summary of the content in this document:
+
+        %s
     voice: Samantha
     markdown: true
     embedding:
@@ -370,11 +375,7 @@ def summarize(source)
     fetch_source(source) do |source_io|
       parse_source(source_io) or return
     end
-  <<~end
-    # Generate an abstract summary of the content in this document:
-
-    #{source_content}
-  end
+  $config.prompts.summarize % source_content
 end
 
 def parse_content(content, images)
@@ -563,7 +564,7 @@ if opts[?c]
   messages.concat load_conversation(opts[?c])
 else
   if system = Ollama::Utils::FileArgument.
-      get_file_argument(opts[?s], default: $config.system? || model_system)
+      get_file_argument(opts[?s], default: $config.prompts.system? || model_system)
     messages << Message.new(role: 'system', content: system)
     puts "Configured system prompt is:\n#{italic { system }}"
   end
@@ -652,7 +653,7 @@ loop do
     messages = load_conversation($1)
     puts "Loaded conversation from #$1."
     next
-  when %r(^/help$)
+  when %r(^/)
     display_chat_help
     next
   when nil, ''
