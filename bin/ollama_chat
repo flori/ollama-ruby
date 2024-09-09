@@ -503,8 +503,7 @@ $config = config.config
 
 opts[?h] and usage
 
-puts "Configuration read from #{config.filename.inspect} is:"
-puts $config.to_tree
+puts "Configuration read from #{config.filename.inspect} is:", $config
 
 base_url = opts[?u] || $config.url
 $ollama      = Client.new(base_url:, debug: $config.debug)

@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.licenses = ["MIT".freeze]
   s.rdoc_options = ["--title".freeze, "Ollama-ruby - Interacting with the Ollama API".freeze, "--main".freeze, "README.md".freeze]
   s.required_ruby_version = Gem::Requirement.new("~> 3.1".freeze)
-  s.rubygems_version = "3.5.18".freeze
+  s.rubygems_version = "3.5.16".freeze
   s.summary = "Interacting with the Ollama API".freeze
   s.test_files = ["spec/ollama/client/doc_spec.rb".freeze, "spec/ollama/client_spec.rb".freeze, "spec/ollama/commands/chat_spec.rb".freeze, "spec/ollama/commands/copy_spec.rb".freeze, "spec/ollama/commands/create_spec.rb".freeze, "spec/ollama/commands/delete_spec.rb".freeze, "spec/ollama/commands/embed_spec.rb".freeze, "spec/ollama/commands/embeddings_spec.rb".freeze, "spec/ollama/commands/generate_spec.rb".freeze, "spec/ollama/commands/ps_spec.rb".freeze, "spec/ollama/commands/pull_spec.rb".freeze, "spec/ollama/commands/push_spec.rb".freeze, "spec/ollama/commands/show_spec.rb".freeze, "spec/ollama/commands/tags_spec.rb".freeze, "spec/ollama/documents/memory_cache_spec.rb".freeze, "spec/ollama/documents/redis_cache_spec.rb".freeze, "spec/ollama/documents/splitters/character_spec.rb".freeze, "spec/ollama/documents/splitters/semantic_spec.rb".freeze, "spec/ollama/documents_spec.rb".freeze, "spec/ollama/handlers/collector_spec.rb".freeze, "spec/ollama/handlers/dump_json_spec.rb".freeze, "spec/ollama/handlers/dump_yaml_spec.rb".freeze, "spec/ollama/handlers/markdown_spec.rb".freeze, "spec/ollama/handlers/nop_spec.rb".freeze, "spec/ollama/handlers/print_spec.rb".freeze, "spec/ollama/handlers/progress_spec.rb".freeze, "spec/ollama/handlers/say_spec.rb".freeze, "spec/ollama/handlers/single_spec.rb".freeze, "spec/ollama/image_spec.rb".freeze, "spec/ollama/message_spec.rb".freeze, "spec/ollama/options_spec.rb".freeze, "spec/ollama/tool_spec.rb".freeze, "spec/ollama/utils/ansi_markdown_spec.rb".freeze, "spec/ollama/utils/fetcher_spec.rb".freeze, "spec/ollama/utils/tags_spec.rb".freeze, "spec/spec_helper.rb".freeze]
 
@@ -40,7 +40,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<sorted_set>.freeze, ["~> 1.0".freeze])
   s.add_runtime_dependency(%q<mime-types>.freeze, ["~> 3.0".freeze])
   s.add_runtime_dependency(%q<reverse_markdown>.freeze, ["~> 2.0".freeze])
-  s.add_runtime_dependency(%q<complex_config>.freeze, ["~> 0.21".freeze])
+  s.add_runtime_dependency(%q<complex_config>.freeze, ["~> 0.21".freeze, ">= 0.21.1".freeze])
   s.add_runtime_dependency(%q<search_ui>.freeze, ["~> 0.0".freeze])
   s.add_runtime_dependency(%q<amatch>.freeze, ["~> 0.4.1".freeze])
   s.add_runtime_dependency(%q<pdf-reader>.freeze, ["~> 2.0".freeze])

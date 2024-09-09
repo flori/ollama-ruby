@@ -34,7 +34,7 @@ GemHadar do
   dependency             'sorted_set',            '~> 1.0'
   dependency             'mime-types',            '~> 3.0'
   dependency             'reverse_markdown',      '~> 2.0'
-  dependency             'complex_config',        '~> 0.21'
+  dependency             'complex_config',        '~> 0.21', '>= 0.21.1'
   dependency             'search_ui',             '~> 0.0'
   dependency             'amatch',                '~> 0.4.1'
   dependency             'pdf-reader',            '~> 2.0'
