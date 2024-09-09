@@ -121,7 +121,10 @@ class FollowChat
     end
     if response.done
       @output.puts
-      @output.puts '📊 ' + color(111) { Utils::Width.wrap(eval_stats(response), percentage: 90) }
+      @output.puts '📊 ' + color(111) {
+        Utils::Width.wrap(eval_stats(response), percentage: 90).
+        gsub(/(?<!\A)^/, '   ')
+      }
     end
     self
   end
