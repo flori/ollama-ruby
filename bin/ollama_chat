@@ -55,7 +55,7 @@ class OllamaChatConfig
 
   def initialize(filename = nil)
     @filename = filename || default_path
-    @config = Provider.config(@filename)
+    @config = Provider.config(@filename, '⚙️')
     retried = false
   rescue ConfigurationFileMissing
     if @filename == default_path && !retried
@@ -504,7 +504,7 @@ $config = config.config
 opts[?h] and usage
 
 puts "Configuration read from #{config.filename.inspect} is:"
-y $config.to_h
+puts $config.to_tree
 
 base_url = opts[?u] || $config.url
 $ollama      = Client.new(base_url:, debug: $config.debug)
