@@ -121,17 +121,24 @@ class FollowChat
     end
     if response.done
       @output.puts
-      eval_stats = {
-        eval_duration:        Tins::Duration.new(response.eval_duration / 1e9),
-        eval_count:           response.eval_count,
-        prompt_eval_duration: Tins::Duration.new(response.prompt_eval_duration / 1e9),
-        prompt_eval_count:    response.prompt_eval_count,
-        total_duration:       Tins::Duration.new(response.total_duration / 1e9),
-        load_duration:        Tins::Duration.new(response.load_duration / 1e9),
-      }.map { _1 * '=' } * ' '
-      @output.puts '📊 ' + color(111) { Utils::Width.wrap(eval_stats, percentage: 90) }
+      @output.puts '📊 ' + color(111) { Utils::Width.wrap(eval_stats(response), percentage: 90) }
     end
     self
+  end
+
+  def eval_stats(response)
+    eval_duration = response.eval_duration / 1e9
+    prompt_eval_duration = response.prompt_eval_duration / 1e9
+    {
+      eval_duration:        Tins::Duration.new(eval_duration),
+      eval_count:           response.eval_count,
+      eval_rate:            "%.2f c/s" % (response.eval_count / eval_duration),
+      prompt_eval_duration: Tins::Duration.new(prompt_eval_duration),
+      prompt_eval_count:    response.prompt_eval_count,
+      prompt_eval_rate:     "%.2f c/s" % (response.prompt_eval_count / prompt_eval_duration),
+      total_duration:       Tins::Duration.new(response.total_duration / 1e9),
+      load_duration:        Tins::Duration.new(response.load_duration / 1e9),
+    }.map { _1 * '=' } * ' '
   end
 end
 
