@@ -1,6 +1,8 @@
 require 'tins/terminal'
 
 module Ollama::Utils::Width
+  include Term::ANSIColor
+
   module_function
 
   def width(percentage: 100.0)
@@ -12,7 +14,7 @@ module Ollama::Utils::Width
       raise ArgumentError, "either pass percentage or length argument"
     percentage and length ||= width(percentage:)
     text.gsub(/(?<!\n)\n(?!\n)/, ' ').lines.map do |line|
-      if length >= 1 && line.length > length
+      if length >= 1 && uncolor { line }.length > length
         line.gsub(/(.{1,#{length}})(\s+|$)/, "\\1\n").strip
       else
         line.strip

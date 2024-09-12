@@ -120,11 +120,7 @@ class FollowChat
       @say.call(response)
     end
     if response.done
-      @output.puts
-      @output.puts '📊 ' + color(111) {
-        Utils::Width.wrap(eval_stats(response), percentage: 90).
-        gsub(/(?<!\A)^/, '   ')
-      }
+      @output.puts "", eval_stats(response)
     end
     self
   end
@@ -132,16 +128,19 @@ class FollowChat
   def eval_stats(response)
     eval_duration = response.eval_duration / 1e9
     prompt_eval_duration = response.prompt_eval_duration / 1e9
-    {
+    stats_text = {
       eval_duration:        Tins::Duration.new(eval_duration),
       eval_count:           response.eval_count,
-      eval_rate:            "%.2f c/s" % (response.eval_count / eval_duration),
+      eval_rate:            bold { "%.2f c/s" % (response.eval_count / eval_duration) } + color(111),
       prompt_eval_duration: Tins::Duration.new(prompt_eval_duration),
       prompt_eval_count:    response.prompt_eval_count,
-      prompt_eval_rate:     "%.2f c/s" % (response.prompt_eval_count / prompt_eval_duration),
+      prompt_eval_rate:     bold { "%.2f c/s" % (response.prompt_eval_count / prompt_eval_duration) } + color(111),
       total_duration:       Tins::Duration.new(response.total_duration / 1e9),
       load_duration:        Tins::Duration.new(response.load_duration / 1e9),
     }.map { _1 * '=' } * ' '
+    '📊 ' + color(111) {
+      Utils::Width.wrap(stats_text, percentage: 90).gsub(/(?<!\A)^/, '   ')
+    }
   end
 end
 
@@ -327,7 +326,7 @@ def import_document(source_io, source)
     STDOUT.puts "Embedding disabled, I won't import any documents, try: /summarize"
     return
   end
-  puts "Importing #{italic { source_io.content_type }} document #{source.to_s.inspect}."
+  puts "Importing #{italic { source_io&.content_type }} document #{source.to_s.inspect}."
   text = parse_source(source_io) or return
   text.downcase!
   splitter_config = $config.embedding.splitter
@@ -355,7 +354,7 @@ def import_document(source_io, source)
 end
 
 def add_image(images, source_io, source)
-  STDERR.puts "Adding #{source_io.content_type} image #{source.to_s.inspect}."
+  STDERR.puts "Adding #{source_io&.content_type} image #{source.to_s.inspect}."
   image = Image.for_io(source_io, path: source.to_s)
   (images << image).uniq!
 end
