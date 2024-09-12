@@ -1,5 +1,44 @@
 # Changes
 
+## 2024-09-12 v0.3.1
+
+* Update dependencies and date in gemspec files:
+  - Updated `complex_config` dependency to '~> 0.22'
+* Refactor FollowChat#eval_stats to add bold eval rates
+  * Improve formatting in eval_stats using bold and color for better
+    readability.
+  * Update import_document and add_image methods to handle nil values
+    correctly.
+  * Update width method in utils/width.rb to use uncolor when checking line
+    length.
+* Refactor eval stats output in FollowChat class
+  - Add indentation to eval stats output for better readability
+* FollowChat evaluation stats refactored
+  - Removed hardcoded eval_stats hash and replaced with method call
+    `eval_stats(response)`
+  - Added new method `eval_stats(response)` to calculate evaluation statistics
+    - Calculates eval duration, prompt eval duration, total duration, and load
+      duration
+    - Adds eval count, prompt eval count, eval rate, and prompt eval rate
+* Use default to_s tree representation of config.
+  * Update complex_config dependency to ~> 0.21, >= 0.21.1 in Rakefile
+  * Update complex_config dependency to ~> 0.21, >= 0.21.1 in
+    ollama-ruby.gemspec
+* Update dependencies and configuration display
+  * Update 'complex_config' dependency to '~> 0.21'
+  * Change OllamaChatConfig to display configuration as a tree instead of yaml
+* Improve /web search command
+  * Update infobar dependency to ~> 0.8
+  * Update /web command to summarize web sources as well as importing them
+    directly
+  * Add /clobber command to clear conversation messages and collection
+* Refactor Ollama chat configuration and summary generation.
+  * Update `OllamaChatConfig` to use `prompts.system` instead of `system`.
+  * Introduce `prompts.summarize` config as template for generating abstract
+    summaries.
+  * Replace hardcoded summary generation with call to `prompts.summarize`.
+  * Display /help for all unknown chat commands starting wit `/`
+
 ## 2024-09-05 v0.3.0
 
 * **New Features**
