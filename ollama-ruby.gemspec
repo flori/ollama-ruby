@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
   s.authors = ["Florian Frank".freeze]
-  s.date = "2024-09-09"
+  s.date = "2024-09-12"
   s.description = "Library that allows interacting with the Ollama API".freeze
   s.email = "flori@ping.de".freeze
   s.executables = ["ollama_console".freeze, "ollama_chat".freeze, "ollama_update".freeze, "ollama_cli".freeze]
@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
 
   s.specification_version = 4
 
-  s.add_development_dependency(%q<gem_hadar>.freeze, ["~> 1.17.0".freeze])
+  s.add_development_dependency(%q<gem_hadar>.freeze, ["~> 1.17.1".freeze])
   s.add_development_dependency(%q<all_images>.freeze, ["~> 0.4".freeze])
   s.add_development_dependency(%q<rspec>.freeze, ["~> 3.2".freeze])
   s.add_development_dependency(%q<utils>.freeze, [">= 0".freeze])
@@ -40,7 +40,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<sorted_set>.freeze, ["~> 1.0".freeze])
   s.add_runtime_dependency(%q<mime-types>.freeze, ["~> 3.0".freeze])
   s.add_runtime_dependency(%q<reverse_markdown>.freeze, ["~> 2.0".freeze])
-  s.add_runtime_dependency(%q<complex_config>.freeze, ["~> 0.21".freeze, ">= 0.21.2".freeze])
+  s.add_runtime_dependency(%q<complex_config>.freeze, ["~> 0.22".freeze])
   s.add_runtime_dependency(%q<search_ui>.freeze, ["~> 0.0".freeze])
   s.add_runtime_dependency(%q<amatch>.freeze, ["~> 0.4.1".freeze])
   s.add_runtime_dependency(%q<pdf-reader>.freeze, ["~> 2.0".freeze])
