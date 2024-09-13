@@ -144,7 +144,9 @@ class FollowChat
   end
 end
 
-def search_web(query, n = 5)
+def search_web(query, n = nil)
+  n = n.to_i
+  n < 1 and n = 1
   query = URI.encode_uri_component(query)
   url = "https://www.duckduckgo.com/html/?q=#{query}"
   Ollama::Utils::Fetcher.new.get(url) do |tmp|
