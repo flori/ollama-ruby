@@ -6,7 +6,7 @@ RSpec.describe Ollama::Utils::Tags do
   end
 
   it 'can contain unique tags and is sorted' do
-    tags = described_class.new([ 'bar', 'foo'])
+    tags = described_class.new(%w[ bar foo ])
     expect(tags.to_a).to eq %w[ bar foo ]
   end
 
@@ -14,11 +14,11 @@ RSpec.describe Ollama::Utils::Tags do
     tags = described_class.new([ 'foo' ])
     tags.add 'bar'
     expect(tags.to_a).to eq %w[ bar foo ]
-    tags.merge [ 'baz', 'baz2' ]
+    tags.merge %w[ baz baz2 ]
     expect(tags.to_a).to eq %w[ bar baz baz2 foo ]
   end
 
   it 'can be output nicely' do
-    expect(described_class.new(%w[foo bar]).to_s).to eq '#bar #foo'
+    expect(described_class.new(%w[ foo bar ]).to_s).to eq '#bar #foo'
   end
 end
