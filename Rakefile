@@ -15,7 +15,7 @@ GemHadar do
   ignore      '.*.sw[pon]', 'pkg', 'Gemfile.lock', '.AppleDouble', '.bundle',
     '.yardoc', 'tags', 'errors.lst', 'cscope.out', 'coverage', 'tmp', 'corpus'
   package_ignore '.all_images.yml', '.tool-versions', '.gitignore', 'VERSION',
-     '.utilsrc', '.rspec', *Dir.glob('.github/**/*', File::FNM_DOTMATCH)
+     '.rspec', *Dir.glob('.github/**/*', File::FNM_DOTMATCH)
   readme      'README.md'
 
   executables << 'ollama_console' << 'ollama_chat' <<
@@ -40,7 +40,6 @@ GemHadar do
   dependency             'pdf-reader',            '~> 2.0'
   development_dependency 'all_images',            '~> 0.4'
   development_dependency 'rspec',                 '~> 3.2'
-  development_dependency 'utils'
   development_dependency 'webmock'
 
   licenses << 'MIT'
