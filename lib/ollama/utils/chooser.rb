@@ -1,8 +1,10 @@
 require 'amatch'
 require 'search_ui'
+require 'term/ansicolor'
 
 module Ollama::Utils::Chooser
   include SearchUI
+  include Term::ANSIColor
 
   module_function
 
@@ -17,7 +19,7 @@ module Ollama::Utils::Chooser
       },
       query: -> _answer, matches, selector {
         matches.each_with_index.map { |m, i|
-          i == selector ? "#{Term::ANSIColor.blue{?⮕}} #{m.on_blue}" : "  #{m}"
+          i == selector ? "#{blue{?⮕}} #{on_blue{m}}" : "  #{m}"
         } * ?\n
       },
       found: -> _answer, matches, selector {
