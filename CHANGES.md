@@ -1,5 +1,25 @@
 # Changes
 
+## 2024-09-15 v0.3.2
+
+* Add color support to chooser module:
+	+ Include `Term::ANSIColor` in `Ollama::Utils::Chooser` module
+    + Use `blue`, `on_blue` ANSI color for selected item in query method
+* Refactor summarize method to also import sources:
+	+ Added `content` variable to store result of `parse_source`
+	+ Replaced `or return` with explicit assignment and return
+	+ Added calls to `source_io.rewind` and `import_document`
+* Add new test for `file_argument_spec.rb`
+* Refactor tag list initialization and merging:
+	+ Use array literals for initializing tags lists
+	+ Use array literals for passing to merge method
+* Update dependencies and dates in Rakefile and gemspec:
+	+ Removed '.utilsrc' from ignored files in Rakefile
+	+ Updated date in `ollama-ruby.gemspec` to "2024-09-13"
+	+ Removed 'utils' development dependency from `ollama-ruby.gemspec`
+* Refactor `search_web` method to allow n parameter to be optional and default
+  to 1.
+
 ## 2024-09-12 v0.3.1
 
 * Update dependencies and date in gemspec files:
