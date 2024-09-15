@@ -384,7 +384,10 @@ def summarize(source)
   puts "Now summarizing #{source.to_s.inspect}."
   source_content =
     fetch_source(source) do |source_io|
-      parse_source(source_io) or return
+      content = parse_source(source_io) or return
+      source_io.rewind
+      import_document(source_io, source)
+      content
     end
   $config.prompts.summarize % source_content
 end
