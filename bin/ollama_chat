@@ -650,6 +650,8 @@ loop do
       puts "Not enough messages in this conversation."
       redo
     end
+    parse_content = false
+    content
   when %r(^/summarize\s+(.+))
     parse_content = false
     content       = summarize($1) or next
@@ -678,9 +680,12 @@ loop do
   when %r(^/)
     display_chat_help
     next
-  when nil, ''
+  when ''
     puts "Type /quit to quit."
     next
+  when nil
+    puts "Goodbye."
+    exit 0
   end
 
   content, tags = if parse_content
