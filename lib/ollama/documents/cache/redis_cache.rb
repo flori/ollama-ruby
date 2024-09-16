@@ -1,12 +1,13 @@
+require 'ollama/documents/cache/common'
 require 'redis'
 
 class Ollama::Documents::RedisCache
+  include Ollama::Documents::Cache::Common
+
   def initialize(prefix:, url: ENV['REDIS_URL'])
     url or raise ArgumentError, 'require redis url'
     @prefix, @url = prefix, url
   end
-
-  attr_writer :prefix
 
   def redis
     @redis ||= Redis.new(url: @url)
@@ -48,11 +49,11 @@ class Ollama::Documents::RedisCache
   end
   include Enumerable
 
-  def pre(key)
-    [ @prefix, key ].join
-  end
-
-  def unpre(key)
-    key.sub(/\A#@prefix/, '')
+  def full_each(&block)
+    redis.scan_each do |key|
+      value = redis.get(key) or next
+      value = JSON(value, object_class: Ollama::Documents::Record)
+      block.(key, value)
+    end
   end
 end

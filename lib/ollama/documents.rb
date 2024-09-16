@@ -3,8 +3,11 @@ require 'digest'
 
 class Ollama::Documents
 end
-require 'ollama/documents/memory_cache'
-require 'ollama/documents/redis_cache'
+class Ollama::Documents::Cache
+end
+require 'ollama/documents/cache/memory_cache'
+require 'ollama/documents/cache/redis_cache'
+require 'ollama/documents/cache/redis_backed_memory_cache'
 module Ollama::Documents::Splitters
 end
 require 'ollama/documents/splitters/character'
@@ -28,15 +31,19 @@ class Ollama::Documents
     alias inspect to_s
   end
 
-  def initialize(ollama:, model:, model_options: nil, collection: :default, cache: MemoryCache, redis_url: nil)
-    @ollama, @model, @model_options, @collection = ollama, model, model_options, collection
+  def initialize(ollama:, model:, model_options: nil, collection: default_collection, cache: MemoryCache, redis_url: nil)
+    @ollama, @model, @model_options, @collection = ollama, model, model_options, collection.to_sym
     @cache, @redis_url = connect_cache(cache), redis_url
+  end
+
+  def default_collection
+    :default
   end
 
   attr_reader :ollama, :model, :collection
 
   def collection=(new_collection)
-    @collection = new_collection
+    @collection   = new_collection.to_sym
     @cache.prefix = prefix
   end
 
@@ -137,15 +144,7 @@ class Ollama::Documents
   end
 
   def collections
-    case @cache
-    when MemoryCache
-      [ @collection ]
-    when RedisCache
-      prefix = '%s-' % self.class
-      Documents::RedisCache.new(prefix:, url: @redis_url).map { _1[/#{prefix}(.*)-/, 1] }.uniq
-    else
-      []
-    end
+    ([ default_collection ] + @cache.collections('%s-' % self.class)).uniq
   end
 
   def tags
@@ -156,7 +155,7 @@ class Ollama::Documents
 
   def connect_cache(cache_class)
     cache = nil
-    if cache_class == RedisCache
+    if cache_class.instance_method(:redis)
       begin
         cache = cache_class.new(prefix:)
         cache.size

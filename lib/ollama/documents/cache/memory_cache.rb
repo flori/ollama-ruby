@@ -1,10 +1,12 @@
+require 'ollama/documents/cache/common'
+
 class Ollama::Documents::MemoryCache
+  include Ollama::Documents::Cache::Common
+
   def initialize(prefix:)
     @prefix = prefix
     @data   = {}
   end
-
-  attr_writer :prefix
 
   def [](key)
     @data[pre(key)]
@@ -23,11 +25,11 @@ class Ollama::Documents::MemoryCache
   end
 
   def size
-    @data.size
+    count
   end
 
   def clear
-    @data.clear
+    @data.delete_if { |key, _| key.start_with?(@prefix) }
     self
   end
 
@@ -36,11 +38,7 @@ class Ollama::Documents::MemoryCache
   end
   include Enumerable
 
-  def pre(key)
-    [ @prefix, key ].join
-  end
-
-  def unpre(key)
-    key.sub(/\A#@prefix/, '')
+  def full_each(&block)
+    @data.each(&block)
   end
 end

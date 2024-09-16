@@ -47,7 +47,7 @@ class OllamaChatConfig
       splitter:
         name: RecursiveCharacter
         chunk_size: 1024
-    cache: Ollama::Documents::RedisCache
+    cache: Ollama::Documents::Cache::RedisBackedMemoryCache
     redis:
       url: <%= ENV.fetch('REDIS_URL', 'null') %>
     debug: <%= ENV['OLLAMA_CHAT_DEBUG'].to_i == 1 ? true : false %>
@@ -433,7 +433,7 @@ ensure
 end
 
 def choose_collection(default_collection)
-  collections = [ default_collection ] + $documents.collections
+  collections = [ default_collection ] + $documents.collections.map(&:to_s)
   collections = collections.uniq.sort
   $documents.collection = collection =
     Ollama::Utils::Chooser.choose(collections) || default_collection

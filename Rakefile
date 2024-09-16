@@ -41,6 +41,8 @@ GemHadar do
   development_dependency 'all_images',            '~> 0.4'
   development_dependency 'rspec',                 '~> 3.2'
   development_dependency 'webmock'
+  development_dependency 'debug'
+  development_dependency 'simplecov'
 
   licenses << 'MIT'
 
