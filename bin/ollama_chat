@@ -584,7 +584,10 @@ else
   if system = Ollama::Utils::FileArgument.
       get_file_argument(opts[?s], default: $config.prompts.system? || model_system)
     messages << Message.new(role: 'system', content: system)
-    puts "Configured system prompt is:\n#{italic { system }}"
+    puts <<~end
+      Configured system prompt is:
+      #{italic{Ollama::Utils::Width.wrap(system, percentage: 90)}}
+    end
   end
 end
 
@@ -709,10 +712,9 @@ loop do
       text_size:  $config.embedding.found_texts_size?,
       text_count: $config.embedding.found_texts_count?,
     )
-    found_texts = records.map(&:text)
-    unless found_texts.empty?
+    unless records.empty?
       content += "\nConsider these chunks for your answer:\n"\
-        "#{found_texts.join("\n\n---\n\n")}"
+        "#{records.map { [ _1.text, _1.tags_set ] * ?\n }.join("\n\n---\n\n")}"
     end
   end
 
@@ -720,8 +722,8 @@ loop do
   handler = FollowChat.new(messages:, markdown:, voice:)
   ollama.chat(model:, messages:, options:, stream: true, &handler)
 
-  if records
-    puts records.map { |record|
+  unless records.empty?
+    puts "", records.map { |record|
       link = if record.source =~ %r(\Ahttps?://)
                record.source
              else

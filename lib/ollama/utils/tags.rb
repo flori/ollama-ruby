@@ -1,5 +1,6 @@
 require 'sorted_set'
 
+
 class Ollama::Utils::Tags < SortedSet
   def to_a
     super.map(&:to_s)

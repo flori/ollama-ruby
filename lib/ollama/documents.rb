@@ -19,9 +19,13 @@ class Ollama::Documents
 
   class Record < JSON::GenericObject
     def to_s
-      my_tags = Ollama::Utils::Tags.new(tags)
+      my_tags = tags_set
       my_tags.empty? or my_tags = " #{my_tags}"
       "#<#{self.class} #{text.inspect}#{my_tags} #{similarity || 'n/a'}>"
+    end
+
+    def tags_set
+      Ollama::Utils::Tags.new(tags)
     end
 
     def ==(other)
