@@ -6,6 +6,7 @@ Gemfile.lock
 corpus
 coverage
 cscope.out
+doc
 errors.lst
 pkg
 tags
