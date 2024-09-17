@@ -468,6 +468,10 @@ def set_markdown(value)
   end
 end
 
+def clear_messages(messages)
+  messages.delete_if { _1.role != 'system' }
+end
+
 def display_chat_help
   puts <<~end
     /paste                                   to paste content
@@ -606,11 +610,11 @@ loop do
     list_conversation(messages, markdown)
     next
   when %r(^/clear$)
-    messages.clear
+    clear_messages(messages)
     puts "Cleared messages."
     next
   when %r(^/clobber$)
-    messages.clear
+    clear_messages(messages)
     $documents.clear
     puts "Cleared messages and collection."
     next
