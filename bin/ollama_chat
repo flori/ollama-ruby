@@ -14,6 +14,7 @@ require 'uri'
 require 'nokogiri'
 require 'rss'
 require 'pdf/reader'
+require 'csv'
 
 class OllamaChatConfig
   include ComplexConfig
@@ -302,6 +303,16 @@ def parse_source(source_io)
     end
     source_io.rewind
     source_io.read
+  when 'text/csv'
+    result = +''
+    CSV.table(File.new(source_io), col_sep: ?,).each do |row|
+      next if row.fields.select(&:present?).size == 0
+      result << row.map { |pair|
+        pair.compact.map { _1.to_s.strip } * ': ' if pair.last.present?
+      }.select(&:present?).map { _1.prepend('  ') } * ?\n
+      result << "\n\n"
+    end
+    result
   when %r(\Atext/)
     source_io.read
   when 'application/rss+xml'
@@ -720,7 +731,7 @@ loop do
       text_count: $config.embedding.found_texts_count?,
     )
     unless records.empty?
-      content += "\nConsider these chunks for your answer:\n"\
+      content += "\nConsider these chunks for your answer:\n\n"\
         "#{records.map { [ _1.text, _1.tags_set ] * ?\n }.join("\n\n---\n\n")}"
     end
   end
