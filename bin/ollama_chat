@@ -324,10 +324,7 @@ def parse_source(source_io)
 end
 
 def import_document(source_io, source)
-  unless $config.embedding.enabled
-    STDOUT.puts "Embedding disabled, I won't import any documents, try: /summarize"
-    return
-  end
+  embedding_enabled? or return parse_source(source_io)
   puts "Importing #{italic { source_io&.content_type }} document #{source.to_s.inspect}."
   text = parse_source(source_io) or return
   text.downcase!
@@ -451,8 +448,8 @@ def collection_stats
   end
 end
 
-def configure_cache(opts)
-  if opts[?M]
+def configure_cache
+  if $opts[?M]
     Ollama::Documents::MemoryCache
   else
     Object.const_get($config.cache)
@@ -474,6 +471,10 @@ end
 
 def clear_messages(messages)
   messages.delete_if { _1.role != 'system' }
+end
+
+def embedding_enabled?
+  $config.embedding.enabled && !$opts[?E]
 end
 
 def display_chat_help
@@ -506,8 +507,9 @@ def usage
       -s SYSTEM      the system prompt to use as a file, OLLAMA_CHAT_SYSTEM
       -c CHAT        a saved chat conversation to load
       -C COLLECTION  name of the collection used in this conversation
-      -D DOCUMENT    load document and add to collection (multiple)
+      -D DOCUMENT    load document and add to embeddings collection (multiple)
       -M             use (empty) MemoryCache for this chat session
+      -E             disable embeddings for this chat session
       -v             use voice output
       -h             this help
 
@@ -519,38 +521,38 @@ def ollama
   $ollama
 end
 
-opts = go 'f:u:m:s:c:C:D:Mvh'
+$opts = go 'f:u:m:s:c:C:D:MEvh'
 
-config = OllamaChatConfig.new(opts[?f])
+config = OllamaChatConfig.new($opts[?f])
 $config = config.config
 
-opts[?h] and usage
+$opts[?h] and usage
 
 puts "Configuration read from #{config.filename.inspect} is:", $config
 
-base_url = opts[?u] || $config.url
+base_url = $opts[?u] || $config.url
 $ollama      = Client.new(base_url:, debug: $config.debug)
 
-model        = choose_model(opts[?m], $config.model.name)
+model        = choose_model($opts[?m], $config.model.name)
 options      = Options[$config.model.options]
 model_system = pull_model_unless_present(model, options)
 messages     = []
 
-if $config.embedding.enabled
+if embedding_enabled?
   embedding_model         = $config.embedding.model.name
   embedding_model_options = Options[$config.embedding.model.options]
   pull_model_unless_present(embedding_model, embedding_model_options)
-  collection = opts[?C] || $config.embedding.collection
+  collection = $opts[?C] || $config.embedding.collection
   $documents = Documents.new(
     ollama:,
     model:         $config.embedding.model.name,
     model_options: $config.embedding.model.options,
     collection:,
-    cache:         configure_cache(opts),
+    cache:         configure_cache,
     redis_url:     $config.redis.url?,
   )
 
-  document_list = opts[?D].to_a
+  document_list = $opts[?D].to_a
   if document_list.any?(&:empty?)
     puts "Clearing collection #{bold{collection}}."
     $documents.clear
@@ -578,16 +580,16 @@ else
   $documents = Documents.new(ollama:, model:)
 end
 
-if voice = ($config.voice if opts[?v])
+if voice = ($config.voice if $opts[?v])
   puts "Using voice #{bold{voice}} to speak."
 end
 markdown = set_markdown($config.markdown)
 
-if opts[?c]
-  messages.concat load_conversation(opts[?c])
+if $opts[?c]
+  messages.concat load_conversation($opts[?c])
 else
   if system = Ollama::Utils::FileArgument.
-      get_file_argument(opts[?s], default: $config.prompts.system? || model_system)
+      get_file_argument($opts[?s], default: $config.prompts.system? || model_system)
     messages << Message.new(role: 'system', content: system)
     puts <<~end
       Configured system prompt is:
@@ -709,7 +711,7 @@ loop do
                     [ content, Utils::Tags.new ]
                   end
 
-  if $config.embedding.enabled && content
+  if embedding_enabled? && content
     records = $documents.find_where(
       content.downcase,
       tags:,
@@ -727,7 +729,7 @@ loop do
   handler = FollowChat.new(messages:, markdown:, voice:)
   ollama.chat(model:, messages:, options:, stream: true, &handler)
 
-  unless records.empty?
+  if embedding_enabled? && !records.empty?
     puts "", records.map { |record|
       link = if record.source =~ %r(\Ahttps?://)
                record.source
