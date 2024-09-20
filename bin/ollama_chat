@@ -130,11 +130,11 @@ class FollowChat
     prompt_eval_duration = response.prompt_eval_duration / 1e9
     stats_text = {
       eval_duration:        Tins::Duration.new(eval_duration),
-      eval_count:           response.eval_count,
-      eval_rate:            bold { "%.2f c/s" % (response.eval_count / eval_duration) } + color(111),
+      eval_count:           response.eval_count.to_i,
+      eval_rate:            bold { "%.2f c/s" % (response.eval_count.to_i / eval_duration) } + color(111),
       prompt_eval_duration: Tins::Duration.new(prompt_eval_duration),
-      prompt_eval_count:    response.prompt_eval_count,
-      prompt_eval_rate:     bold { "%.2f c/s" % (response.prompt_eval_count / prompt_eval_duration) } + color(111),
+      prompt_eval_count:    response.prompt_eval_count.to_i,
+      prompt_eval_rate:     bold { "%.2f c/s" % (response.prompt_eval_count.to_i / prompt_eval_duration) } + color(111),
       total_duration:       Tins::Duration.new(response.total_duration / 1e9),
       load_duration:        Tins::Duration.new(response.load_duration / 1e9),
     }.map { _1 * '=' } * ' '
