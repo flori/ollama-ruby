@@ -150,7 +150,7 @@ def search_web(query, n = nil)
   n < 1 and n = 1
   query = URI.encode_uri_component(query)
   url = "https://www.duckduckgo.com/html/?q=#{query}"
-  Ollama::Utils::Fetcher.new.get(url) do |tmp|
+  Ollama::Utils::Fetcher.new(debug: $config.debug).get(url) do |tmp|
     result = []
     doc = Nokogiri::HTML(tmp)
     doc.css('.results_links').each do |link|
@@ -323,11 +323,7 @@ def parse_source(source_io)
     source_io.read
   when 'application/pdf'
     reader = PDF::Reader.new(source_io)
-    result = +''
-    reader.pages.each do |page|
-      result << page.text
-    end
-    result
+    reader.pages.inject(+'') { |result, page| result << page.text }
   else
     STDERR.puts "Cannot import #{source_io&.content_type} document."
     return
@@ -372,7 +368,7 @@ end
 def fetch_source(source, &block)
   case source
   when %r(\Ahttps?://\S+)
-    Utils::Fetcher.get(source) do |tmp|
+    Utils::Fetcher.get(source, debug: $config.debug) do |tmp|
       block.(tmp)
     end
   when %r(\Afile://(?:(?:[.-]|[[:alnum:]])*)(/\S*)|([~.]?/\S*))
@@ -392,7 +388,8 @@ def summarize(source)
   puts "Now summarizing #{source.to_s.inspect}."
   source_content =
     fetch_source(source) do |source_io|
-      content = parse_source(source_io) or return
+      content = parse_source(source_io)
+      content.present? or return
       source_io.rewind
       import_document(source_io, source)
       content

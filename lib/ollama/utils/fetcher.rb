@@ -2,6 +2,7 @@ require 'tempfile'
 require 'tins/unit'
 require 'infobar'
 require 'mime-types'
+require 'stringio'
 
 class Ollama::Utils::Fetcher
   module ContentType
@@ -10,13 +11,14 @@ class Ollama::Utils::Fetcher
 
   class RetryWithoutStreaming < StandardError; end
 
-  def initialize
+  def initialize(debug: false)
+    @debug     = debug
     @started   = false
     @streaming = true
   end
 
-  def self.get(url, &block)
-    new.get(url, &block)
+  def self.get(url, **options, &block)
+    new(**options).get(url, &block)
   end
 
   def get(url, &block)
@@ -46,11 +48,11 @@ class Ollama::Utils::Fetcher
     @streaming = false
     retry
   rescue => e
-    STDERR.puts "Cannot get #{url.to_s.inspect} (#{e}): #{response&.status_line}"
-    unless e.is_a?(RuntimeError)
+    STDERR.puts "Cannot get #{url.to_s.inspect} (#{e}): #{response&.status_line || 'n/a'}"
+    if @debug && !e.is_a?(RuntimeError)
       STDERR.puts "#{e.backtrace * ?\n}"
     end
-    yield nil
+    yield StringIO.new.extend(ContentType)
   end
 
   def headers

@@ -56,7 +56,8 @@ RSpec.describe Ollama::Utils::Fetcher do
       with(headers: fetcher.headers).
       to_return(status: 500)
     fetcher.get(url) do |tmp|
-      expect(tmp).to be_nil
+      expect(tmp).to be_a StringIO
+      expect(tmp.read).to eq ''
     end
   end
 
