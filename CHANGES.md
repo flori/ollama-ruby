@@ -1,5 +1,33 @@
 # Changes
 
+## 2024-09-21 v0.4.0
+
+### Change Log for **1.2.3**
+
+#### New Features
+
+* Added `-E` option to disable embeddings for this chat session.
+* Added `-M` option to load document embeddings into (empty) MemoryCache for this chat session.
+* Added CSV parsing support to `ollama_chat`.
+* Improved error handling in `Ollama::Utils::Fetcher` methods.
+
+#### Bug Fixes
+
+* Handle case in `ollama_chat` where responses don't provide counts, display 0
+  rates instead.
+
+#### Refactoring and Improvements
+
+* Updated eval count and rate display in FollowChat class.
+* Refactor system prompt display and chunk listing in chat output.
+* Refactor cache implementation to use Ollama::Documents::Cache::Common module.
+* Improved system prompt formatting in `ollama_chat` script.
+* Renamed `tags` method to `tags_set` in `Ollama::Documents::Record` class.
+
+#### Documentation
+
+* Added comments to ColorizeTexts utility class.
+
 ## 2024-09-15 v0.3.2
 
 * Add color support to chooser module:
