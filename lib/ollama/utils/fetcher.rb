@@ -11,14 +11,19 @@ class Ollama::Utils::Fetcher
 
   class RetryWithoutStreaming < StandardError; end
 
-  def initialize(debug: false)
-    @debug     = debug
-    @started   = false
-    @streaming = true
+  def initialize(debug: false, http_options: {})
+    @debug        = debug
+    @started      = false
+    @streaming    = true
+    @http_options = http_options
   end
 
   def self.get(url, **options, &block)
     new(**options).get(url, &block)
+  end
+
+  def excon(url, **options)
+    Excon.new(url, options.merge(@http_options))
   end
 
   def get(url, &block)
@@ -26,13 +31,13 @@ class Ollama::Utils::Fetcher
     Tempfile.open do |tmp|
       infobar.label = 'Getting'
       if @streaming
-        response = Excon.get(url, headers:, response_block: callback(tmp))
+        response = excon(url, headers:, response_block: callback(tmp)).request(method: :get)
         response.status != 200 || !@started and raise RetryWithoutStreaming
         decorate_io(tmp, response)
         infobar.finish
         block.(tmp)
       else
-        response = Excon.get(url, headers:, middlewares:)
+        response = excon(url, headers:, middlewares:).request(method: :get)
         if response.status != 200
           raise "invalid response status code"
         end

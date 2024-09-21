@@ -33,6 +33,28 @@ RSpec.describe Ollama::Utils::Fetcher do
     end
   end
 
+  it 'can #get without ssl peer verification' do
+    fetcher = described_class.new(
+      http_options: { ssl_verify_peer: false }
+    )
+    stub_request(:get, 'https://www.example.com/hello').
+      with(headers: fetcher.headers).
+      to_return(
+        status: 200,
+        body: 'world',
+        headers: { 'Content-Type' => 'text/plain' },
+      )
+    expect(Excon).to receive(:new).with(
+      'https://www.example.com/hello',
+      hash_including(ssl_verify_peer: false)
+    ).and_call_original
+    fetcher.get(url) do |tmp|
+      expect(tmp).to be_a Tempfile
+      expect(tmp.read).to eq 'world'
+      expect(tmp.content_type).to eq 'text/plain'
+    end
+  end
+
   it 'can #get and fallback from streaming' do
     stub_request(:get, 'https://www.example.com/hello').
       with(headers: fetcher.headers).

@@ -52,6 +52,7 @@ class OllamaChatConfig
     redis:
       url: <%= ENV.fetch('REDIS_URL', 'null') %>
     debug: <%= ENV['OLLAMA_CHAT_DEBUG'].to_i == 1 ? true : false %>
+    ssl_no_verify: []
   EOT
 
   def initialize(filename = nil)
@@ -365,10 +366,19 @@ def add_image(images, source_io, source)
   (images << image).uniq!
 end
 
+def http_options(url)
+  if ssl_no_verify = $config.ssl_no_verify?
+    hostname = URI.parse(url).hostname
+    {
+      ssl_verify_peer: !ssl_no_verify.include?(hostname)
+    }
+  end.to_h
+end
+
 def fetch_source(source, &block)
   case source
   when %r(\Ahttps?://\S+)
-    Utils::Fetcher.get(source, debug: $config.debug) do |tmp|
+    Utils::Fetcher.get(source, debug: $config.debug, http_options: http_options(source)) do |tmp|
       block.(tmp)
     end
   when %r(\Afile://(?:(?:[.-]|[[:alnum:]])*)(/\S*)|([~.]?/\S*))
