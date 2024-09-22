@@ -12,7 +12,7 @@ module Ollama::Documents::Splitters
     def split(text, batch_size: 100, breakpoint: :percentile, **opts)
       sentences  = Ollama::Documents::Splitters::Character.new(
         separator: @separator,
-        include_separator: true,
+        include_separator: opts.fetch(:include_separator, true),
         chunk_size: 1,
       ).split(text)
       embeddings = sentences.with_infobar(label: 'Split').each_slice(batch_size).inject([]) do |e, batch|
