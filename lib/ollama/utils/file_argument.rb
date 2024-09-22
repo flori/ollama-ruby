@@ -23,12 +23,10 @@ module Ollama::Utils::FileArgument
     if path_or_content.present? && path_or_content.size < 2 ** 15 &&
         File.basename(path_or_content).size < 2 ** 8 &&
         File.exist?(path_or_content)
-      then
+    then
       File.read(path_or_content)
-    elsif path_or_content.present?
-      path_or_content
     else
-      default
+      path_or_content.full? || default
     end
   end
 end
