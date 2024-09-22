@@ -80,6 +80,7 @@ RSpec.describe Ollama::Utils::Fetcher do
     fetcher.get(url) do |tmp|
       expect(tmp).to be_a StringIO
       expect(tmp.read).to eq ''
+      expect(tmp.content_type).to eq 'text/plain'
     end
   end
 
@@ -92,6 +93,23 @@ RSpec.describe Ollama::Utils::Fetcher do
       expect(file).to be_a File
       expect(file.read).to include 'can .read'
       expect(file.content_type).to eq 'application/x-ruby'
+    end
+  end
+
+  it 'can .execute' do
+    described_class.execute('echo -n hello world') do |file|
+      expect(file).to be_a Tempfile
+      expect(file.read).to eq 'hello world'
+      expect(file.content_type).to eq 'text/plain'
+    end
+  end
+
+  it 'can .execute and fail' do
+    allow(IO).to receive(:popen).and_raise StandardError
+    described_class.execute('false') do |file|
+      expect(file).to be_a StringIO
+      expect(file.read).to be_empty
+      expect(file.content_type).to eq 'text/plain'
     end
   end
 end

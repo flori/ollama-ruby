@@ -7,6 +7,12 @@ require 'stringio'
 class Ollama::Utils::Fetcher
   module ContentType
     attr_accessor :content_type
+
+    def self.failed
+      object = StringIO.new.extend(self)
+      object.content_type = MIME::Types['text/plain'].first
+      object
+    end
   end
 
   class RetryWithoutStreaming < StandardError; end
@@ -57,7 +63,7 @@ class Ollama::Utils::Fetcher
     if @debug && !e.is_a?(RuntimeError)
       STDERR.puts "#{e.backtrace * ?\n}"
     end
-    yield StringIO.new.extend(ContentType)
+    yield ContentType.failed
   end
 
   def headers
@@ -108,5 +114,25 @@ class Ollama::Utils::Fetcher
         block.(file)
       end
     end
+  end
+
+  def self.execute(command, &block)
+    Tempfile.open do |tmp|
+      IO.popen(command) do |command|
+        until command.eof?
+          tmp.write command.read(4096)
+        end
+        tmp.rewind
+        tmp.extend(Ollama::Utils::Fetcher::ContentType)
+        tmp.content_type = MIME::Types['text/plain'].first
+        block.(tmp)
+      end
+    end
+  rescue => e
+    STDERR.puts "Cannot execute #{command.inspect} (#{e})"
+    if @debug && !e.is_a?(RuntimeError)
+      STDERR.puts "#{e.backtrace * ?\n}"
+    end
+    yield ContentType.failed
   end
 end
