@@ -35,6 +35,17 @@ RSpec.describe Ollama::Documents::RedisBackedMemoryCache do
       expect(cache).to be_a described_class
     end
 
+    it 'defaults to nil object_class' do
+      cache = described_class.new prefix: 'test-', url: 'something'
+      expect(cache.object_class).to be_nil
+    end
+
+    it 'can be configured with object_class' do
+      object_class = Class.new(JSON::GenericObject)
+      cache = described_class.new(prefix: 'test-', url: 'something', object_class:)
+      expect(cache.object_class).to eq object_class
+    end
+
     it 'has Redis client' do
       expect(cache.redis).to eq redis
     end

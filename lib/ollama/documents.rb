@@ -164,7 +164,7 @@ class Ollama::Documents
     cache = nil
     if cache_class.instance_method(:redis)
       begin
-        cache = cache_class.new(prefix:, url: @redis_url)
+        cache = cache_class.new(prefix:, url: @redis_url, object_class: Record)
         cache.size
       rescue Redis::CannotConnectError
         STDERR.puts(
