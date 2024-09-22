@@ -35,16 +35,19 @@ class Ollama::Documents
     alias inspect to_s
   end
 
-  def initialize(ollama:, model:, model_options: nil, collection: default_collection, cache: MemoryCache, redis_url: nil)
-    @ollama, @model, @model_options, @collection = ollama, model, model_options, collection.to_sym
-    @cache, @redis_url = connect_cache(cache), redis_url
+  def initialize(ollama:, model:, model_options: nil, collection: nil, cache: MemoryCache, redis_url: nil)
+    collection ||= default_collection
+    @ollama, @model, @model_options, @collection =
+      ollama, model, model_options, collection.to_sym
+    @redis_url = redis_url
+    @cache = connect_cache(cache)
   end
 
   def default_collection
     :default
   end
 
-  attr_reader :ollama, :model, :collection
+  attr_reader :ollama, :model, :collection, :cache
 
   def collection=(new_collection)
     @collection   = new_collection.to_sym
@@ -161,7 +164,7 @@ class Ollama::Documents
     cache = nil
     if cache_class.instance_method(:redis)
       begin
-        cache = cache_class.new(prefix:)
+        cache = cache_class.new(prefix:, url: @redis_url)
         cache.size
       rescue Redis::CannotConnectError
         STDERR.puts(
