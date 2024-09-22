@@ -335,26 +335,32 @@ def embed_source(source_io, source)
   text = parse_source(source_io) or return
   text.downcase!
   splitter_config = $config.embedding.splitter
-  inputs = case splitter_config.name
-           when 'Character'
-             Ollama::Documents::Splitters::Character.new(
-               chunk_size: splitter_config.chunk_size,
-             ).split(text)
-           when 'RecursiveCharacter'
-             Ollama::Documents::Splitters::RecursiveCharacter.new(
-               chunk_size: splitter_config.chunk_size,
-             ).split(text)
-           when 'Semantic'
-             Ollama::Documents::Splitters::Semantic.new(
-               ollama:, model: $config.embedding.model.name,
-               chunk_size: splitter_config.chunk_size,
-             ).split(
-               text,
-               breakpoint: splitter_config.breakpoint.to_sym,
-               percentage: splitter_config.percentage?,
-               percentile: splitter_config.percentile?,
-             )
-           end
+  inputs = nil
+  case splitter_config.name
+  when 'Character'
+    splitter = Ollama::Documents::Splitters::Character.new(
+      chunk_size: splitter_config.chunk_size,
+    )
+    inputs = splitter.split(text)
+  when 'RecursiveCharacter'
+    splitter = Ollama::Documents::Splitters::RecursiveCharacter.new(
+      chunk_size: splitter_config.chunk_size,
+    )
+    inputs = splitter.split(text)
+  when 'Semantic'
+    splitter = Ollama::Documents::Splitters::Semantic.new(
+      ollama:, model: $config.embedding.model.name,
+      chunk_size: splitter_config.chunk_size,
+    )
+    inputs = splitter.split(
+      text,
+      breakpoint: splitter_config.breakpoint.to_sym,
+      percentage: splitter_config.percentage?,
+      percentile: splitter_config.percentile?,
+    )
+    inputs = splitter.split(text)
+  end
+  inputs or return
   source = source.to_s
   if source.start_with?(?!)
     source = Ollama::Utils::Width.truncate(
@@ -679,17 +685,6 @@ if embedding_enabled?
 else
   $documents = Tins::NULL
 end
-
-$cache = begin
-           Ollama::Documents::Cache::RedisCache.new(
-             prefix: 'fetcher',
-             url:    $config.redis.expiring.url,
-             ex:     86_400,
-           )
-         rescue => e
-           warn "Caught #{e.class}: #{e} => Disable caching"
-           Tins::NULL
-         end
 
 if $opts[?c]
   messages.concat load_conversation($opts[?c])
