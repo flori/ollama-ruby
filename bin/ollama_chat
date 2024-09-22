@@ -5,6 +5,7 @@ include Ollama
 require 'term/ansicolor'
 include Term::ANSIColor
 require 'tins'
+require 'tins/xt/full'
 include Tins::GO
 require 'reline'
 require 'reverse_markdown'
@@ -29,10 +30,12 @@ class OllamaChatConfig
         num_ctx: 8192
     prompts:
       system: <%= ENV.fetch('OLLAMA_CHAT_SYSTEM', 'null') %>
+      embed: "This source was now embedded: %{source}"
       summarize: |
-        Generate an abstract summary of the content in this document:
+        Generate an abstract summary of the content in this document using
+        %{words} words:
 
-        %s
+        %{source_content}
     voice: Samantha
     markdown: true
     embedding:
@@ -42,7 +45,7 @@ class OllamaChatConfig
         options: {}
         # Retrieval prompt template:
         prompt: 'Represent this sentence for searching relevant passages: %s'
-      collection: <%= ENV.fetch('OLLAMA_CHAT_COLLECTION', 'ollama_chat') %>
+      collection: <%= ENV['OLLAMA_CHAT_COLLECTION'] %>
       found_texts_size: 4096
       found_texts_count: null
       splitter:
@@ -50,7 +53,10 @@ class OllamaChatConfig
         chunk_size: 1024
     cache: Ollama::Documents::Cache::RedisBackedMemoryCache
     redis:
-      url: <%= ENV.fetch('REDIS_URL', 'null') %>
+      documents:
+        url: <%= ENV.fetch('REDIS_URL', 'null') %>
+      expiring:
+        url: <%= ENV.fetch('REDIS_EXPIRING_URL', 'null') %>
     debug: <%= ENV['OLLAMA_CHAT_DEBUG'].to_i == 1 ? true : false %>
     ssl_no_verify: []
   EOT
@@ -113,8 +119,8 @@ class FollowChat
       end
       content = response.message&.content
       @messages.last.content << content
-      if @markdown and @messages.last.content.present?
-        markdown_content = Utils::ANSIMarkdown.parse(@messages.last.content)
+      if @markdown and content = @messages.last.content.full?
+        markdown_content = Utils::ANSIMarkdown.parse(content)
         @output.print clear_screen, move_home, @user, ?\n, markdown_content
       else
         @output.print content
@@ -218,32 +224,24 @@ def save_conversation(filename, messages)
 end
 
 def message_type(images)
-  if images.present?
-    ?📸
-  else
-    ?📨
-  end
+  images.present? ? ?📸 : ?📨
 end
 
-def list_conversation(messages, markdown)
-  messages.each do |m|
+def list_conversation(messages, last = messages.size)
+  messages[-last..-1].to_a.each do |m|
     role_color = case m.role
                  when 'user' then 172
                  when 'assistant' then 111
                  when 'system' then 213
                  else 210
                  end
-    content = if markdown && m.content.present?
-                Utils::ANSIMarkdown.parse(m.content)
-              else
-                m.content
-              end
+    content = m.content.full? { $markdown ? Utils::ANSIMarkdown.parse(_1) : _1 }
     message_text = message_type(m.images) + " "
     message_text += bold { color(role_color) { m.role } }
     message_text += ":\n#{content}"
-    if m.images.present?
-      message_text += "\nImages: " + italic { m.images.map(&:path) * ', ' }
-    end
+    m.images.full? { |images|
+      message_text += "\nImages: " + italic { images.map(&:path) * ', ' }
+    }
     puts message_text
   end
 end
@@ -326,14 +324,14 @@ def parse_source(source_io)
     reader = PDF::Reader.new(source_io)
     reader.pages.inject(+'') { |result, page| result << page.text }
   else
-    STDERR.puts "Cannot import #{source_io&.content_type} document."
+    STDERR.puts "Cannot embed #{source_io&.content_type} document."
     return
   end
 end
 
-def import_document(source_io, source)
+def embed_source(source_io, source)
   embedding_enabled? or return parse_source(source_io)
-  puts "Importing #{italic { source_io&.content_type }} document #{source.to_s.inspect}."
+  puts "Embedding #{italic { source_io&.content_type }} document #{source.to_s.inspect}."
   text = parse_source(source_io) or return
   text.downcase!
   splitter_config = $config.embedding.splitter
@@ -357,7 +355,14 @@ def import_document(source_io, source)
                percentile: splitter_config.percentile?,
              )
            end
-  $documents.add(inputs, source: source.to_s)
+  source = source.to_s
+  if source.start_with?(?!)
+    source = Ollama::Utils::Width.truncate(
+      source[1..-1].gsub(/\W+/, ?_),
+      length: 10
+    )
+  end
+  $documents.add(inputs, source: source)
 end
 
 def add_image(images, source_io, source)
@@ -377,6 +382,11 @@ end
 
 def fetch_source(source, &block)
   case source
+  when %r(\A!(.*))
+    command = $1
+    Utils::Fetcher.execute(command) do |tmp|
+      block.(tmp)
+    end
   when %r(\Ahttps?://\S+)
     Utils::Fetcher.get(source, debug: $config.debug, http_options: http_options(source)) do |tmp|
       block.(tmp)
@@ -394,17 +404,45 @@ rescue => e
   STDERR.puts "Cannot add source #{source.to_s.inspect}: #{e}\n#{e.backtrace * ?\n}"
 end
 
-def summarize(source)
+def import(source)
+  puts "Now importing #{source.to_s.inspect}."
+  fetch_source(source) do |source_io|
+    content = parse_source(source_io)
+    content.present? or return
+    source_io.rewind
+    content
+  end
+end
+
+def summarize(source, words: nil)
+  words = words.to_i
+  words < 1 and words = 100
   puts "Now summarizing #{source.to_s.inspect}."
   source_content =
     fetch_source(source) do |source_io|
       content = parse_source(source_io)
       content.present? or return
       source_io.rewind
-      import_document(source_io, source)
       content
     end
-  $config.prompts.summarize % source_content
+  $config.prompts.summarize % { source_content:, words: }
+end
+
+def embed(source)
+  if embedding_enabled?
+    puts "Now embedding #{source.to_s.inspect}."
+    fetch_source(source) do |source_io|
+      content = parse_source(source_io)
+      content.present? or return
+      source_io.rewind
+      embed_source(source_io, source)
+      content
+    end
+    $config.prompts.embed % { source: }
+  else
+    puts "Embedding is off, so I will just give a small summary of this source."
+    summarize(source)
+  end
 end
 
 def parse_content(content, images)
@@ -422,7 +460,7 @@ def parse_content(content, images)
         when 'image'
           add_image(images, source_io, source)
         when 'text', 'application'
-          import_document(source_io, source)
+          embed_source(source_io, source)
         else
           STDERR.puts(
             "Cannot fetch #{source.to_s.inspect} with content type "\
@@ -448,10 +486,15 @@ ensure
 end
 
 def choose_collection(default_collection)
-  collections = [ default_collection ] + $documents.collections.map(&:to_s)
-  collections = collections.uniq.sort
-  $documents.collection = collection =
-    Ollama::Utils::Chooser.choose(collections) || default_collection
+  collections = [ default_collection ] + $documents.collections
+  collections = collections.compact.map(&:to_s).uniq.sort
+  collections.unshift('[NEW]')
+  collection = Ollama::Utils::Chooser.choose(collections) || default_collection
+  if collection == '[NEW]'
+      print "Enter name of the new collection: "
+      collection = STDIN.gets.chomp
+  end
+  $documents.collection = collection
 ensure
   puts "Changing to collection #{bold{collection}}."
   collection_stats
@@ -461,6 +504,7 @@ def collection_stats
   puts <<~end
     Collection
       Name: #{bold{$documents.collection}}
+      Embedding model: #{bold{$embedding_model}}
       #Embeddings: #{$documents.size}
       Tags: #{$documents.tags}
   end
@@ -477,41 +521,73 @@ rescue => e
   Ollama::Documents::MemoryCache
 end
 
-def set_markdown(value)
-  if value
+def toggle_markdown
+  $markdown = !$markdown
+  show_markdown
+end
+
+def show_markdown
+  if $markdown
     puts "Using ANSI markdown to output content."
-    true
   else
     puts "Using plaintext for outputting content."
-    false
   end
+  $markdown
+end
+
+def set_embedding(embedding)
+  $embedding_enabled = embedding
+  show_embedding
+end
+
+def show_embedding
+  puts "Embedding is #{embedding_enabled? ? "on" : "off"}."
+  $embedding_enabled
+end
+
+def embedding_enabled?
+  $embedding_enabled && !$embedding_paused
+end
+
+def toggle_embedding_paused
+  $embedding_paused = !$embedding_paused
+  show_embedding
+end
+
+def info
+  puts "Current model is #{bold{$model}}."
+  collection_stats
+  if show_embedding
+    puts "Text splitter is #{bold{$config.embedding.splitter.name}}."
+  end
+  puts "Documents database cache is #{$documents.nil? ? 'n/a' : $documents.cache.class}"
+  show_markdown
 end
 
 def clear_messages(messages)
   messages.delete_if { _1.role != 'system' }
 end
 
-def embedding_enabled?
-  $config.embedding.enabled && !$opts[?E]
-end
-
 def display_chat_help
   puts <<~end
-    /paste                                   to paste content
-    /markdown                                toggle markdown output
-    /list                                    list the messages of the conversation
-    /clear                                   clear the conversation messages
-    /clobber                                 clear conversation messages and collection
-    /pop [n]                                 pop the last n exchanges, defaults to 1
-    /model                                   change the model
-    /regenerate                              the last answer message
-    /collection clear [tag]|stats|change|new clear or show stats of current collection
-    /summarize source                        summarize the URL/file source's content
-    /web [n] query                           query web search & return n or 1 results
-    /save filename                           store conversation messages
-    /load filename                           load conversation messages
-    /quit                                    to quit
-    /help                                    to view this help
+    /paste                          to paste content
+    /markdown                       toggle markdown output
+    /list                           list the messages of the conversation
+    /clear                          clear the conversation messages
+    /clobber                        clear conversation messages and collection
+    /pop [n]                        pop the last n exchanges, defaults to 1
+    /model                          change the model
+    /regenerate                     the last answer message
+    /collection clear [tag]|change  clear or show stats of current collection
+    /import source                  import the source's content
+    /summarize [n] source           summarize the source's content in n words
+    /embedding                      toggle embedding paused or not
+    /embed source                   embed the source's content
+    /web [n] query                  query web search & return n or 1 results
+    /save filename                  store conversation messages
+    /load filename                  load conversation messages
+    /quit                           to quit
+    /help                           to view this help
   end
 end
 
@@ -551,23 +627,29 @@ puts "Configuration read from #{config.filename.inspect} is:", $config
 base_url = $opts[?u] || $config.url
 $ollama      = Client.new(base_url:, debug: $config.debug)
 
-model        = choose_model($opts[?m], $config.model.name)
+$model       = choose_model($opts[?m], $config.model.name)
 options      = Options[$config.model.options]
-model_system = pull_model_unless_present(model, options)
+model_system = pull_model_unless_present($model, options)
 messages     = []
+set_embedding($config.embedding.enabled && !$opts[?E])
+
+if voice = ($config.voice if $opts[?v])
+  puts "Using voice #{bold{voice}} to speak."
+end
+$markdown = $config.markdown
 
 if embedding_enabled?
-  embedding_model         = $config.embedding.model.name
+  $embedding_model         = $config.embedding.model.name
   embedding_model_options = Options[$config.embedding.model.options]
-  pull_model_unless_present(embedding_model, embedding_model_options)
+  pull_model_unless_present($embedding_model, embedding_model_options)
   collection = $opts[?C] || $config.embedding.collection
   $documents = Documents.new(
     ollama:,
-    model:         $config.embedding.model.name,
+    model:         $embedding_model,
     model_options: $config.embedding.model.options,
     collection:,
     cache:         configure_cache,
-    redis_url:     $config.redis.url?,
+    redis_url:     $config.redis.documents.url?,
   )
 
   document_list = $opts[?D].to_a
@@ -588,20 +670,26 @@ if embedding_enabled?
     document_list.each_slice(25) do |docs|
       docs.each do |doc|
         fetch_source(doc) do |doc_io|
-          import_document(doc_io, doc)
+          embed_source(doc_io, doc)
         end
       end
     end
   end
   collection_stats
 else
-  $documents = Documents.new(ollama:, model:)
+  $documents = Tins::NULL
 end
 
-if voice = ($config.voice if $opts[?v])
-  puts "Using voice #{bold{voice}} to speak."
-end
-markdown = set_markdown($config.markdown)
+$cache = begin
+           Ollama::Documents::Cache::RedisCache.new(
+             prefix: 'fetcher',
+             url:    $config.redis.expiring.url,
+             ex:     86_400,
+           )
+         rescue => e
+           warn "Caught #{e.class}: #{e} => Disable caching"
+           Tins::NULL
+         end
 
 if $opts[?c]
   messages.concat load_conversation($opts[?c])
@@ -632,10 +720,10 @@ loop do
     puts "Goodbye."
     exit 0
   when %r(^/markdown$)
-    markdown = set_markdown(!markdown)
+    $markdown = toggle_markdown
     next
   when %r(^/list$)
-    list_conversation(messages, markdown)
+    list_conversation(messages)
     next
   when %r(^/clear$)
     clear_messages(messages)
@@ -646,7 +734,7 @@ loop do
     $documents.clear
     puts "Cleared messages and collection."
     next
-  when %r(^/collection\s+(clear|stats|change|new)(?:\s+(.+))?$)
+  when %r(^/collection\s+(clear|change)(?:\s+(.+))?$)
     command, arg = $1, $2
     case command
     when 'clear'
@@ -658,24 +746,26 @@ loop do
         $documents.clear
         puts "Cleared collection #{bold{collection}}."
       end
-    when 'stats'
-      collection_stats
     when 'change'
       choose_collection(collection)
-    when 'new'
-      print "Enter name of the new collection: "
-      $documents.collection = collection = STDIN.gets.chomp
-      collection_stats
     end
     next
+  when %r(/info)
+    info
+    next
   when %r(^/pop?(?:\s+(\d*))?$)
-    n = $1.to_i.clamp(1, Float::INFINITY)
-    r =  messages.pop(2 * n)
-    m = r.size / 2
-    puts "Popped the last #{m} exchanges."
+    if messages.size > 1
+      n = $1.to_i.clamp(1, Float::INFINITY)
+      r =  messages.pop(2 * n)
+      m = r.size / 2
+      puts "Popped the last #{m} exchanges."
+    else
+      puts "No more exchanges you can pop."
+    end
+    list_conversation(messages, 2)
     next
   when %r(^/model$)
-    model = choose_model('', model)
+    $model = choose_model('', $model)
     next
   when %r(^/regenerate$)
     if content = messages[-2]&.content
@@ -687,16 +777,23 @@ loop do
     end
     parse_content = false
     content
-  when %r(^/summarize\s+(.+))
+  when %r(^/import\s+(.+))
     parse_content = false
-    content       = summarize($1) or next
+    content       = import($1) or next
+  when %r(^/summarize\s+(?:(\d+)\s+)?(.+))
+    parse_content = false
+    content       = summarize($2, words: $1) or next
+  when %r(^/embedding$)
+    toggle_embedding_paused
+    next
+  when %r(^/embed\s+(.+))
+    parse_content = false
+    content       = embed($1) or next
   when %r(^/web\s+(?:(\d+)\s+)?(.+))
     parse_content   = false
     urls            = search_web($2, $1.to_i)
     urls.each do |url|
-      fetch_source(url) do |url_io|
-        import_document(url_io, url)
-      end
+      fetch_source(url) { |url_io| embed_source(url_io, url) }
     end
     urls_summarized = urls.map { summarize(_1) }
     content = <<~end
@@ -744,8 +841,8 @@ loop do
   end
 
   messages << Message.new(role: 'user', content:, images:)
-  handler = FollowChat.new(messages:, markdown:, voice:)
-  ollama.chat(model:, messages:, options:, stream: true, &handler)
+  handler = FollowChat.new(messages:, markdown: $markdown, voice:)
+  ollama.chat(model: $model, messages:, options:, stream: true, &handler)
 
   if embedding_enabled? && !records.empty?
     puts "", records.map { |record|
