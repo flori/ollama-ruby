@@ -2,8 +2,9 @@ module Ollama::Documents::Splitters
   class Character
     DEFAULT_SEPARATOR = /(?:\r?\n){2,}/
 
-    def initialize(separator: DEFAULT_SEPARATOR, include_separator: false, chunk_size: 4096)
-      @separator, @include_separator, @chunk_size = separator, include_separator, chunk_size
+    def initialize(separator: DEFAULT_SEPARATOR, include_separator: false, combining_string: "\n\n", chunk_size: 4096)
+      @separator, @include_separator, @combining_string, @chunk_size =
+        separator, include_separator, combining_string, chunk_size
       if include_separator
         @separator = Regexp.new("(#@separator)")
       end
@@ -22,7 +23,7 @@ module Ollama::Documents::Splitters
       current_text = +''
       texts.each do |t|
         if current_text.size + t.size < @chunk_size
-          current_text += t
+          current_text << t << @combining_string
         else
           current_text.empty? or result << current_text
           current_text = t
@@ -41,11 +42,11 @@ module Ollama::Documents::Splitters
       //,
     ].freeze
 
-    def initialize(separators: DEFAULT_SEPARATORS, include_separator: false, chunk_size: 4096)
+    def initialize(separators: DEFAULT_SEPARATORS, include_separator: false, combining_string: "\n\n", chunk_size: 4096)
       separators.empty? and
         raise ArgumentError, "non-empty array of separators required"
-      @separators, @include_separator, @chunk_size =
-        separators, include_separator, chunk_size
+      @separators, @include_separator, @combining_string, @chunk_size =
+        separators, include_separator, combining_string, chunk_size
     end
 
     def split(text, separators: @separators)
@@ -55,6 +56,7 @@ module Ollama::Documents::Splitters
       texts = Character.new(
         separator:,
         include_separator: @include_separator,
+        combining_string: @combining_string,
         chunk_size: @chunk_size
       ).split(text)
       texts.count == 0 and return [ text ]
