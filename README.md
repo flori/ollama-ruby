@@ -154,21 +154,24 @@ subject - the young, blue-eyed cat.
 The following commands can be given inside the chat, if prefixed by a `/`:
 
 ```
-/paste                                   to paste content
-/markdown                                toggle markdown output
-/list                                    list the messages of the conversation
-/clear                                   clear the conversation messages
-/clobber                                 clear conversation messages and collection
-/pop [n]                                 pop the last n exchanges, defaults to 1
-/model                                   change the model
-/regenerate                              the last answer message
-/collection clear [tag]|stats|change|new clear or show stats of current collection
-/summarize source                        summarize the URL/file source's content
-/web [n] query                           query web search & return n or 1 results
-/save filename                           store conversation messages
-/load filename                           load conversation messages
-/quit                                    to quit
-/help                                    to view this help
+/paste                                to paste content
+/markdown                             toggle markdown output
+/list                                 list the messages of the conversation
+/clear                                clear the conversation messages
+/clobber                              clear conversation messages and collection
+/pop [n]                              pop the last n exchanges, defaults to 1
+/model                                change the model
+/regenerate                           the last answer message
+/collection clear [tag]|stats|change  clear or show stats of current collection
+/import source                        import the source's content
+/summarize [n] source                 summarize the source's content in n words
+/embedding                            toggle embedding paused or not
+/embed source                         embed the source's content
+/web [n] query                        query web search & return n or 1 results
+/save filename                        store conversation messages
+/load filename                        load conversation messages
+/quit                                 to quit
+/help                                 to view this help
 ```
 
 ### ollama\_console
@@ -462,7 +465,7 @@ The homepage of this library is located at
 
 ## Author
 
-<b>Ollama</b> was written by Florian Frank [Florian Frank](mailto:flori@ping.de)
+<b>Ollama Ruby</b> was written by Florian Frank [Florian Frank](mailto:flori@ping.de)
 
 ## License
 
