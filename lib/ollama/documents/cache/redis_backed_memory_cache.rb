@@ -32,13 +32,5 @@ class Ollama::Documents
       super
       self
     end
-
-    def pre(key)
-      [ @prefix, key ].join
-    end
-
-    def unpre(key)
-      key.sub(/\A#@prefix/, '')
-    end
   end
 end
