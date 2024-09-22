@@ -48,8 +48,17 @@ RSpec.describe Ollama::Documents::RedisCache do
 
     it 'can set a value for a key' do
       key, value = 'foo', { test: true }
-      expect(redis).to receive(:set).with('test-' + key, JSON(value))
+      expect(redis).to receive(:set).with('test-' + key, JSON(value), ex: nil)
       cache[key] = value
+    end
+
+    it 'can set a value for a key with ttl' do
+      cache = described_class.new prefix: 'test-', url: 'something', ex: 3_600
+      key, value = 'foo', { test: true }
+      expect(redis).to receive(:set).with('test-' + key, JSON(value), ex: 3_600)
+      cache[key] = value
+      allow(redis).to receive(:ttl).with('test-' + key).and_return 3_600
+      expect(cache.ttl(key)).to eq 3_600
     end
 
     it 'can determine if key exists' do
