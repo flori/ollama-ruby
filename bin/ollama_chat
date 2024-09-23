@@ -715,9 +715,6 @@ loop do
   when %r(^/paste$)
     puts bold { "Paste your content and then press C-d!" }
     content = STDIN.read
-  when %r(^/quit$)
-    puts "Goodbye."
-    exit 0
   when %r(^/markdown$)
     $markdown = toggle_markdown
     next
@@ -807,6 +804,9 @@ loop do
     messages = load_conversation($1)
     puts "Loaded conversation from #$1."
     next
+  when %r(^/quit$)
+    puts "Goodbye."
+    exit 0
   when %r(^/)
     display_chat_help
     next
