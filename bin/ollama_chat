@@ -36,6 +36,10 @@ class OllamaChatConfig
         %{words} words:
 
         %{source_content}
+      web: |
+        Answer the the query %{query} using these sources and summaries:
+
+        %{results}
     voice: Samantha
     markdown: true
     embedding:
@@ -791,11 +795,10 @@ loop do
       fetch_source(url) { |url_io| embed_source(url_io, url) }
     end
     urls_summarized = urls.map { summarize(_1) }
-    content = <<~end
-      Answer the the query #{$2.inspect} using these sources and summaries:
-
-      #{urls.zip(urls_summarized).map { |u, s| "%s as \n:%s" % [ u, s ] } * "\n\n"}
-    end
+    query = $2.inspect
+    results = 
+      urls.zip(urls_summarized).map { |u, s| "%s as \n:%s" % [ u, s ] } * "\n\n"
+    content = $config.prompts.web % { query:, results: }
   when %r(^/save\s+(.+)$)
     save_conversation($1, messages)
     puts "Saved conversation to #$1."
