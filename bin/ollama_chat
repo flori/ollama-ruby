@@ -261,37 +261,37 @@ end
 
 def parse_rss(source_io)
   feed = RSS::Parser.parse(source_io, false, false)
-  title = <<~end
+  title = <<~EOT
     # #{feed&.channel&.title}
 
-  end
+  EOT
   feed.items.inject(title) do |text, item|
-    text << <<~end
+    text << <<~EOT
       ## [#{item&.title}](#{item&.link})
 
       updated on #{item&.pubDate}
 
       #{reverse_markdown(item&.description)}
 
-    end
+    EOT
   end
 end
 
 def parse_atom(source_io)
   feed = RSS::Parser.parse(source_io, false, false)
-  title = <<~end
+  title = <<~EOT
     # #{feed.title.content}
 
-  end
+  EOT
   feed.items.inject(title) do |text, item|
-    text << <<~end
+    text << <<~EOT
       ## [#{item&.title&.content}](#{item&.link&.href})
 
       updated on #{item&.updated&.content}
 
       #{reverse_markdown(item&.content&.content)}
 
-    end
+    EOT
   end
 end
 
@@ -511,13 +511,13 @@ ensure
 end
 
 def collection_stats
-  puts <<~end
+  puts <<~EOT
     Collection
       Name: #{bold{$documents.collection}}
       Embedding model: #{bold{$embedding_model}}
       #Embeddings: #{$documents.size}
       Tags: #{$documents.tags}
-  end
+  EOT
 end
 
 def configure_cache
@@ -579,7 +579,7 @@ def clear_messages(messages)
 end
 
 def display_chat_help
-  puts <<~end
+  puts <<~EOT
     /paste                          to paste content
     /markdown                       toggle markdown output
     /list                           list the messages of the conversation
@@ -598,11 +598,11 @@ def display_chat_help
     /load filename                  load conversation messages
     /quit                           to quit
     /help                           to view this help
-  end
+  EOT
 end
 
 def usage
-  puts <<~end
+  puts <<~EOT
     #{File.basename($0)} [OPTIONS]
 
       -f CONFIG      config file to read
@@ -617,7 +617,7 @@ def usage
       -v             use voice output
       -h             this help
 
-  end
+  EOT
   exit 0
 end
 
@@ -696,10 +696,10 @@ else
   if system = Ollama::Utils::FileArgument.
       get_file_argument($opts[?s], default: $config.prompts.system? || model_system)
     messages << Message.new(role: 'system', content: system)
-    puts <<~end
+    puts <<~EOT
       Configured system prompt is:
       #{italic{Ollama::Utils::Width.wrap(system, percentage: 90)}}
-    end
+    EOT
   end
 end
 
