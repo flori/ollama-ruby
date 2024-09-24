@@ -231,7 +231,8 @@ def message_type(images)
   images.present? ? ?📸 : ?📨
 end
 
-def list_conversation(messages, last = messages.size)
+def list_conversation(messages, last = nil)
+  last = (last || messages.size).clamp(0, messages.size)
   messages[-last..-1].to_a.each do |m|
     role_color = case m.role
                  when 'user' then 172
@@ -582,9 +583,9 @@ def display_chat_help
   puts <<~EOT
     /paste                          to paste content
     /markdown                       toggle markdown output
-    /list                           list the messages of the conversation
-    /clear                          clear the conversation messages
-    /clobber                        clear conversation messages and collection
+    /list [n]                       list the last n / all conversation exchanges
+    /clear                          clear the whole conversation
+    /clobber                        clear the conversation and collection
     /pop [n]                        pop the last n exchanges, defaults to 1
     /model                          change the model
     /regenerate                     the last answer message
@@ -718,8 +719,11 @@ loop do
   when %r(^/markdown$)
     $markdown = toggle_markdown
     next
-  when %r(^/list$)
-    list_conversation(messages)
+  when %r(^/list(?:\s+(\d*))?$)
+    last = if $1
+             2 * $1.to_i
+           end
+    list_conversation(messages, last)
     next
   when %r(^/clear$)
     clear_messages(messages)
@@ -749,7 +753,7 @@ loop do
   when %r(/info)
     info
     next
-  when %r(^/pop?(?:\s+(\d*))?$)
+  when %r(^/pop(?:\s+(\d*))?$)
     if messages.size > 1
       n = $1.to_i.clamp(1, Float::INFINITY)
       r =  messages.pop(2 * n)
@@ -792,9 +796,9 @@ loop do
       fetch_source(url) { |url_io| embed_source(url_io, url) }
     end
     urls_summarized = urls.map { summarize(_1) }
-    query = $2.inspect
-    results = 
-      urls.zip(urls_summarized).map { |u, s| "%s as \n:%s" % [ u, s ] } * "\n\n"
+    query   = $2.inspect
+    results = urls.zip(urls_summarized).
+      map { |u, s| "%s as \n:%s" % [ u, s ] } * "\n\n"
     content = $config.prompts.web % { query:, results: }
   when %r(^/save\s+(.+)$)
     save_conversation($1, messages)

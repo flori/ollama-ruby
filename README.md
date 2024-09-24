@@ -156,9 +156,9 @@ The following commands can be given inside the chat, if prefixed by a `/`:
 ```
 /paste                          to paste content
 /markdown                       toggle markdown output
-/list                           list the messages of the conversation
-/clear                          clear the conversation messages
-/clobber                        clear conversation messages and collection
+/list [n]                       list the last n / all conversation exchanges
+/clear                          clear the whole conversation
+/clobber                        clear the conversation and collection
 /pop [n]                        pop the last n exchanges, defaults to 1
 /model                          change the model
 /regenerate                     the last answer message
