@@ -6,6 +6,7 @@ require 'term/ansicolor'
 include Term::ANSIColor
 require 'tins'
 require 'tins/xt/full'
+require 'tins/xt/hash_union'
 include Tins::GO
 require 'reline'
 require 'reverse_markdown'
@@ -24,6 +25,7 @@ class OllamaChatConfig
   DEFAULT_CONFIG = <<~EOT
     ---
     url: <%= ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST') %>
+    proxy: null # http://localhost:8080
     model:
       name: <%= ENV.fetch('OLLAMA_CHAT_MODEL', 'llama3.1') %>
       options:
@@ -383,12 +385,15 @@ def add_image(images, source_io, source)
 end
 
 def http_options(url)
+  options = {}
   if ssl_no_verify = $config.ssl_no_verify?
     hostname = URI.parse(url).hostname
-    {
-      ssl_verify_peer: !ssl_no_verify.include?(hostname)
-    }
-  end.to_h
+    options |= { ssl_verify_peer: !ssl_no_verify.include?(hostname) }
+  end
+  if proxy = $config.proxy?
+    options |= { proxy: }
+  end
+  options
 end
 
 def fetch_source(source, &block)
