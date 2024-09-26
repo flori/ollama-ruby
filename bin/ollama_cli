@@ -16,6 +16,8 @@ def usage
       -M OPTIONS     the ollama model options to use, OLLAMA_MODEL_OPTIONS
       -s SYSTEM      the system prompt to use as a file, OLLAMA_SYSTEM
       -p PROMPT      the user prompt to use as a file, OLLAMA_PROMPT
+                     if it contains %{stdin} it is substituted by stdin input
+      -P VARIABLE    sets prompt var %{foo} to "bar" if VARIABLE is foo=bar
       -H HANDLER     the handler to use for the response, defaults to Print
       -S             use streaming for generation
       -h             this help
@@ -24,7 +26,7 @@ def usage
   exit 0
 end
 
-opts = go 'u:m:M:s:p:H:Sh', defaults: { ?H => 'Print', ?M => '{}' }
+opts = go 'u:m:M:s:p:P:H:Sh', defaults: { ?H => 'Print', ?M => '{}' }
 
 opts[?h] and usage
 
@@ -38,14 +40,14 @@ prompt   = get_file_argument(opts[?p], default: ENV['OLLAMA_PROMPT'])
 
 if prompt.nil?
   prompt = STDIN.read
-elsif c = prompt.scan('%s').size
-  case c
-  when 0
-  when 1
-    prompt = prompt % STDIN.read
-  else
-    STDERR.puts "Found more than one plaeceholder %s. => Ignoring."
-  end
+else
+  vars = prompt.scan(/%\{([^}]+)\}/).inject([], &:concat).uniq.map(&:to_sym)
+  stdin = (STDIN.read if vars.include?(:stdin)).to_s
+  values = opts[?P].to_a.inject({ stdin: }) { |h, pair|
+    n, v = pair.split(?=, 2)
+    h.merge(n.to_sym => v)
+  }
+  prompt = prompt % values
 end
 
 if ENV['DEBUG'].to_i == 1
