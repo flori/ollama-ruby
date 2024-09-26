@@ -1,5 +1,108 @@
 # Changes
 
+## 2024-09-26 v0.5.0
+
+### New Features
+
+* Add stdin substitution and variable expansion to `ollama_cli`:
+	+ Added support for `%{stdin}` in prompts, substituting with actual input
+	+ Added `-P` option to set prompt variables from command line arguments
+	+ Added handling of multiple placeholders in prompts
+* Add proxy support to Ollama chat client:
+	+ Add `tins/xt/hash_union` gem to dependencies
+    + Update `OllamaChatConfig` with new `proxy` option
+    + Modify `http_options` method to include proxy and SSL verify peer options
+      based on config settings
+* Refactor source embedding logic:
+    + Simplified explicit case statement.
+    + Added `inputs or return` to ensure early exit when splitting cannot be
+      done
+* Update Ollama chat script to embed, import or summarize sources:
+    + Added `require 'tins/xt/full'`
+    + Updated prompts in `OllamaChatConfig` to include embed prompt and
+      summarize prompt with word count option
+    + Modified `import_document` method to use `embed_source` instead of
+      importing document as a whole
+    + Added `embed_source` method to parse source content and add it to the
+      conversation via embeddings
+    + Updated `summarize` method to take an optional word count parameter
+    + Added `toggle_markdown` method to toggle markdown output on/off
+    + Added `show_embedding` method to display embedding status
+    + Updated `choose_collection` method to include new collection option
+    + Added `set_embedding` method to set embedding model and paused embedding
+    + Updated `info` method to display current model, collection stats, and
+      embedding status
+
+### Improvements
+
+* Improve conversation listing command:
+    + Allow `list_conversation` method to take an optional argument for the
+      number of messages to display
+    + Added support for displaying a specific number of messages with `/list
+      [n]`
+* Update chat commands' quit functionality:
+	+ Moved `/quit` command to exit the program
+* Refactor OllamaChatConfig web prompt:
+    + Add `web` prompt to `OllamaChatConfig` class
+    + Replace hardcoded content with variable `content`
+    + Use `query` and `results` variables instead of interpolating strings
+* Add Redis cache expiration support:
+    + Added `ex` option to `initialize` method in
+      `lib/ollama/documents/cache/redis_cache.rb`
+    + Updated `[]=` method in `lib/ollama/documents/cache/redis_cache.rb` to
+      use Redis expiration
+    + Added `ttl` method in `lib/ollama/documents/cache/redis_cache.rb` to get
+      key TTL
+* Update Redis and Redis-backed memory cache to use `object_class` parameter:
+    + Added `object_class` parameter to `RedisBackedMemoryCache` and
+      `RedisCache` constructors
+    + Updated tests in `redis_backed_memory_cache_spec.rb` and
+      `redis_cache_spec.rb` to reflect new behavior
+
+### Bug Fixes
+
+* Update semantic splitter to use `include_separator` option from opts:
+    + Added flexibility by allowing `include_separator` option to be passed in
+      through opts
+    + Updated `include_separator` parameter to use
+      `opts.fetch(:include_separator, true)` instead of hardcoding value to
+      True.
+
+### Refactoring
+
+* Refactor `file_argument.rb` for better readability:
+	+ Update conditionals in Ollama::Utils::FileArgument module
+	+ Simplify logic with improved variable usage
+	+ Remove unnecessary elsif statement
+	+ Use consistent indentation and spacing throughout the code
+* Refactor Redis-backed memory cache:
+    + Removed `pre` and `unpre` methods from `Ollama::Documents` use mixin
+      instead.
+
+### Documentation
+
+* Update README.md to reflect changes in `ollama_chat` functionality.
+	+ Modified commands:
+		- `/import source` to import the source's content
+		- `/embed source` to embed the source's content
+        - `/summarize [n] source` to summarize the source's content in n words
+        - `/embedding` to toggle embedding paused or not
+		- `/embed source` to embed the source's content
+
+### Dependencies and Date Updates
+
+* Update dependencies and date in gemspec:
+    + Added `logger` (~> **1.0**) and `json` (~> **2.0**) as runtime
+      dependencies to Rakefile and ollama-ruby.gemspec.
+    + Updated date in ollama-ruby.gemspec from "2024-09-21" to "2024-09-22".
+	+ Added `require 'logger'` to lib/ollama.rb.
+
+### Other Changes
+
+* Add SSL no verify option to OllamaChatConfig and Utils::Fetcher:
+	+ Added `ssl_no_verify` option to OllamaChatConfig
+	+ Updated Utils::Fetcher to take an
+
 ## 2024-09-21 v0.4.0
 
 ### Change Log for **1.2.3**
