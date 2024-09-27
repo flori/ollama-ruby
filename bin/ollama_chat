@@ -338,8 +338,6 @@ def parse_source(source_io)
       result << "\n\n"
     end
     result
-  when %r(\Atext/)
-    source_io.read
   when 'application/rss+xml'
     parse_rss(source_io)
   when 'application/atom+xml'
@@ -349,6 +347,8 @@ def parse_source(source_io)
   when 'application/pdf'
     reader = PDF::Reader.new(source_io)
     reader.pages.inject(+'') { |result, page| result << page.text }
+  when %r(\Atext/), nil
+    source_io.read
   else
     STDERR.puts "Cannot embed #{source_io&.content_type} document."
     return
