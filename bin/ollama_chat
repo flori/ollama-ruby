@@ -901,7 +901,7 @@ loop do
   end
 
   content, tags = if parse_content
-                    parse_content(content, images.clear)
+                    parse_content(content, images)
                   else
                     [ content, Utils::Tags.new ]
                   end
@@ -920,7 +920,8 @@ loop do
     end
   end
 
-  messages << Message.new(role: 'user', content:, images:)
+  messages << Message.new(role: 'user', content:, images: images.dup)
+  images.clear
   handler = FollowChat.new(messages:, markdown: $markdown.on?, voice:)
   ollama.chat(model: $model, messages:, options:, stream: $stream.on?, &handler)
 
