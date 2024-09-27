@@ -44,6 +44,7 @@ class OllamaChatConfig
         %{results}
     voice: Samantha
     markdown: true
+    stream: true
     embedding:
       enabled: true
       model:
@@ -158,6 +159,24 @@ class FollowChat
   end
 end
 
+class Switch
+  def initialize(name, msg:)
+    @value = !!$config.send("#{name}?")
+    @msg   = msg
+  end
+
+  attr_reader :value
+
+  def toggle
+    @value = !@value
+    show
+  end
+
+  def show
+    puts @msg[@value]
+  end
+end
+
 def search_web(query, n = nil)
   n = n.to_i
   n < 1 and n = 1
@@ -242,7 +261,7 @@ def list_conversation(messages, last = nil)
                  when 'system' then 213
                  else 210
                  end
-    content = m.content.full? { $markdown ? Utils::ANSIMarkdown.parse(_1) : _1 }
+    content = m.content.full? { $markdown.value ? Utils::ANSIMarkdown.parse(_1) : _1 }
     message_text = message_type(m.images) + " "
     message_text += bold { color(role_color) { m.role } }
     message_text += ":\n#{content}"
@@ -537,20 +556,6 @@ rescue => e
   Ollama::Documents::MemoryCache
 end
 
-def toggle_markdown
-  $markdown = !$markdown
-  show_markdown
-end
-
-def show_markdown
-  if $markdown
-    puts "Using ANSI markdown to output content."
-  else
-    puts "Using plaintext for outputting content."
-  end
-  $markdown
-end
-
 def set_embedding(embedding)
   $embedding_enabled = embedding
   show_embedding
@@ -577,7 +582,8 @@ def info
     puts "Text splitter is #{bold{$config.embedding.splitter.name}}."
   end
   puts "Documents database cache is #{$documents.nil? ? 'n/a' : $documents.cache.class}"
-  show_markdown
+  $markdown.show
+  $stream.show
 end
 
 def clear_messages(messages)
@@ -588,6 +594,7 @@ def display_chat_help
   puts <<~EOT
     /paste                          to paste content
     /markdown                       toggle markdown output
+    /stream                         toggle stream output
     /list [n]                       list the last n / all conversation exchanges
     /clear                          clear the whole conversation
     /clobber                        clear the conversation and collection
@@ -636,6 +643,22 @@ $opts = go 'f:u:m:s:c:C:D:MEvh'
 config = OllamaChatConfig.new($opts[?f])
 $config = config.config
 
+$markdown = Switch.new(
+  :markdown,
+  msg: {
+    true  => "Using ANSI markdown to output content.",
+    false => "Using plaintext for outputting content.",
+  }
+)
+
+$stream = Switch.new(
+  :stream,
+  msg: {
+    true  => "Streaming enabled.",
+    false => "Streaming disabled.",
+  }
+)
+
 $opts[?h] and usage
 
 puts "Configuration read from #{config.filename.inspect} is:", $config
@@ -652,7 +675,6 @@ set_embedding($config.embedding.enabled && !$opts[?E])
 if voice = ($config.voice if $opts[?v])
   puts "Using voice #{bold{voice}} to speak."
 end
-$markdown = $config.markdown
 
 if embedding_enabled?
   $embedding_model         = $config.embedding.model.name
@@ -666,6 +688,7 @@ if embedding_enabled?
     collection:,
     cache:         configure_cache,
     redis_url:     $config.redis.documents.url?,
+    debug:         ENV['DEBUG'].to_i == 1,
   )
 
   document_list = $opts[?D].to_a
@@ -722,7 +745,10 @@ loop do
     puts bold { "Paste your content and then press C-d!" }
     content = STDIN.read
   when %r(^/markdown$)
-    $markdown = toggle_markdown
+    $markdown.toggle
+    next
+  when %r(^/stream$)
+    $stream.toggle
     next
   when %r(^/list(?:\s+(\d*))?$)
     last = if $1
@@ -848,8 +874,8 @@ loop do
   end
 
   messages << Message.new(role: 'user', content:, images:)
-  handler = FollowChat.new(messages:, markdown: $markdown, voice:)
-  ollama.chat(model: $model, messages:, options:, stream: true, &handler)
+  handler = FollowChat.new(messages:, markdown: $markdown.value, voice:)
+  ollama.chat(model: $model, messages:, options:, stream: $stream.value, &handler)
 
   if embedding_enabled? && !records.empty?
     puts "", records.map { |record|

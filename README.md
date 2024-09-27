@@ -156,6 +156,7 @@ The following commands can be given inside the chat, if prefixed by a `/`:
 ```
 /paste                          to paste content
 /markdown                       toggle markdown output
+/stream                         toggle stream output
 /list [n]                       list the last n / all conversation exchanges
 /clear                          clear the whole conversation
 /clobber                        clear the conversation and collection
