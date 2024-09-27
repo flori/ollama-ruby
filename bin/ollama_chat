@@ -159,6 +159,22 @@ class FollowChat
   end
 end
 
+module CheckSwitch
+  extend Tins::Concern
+
+  included do
+    alias_method :on?, :value
+  end
+
+  def off?
+    !on?
+  end
+
+  def show
+    puts @msg[value]
+  end
+end
+
 class Switch
   def initialize(name, msg:)
     @value = !!$config.send("#{name}?")
@@ -167,14 +183,72 @@ class Switch
 
   attr_reader :value
 
-  def toggle
-    @value = !@value
-    show
+  def set(value, show: false)
+    @value = !!value
+    show && self.show
   end
 
-  def show
-    puts @msg[@value]
+  def toggle(show: true)
+    @value = !@value
+    show && self.show
   end
+
+  include CheckSwitch
+end
+
+class CombinedSwitch
+  def initialize(value:, msg:)
+    @value = value
+    @msg   = msg
+  end
+
+  def value
+    @value.()
+  end
+
+  include CheckSwitch
+end
+
+def setup_switches
+  $markdown = Switch.new(
+    :markdown,
+    msg: {
+      true  => "Using #{italic{'ANSI'}} markdown to output content.",
+      false => "Using plaintext for outputting content.",
+    }
+  )
+
+  $stream = Switch.new(
+    :stream,
+    msg: {
+      true  => "Streaming enabled.",
+      false => "Streaming disabled.",
+    }
+  )
+
+  $embedding_enabled = Switch.new(
+    :embedding_enabled,
+    msg: {
+      true  => "Embedding enabled.",
+      false => "Embedding disabled.",
+    }
+  )
+
+  $embedding_paused = Switch.new(
+    :embedding_paused,
+    msg: {
+      true  => "Embedding paused.",
+      false => "Embedding resumed.",
+    }
+  )
+
+  $embedding = CombinedSwitch.new(
+    value: -> { $embedding_enabled.on? && $embedding_paused.off? },
+    msg: {
+      true  => "Embedding is currently performed.",
+      false => "Embedding is currently not performed.",
+    }
+  )
 end
 
 def search_web(query, n = nil)
@@ -261,7 +335,7 @@ def list_conversation(messages, last = nil)
                  when 'system' then 213
                  else 210
                  end
-    content = m.content.full? { $markdown.value ? Utils::ANSIMarkdown.parse(_1) : _1 }
+    content = m.content.full? { $markdown.on? ? Utils::ANSIMarkdown.parse(_1) : _1 }
     message_text = message_type(m.images) + " "
     message_text += bold { color(role_color) { m.role } }
     message_text += ":\n#{content}"
@@ -356,7 +430,7 @@ def parse_source(source_io)
 end
 
 def embed_source(source_io, source)
-  embedding_enabled? or return parse_source(source_io)
+  $embedding.on? or return parse_source(source_io)
   puts "Embedding #{italic { source_io&.content_type }} document #{source.to_s.inspect}."
   text = parse_source(source_io) or return
   text.downcase!
@@ -464,7 +538,7 @@ def summarize(source, words: nil)
 end
 
 def embed(source)
-  if embedding_enabled?
+  if $embedding.on?
     puts "Now embedding #{source.to_s.inspect}."
     fetch_source(source) do |source_io|
       content = parse_source(source_io)
@@ -556,32 +630,18 @@ rescue => e
   Ollama::Documents::MemoryCache
 end
 
-def set_embedding(embedding)
-  $embedding_enabled = embedding
-  show_embedding
-end
-
-def show_embedding
-  puts "Embedding is #{embedding_enabled? ? "on" : "off"}."
-  $embedding_enabled
-end
-
-def embedding_enabled?
-  $embedding_enabled && !$embedding_paused
-end
-
-def toggle_embedding_paused
-  $embedding_paused = !$embedding_paused
-  show_embedding
+def $embedding.on?
+  $embedding.on?
 end
 
 def info
   puts "Current model is #{bold{$model}}."
   collection_stats
-  if show_embedding
+  $embedding.show
+  if $embedding.on?
     puts "Text splitter is #{bold{$config.embedding.splitter.name}}."
   end
-  puts "Documents database cache is #{$documents.nil? ? 'n/a' : $documents.cache.class}"
+  puts "Documents database cache is #{$documents.nil? ? 'n/a' : bold{$documents.cache.class}}"
   $markdown.show
   $stream.show
 end
@@ -643,21 +703,7 @@ $opts = go 'f:u:m:s:c:C:D:MEvh'
 config = OllamaChatConfig.new($opts[?f])
 $config = config.config
 
-$markdown = Switch.new(
-  :markdown,
-  msg: {
-    true  => "Using ANSI markdown to output content.",
-    false => "Using plaintext for outputting content.",
-  }
-)
-
-$stream = Switch.new(
-  :stream,
-  msg: {
-    true  => "Streaming enabled.",
-    false => "Streaming disabled.",
-  }
-)
+setup_switches
 
 $opts[?h] and usage
 
@@ -670,13 +716,13 @@ $model       = choose_model($opts[?m], $config.model.name)
 options      = Options[$config.model.options]
 model_system = pull_model_unless_present($model, options)
 messages     = []
-set_embedding($config.embedding.enabled && !$opts[?E])
+$embedding_enabled.set($config.embedding.enabled && !$opts[?E])
 
 if voice = ($config.voice if $opts[?v])
   puts "Using voice #{bold{voice}} to speak."
 end
 
-if embedding_enabled?
+if $embedding.on?
   $embedding_model         = $config.embedding.model.name
   embedding_model_options = Options[$config.embedding.model.options]
   pull_model_unless_present($embedding_model, embedding_model_options)
@@ -815,7 +861,8 @@ loop do
     parse_content = false
     content       = summarize($2, words: $1) or next
   when %r(^/embedding$)
-    toggle_embedding_paused
+    $embedding_paused.toggle(show: false)
+    $embedding.show
     next
   when %r(^/embed\s+(.+))
     parse_content = false
@@ -859,7 +906,7 @@ loop do
                     [ content, Utils::Tags.new ]
                   end
 
-  if embedding_enabled? && content
+  if $embedding.on? && content
     records = $documents.find_where(
       content.downcase,
       tags:,
@@ -874,10 +921,10 @@ loop do
   end
 
   messages << Message.new(role: 'user', content:, images:)
-  handler = FollowChat.new(messages:, markdown: $markdown.value, voice:)
-  ollama.chat(model: $model, messages:, options:, stream: $stream.value, &handler)
+  handler = FollowChat.new(messages:, markdown: $markdown.on?, voice:)
+  ollama.chat(model: $model, messages:, options:, stream: $stream.on?, &handler)
 
-  if embedding_enabled? && !records.empty?
+  if $embedding.on? && !records.empty?
     puts "", records.map { |record|
       link = if record.source =~ %r(\Ahttps?://)
                record.source
