@@ -634,6 +634,13 @@ def $embedding.on?
   $embedding.on?
 end
 
+def show_system_prompt
+  puts <<~EOT
+    Configured system prompt is:
+    #{italic{Ollama::Utils::Width.wrap($system.to_s, percentage: 90)}}
+  EOT
+end
+
 def info
   puts "Current model is #{bold{$model}}."
   collection_stats
@@ -644,6 +651,7 @@ def info
   puts "Documents database cache is #{$documents.nil? ? 'n/a' : bold{$documents.cache.class}}"
   $markdown.show
   $stream.show
+  show_system_prompt
 end
 
 def clear_messages(messages)
@@ -707,8 +715,6 @@ setup_switches
 
 $opts[?h] and usage
 
-puts "Configuration read from #{config.filename.inspect} is:", $config
-
 base_url = $opts[?u] || $config.url
 $ollama      = Client.new(base_url:, debug: $config.debug)
 
@@ -720,6 +726,27 @@ $embedding_enabled.set($config.embedding.enabled && !$opts[?E])
 
 if voice = ($config.voice if $opts[?v])
   puts "Using voice #{bold{voice}} to speak."
+end
+
+if $opts[?c]
+  messages.concat load_conversation($opts[?c])
+else
+	default = $config.system_prompts.default? || model_system
+  if $opts[?s] == ??
+    prompts = $config.system_prompts.attribute_names.compact
+    chosen = Ollama::Utils::Chooser.choose(prompts)
+    system = if chosen
+               $config.system_prompts.send(chosen)
+             else
+               default
+             end
+  else
+    system = Ollama::Utils::FileArgument.get_file_argument($opts[?s], default:)
+  end
+  if system.present?
+    $system = system
+    messages << Message.new(role: 'system', content: system)
+  end
 end
 
 if $embedding.on?
@@ -760,24 +787,12 @@ if $embedding.on?
       end
     end
   end
-  collection_stats
 else
   $documents = Tins::NULL
 end
 
-if $opts[?c]
-  messages.concat load_conversation($opts[?c])
-else
-  if system = Ollama::Utils::FileArgument.
-      get_file_argument($opts[?s], default: $config.prompts.system? || model_system)
-    messages << Message.new(role: 'system', content: system)
-    puts <<~EOT
-      Configured system prompt is:
-      #{italic{Ollama::Utils::Width.wrap(system, percentage: 90)}}
-    EOT
-  end
-end
-
+puts "Configuration read from #{config.filename.inspect} is:", $config
+info
 puts "\nType /help to display the chat help."
 
 images = []
