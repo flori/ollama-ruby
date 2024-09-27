@@ -17,6 +17,7 @@ require 'nokogiri'
 require 'rss'
 require 'pdf/reader'
 require 'csv'
+require 'xdg'
 
 class OllamaChatConfig
   include ComplexConfig
@@ -88,17 +89,11 @@ class OllamaChatConfig
   attr_reader :config
 
   def default_path
-    File.join(config_dir_path, 'config.yml')
+    config_dir_path + 'config.yml'
   end
 
   def config_dir_path
-    File.join(
-      ENV.fetch(
-        'XDG_CONFIG_HOME',
-        File.join(ENV.fetch('HOME'), '.config')
-      ),
-      'ollama_chat'
-    )
+    XDG.new.config_home + 'ollama_chat'
   end
 end
 
