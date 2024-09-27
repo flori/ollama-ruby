@@ -25,8 +25,10 @@ module Ollama::Utils::FileArgument
         File.exist?(path_or_content)
     then
       File.read(path_or_content)
+    elsif path_or_content.present?
+      path_or_content
     else
-      path_or_content.full? || default
+      default
     end
   end
 end
