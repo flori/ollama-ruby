@@ -697,11 +697,16 @@ def usage
   exit 0
 end
 
+def version
+  puts "%s %s" % [ File.basename($0), Ollama::VERSION ]
+  exit 0
+end
+
 def ollama
   $ollama
 end
 
-$opts = go 'f:u:m:s:c:C:D:MEvh'
+$opts = go 'f:u:m:s:c:C:D:MEvVh'
 
 config = OllamaChatConfig.new($opts[?f])
 $config = config.config
@@ -709,6 +714,7 @@ $config = config.config
 setup_switches
 
 $opts[?h] and usage
+$opts[?V] and version
 
 base_url = $opts[?u] || $config.url
 $ollama      = Client.new(base_url:, debug: $config.debug)
