@@ -637,7 +637,7 @@ end
 def show_system_prompt
   puts <<~EOT
     Configured system prompt is:
-    #{italic{Ollama::Utils::Width.wrap($system.to_s, percentage: 90)}}
+    #{Ollama::Utils::ANSIMarkdown.parse($system.to_s).gsub(/\n+\z/, '')}
   EOT
 end
 
