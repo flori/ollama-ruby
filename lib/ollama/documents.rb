@@ -35,12 +35,13 @@ class Ollama::Documents
     alias inspect to_s
   end
 
-  def initialize(ollama:, model:, model_options: nil, collection: nil, cache: MemoryCache, redis_url: nil)
+  def initialize(ollama:, model:, model_options: nil, collection: nil, cache: MemoryCache, redis_url: nil, debug: false)
     collection ||= default_collection
     @ollama, @model, @model_options, @collection =
       ollama, model, model_options, collection.to_sym
     @redis_url = redis_url
-    @cache = connect_cache(cache)
+    @cache     = connect_cache(cache)
+    @debug     = debug
   end
 
   def default_collection
@@ -64,6 +65,9 @@ class Ollama::Documents
     }
     inputs.reject! { |i| exist?(i) }
     inputs.empty? and return self
+    if @debug
+      puts Ollama::Utils::ColorizeTexts.new(inputs)
+    end
     batches = inputs.each_slice(batch_size).
       with_infobar(
         label: "Add #{truncate(tags.to_s, percentage: 25)}",
