@@ -732,7 +732,7 @@ end
 if $opts[?c]
   messages.concat load_conversation($opts[?c])
 else
-	default = $config.system_prompts.default? || model_system
+  default = $config.system_prompts.default? || model_system
   if $opts[?s] == ??
     prompts = $config.system_prompts.attribute_names.compact
     chosen = Ollama::Utils::Chooser.choose(prompts)

@@ -19,8 +19,8 @@ class Ollama::Client
         'missing :base_url parameter or OLLAMA_URL environment variable'
     end
     base_url.is_a? URI or base_url = URI.parse(base_url)
-		base_url.is_a?(URI::HTTP) || base_url.is_a?(URI::HTTPS) or
-			raise ArgumentError, "require #{base_url.inspect} to be http/https-URI"
+    base_url.is_a?(URI::HTTP) || base_url.is_a?(URI::HTTPS) or
+      raise ArgumentError, "require #{base_url.inspect} to be http/https-URI"
     @ssl_verify_peer = base_url.query.to_s.split(?&).inject({}) { |h, l|
       h.merge Hash[*l.split(?=)]
     }['ssl_verify_peer'] != 'false'
