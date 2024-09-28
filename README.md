@@ -154,6 +154,7 @@ subject - the young, blue-eyed cat.
 The following commands can be given inside the chat, if prefixed by a `/`:
 
 ```
+/copy                           to copy last response to clipboard
 /paste                          to paste content
 /markdown                       toggle markdown output
 /stream                         toggle stream output

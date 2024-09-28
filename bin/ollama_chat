@@ -67,6 +67,7 @@ class OllamaChatConfig
         url: <%= ENV.fetch('REDIS_EXPIRING_URL', 'null') %>
     debug: <%= ENV['OLLAMA_CHAT_DEBUG'].to_i == 1 ? true : false %>
     ssl_no_verify: []
+    copy: pbcopy
   EOT
 
   def initialize(filename = nil)
@@ -653,8 +654,25 @@ def clear_messages(messages)
   messages.delete_if { _1.role != 'system' }
 end
 
+def copy_to_clipboard(messages)
+  if message = messages.last and message.role == 'assistant'
+    copy = `which #{$config.copy}`.chomp
+    if copy.present?
+      IO.popen(copy, 'w') do |clipboard|
+        clipboard.write(message.content)
+      end
+      STDOUT.puts "The last response has been copied to the system clipboard."
+    else
+      STDERR.puts "#{$config.copy.inspect} command not found in system's path!"
+    end
+  else
+    STDERR.puts "No response available to copy to the system clipboard."
+  end
+end
+
 def display_chat_help
   puts <<~EOT
+    /copy                           to copy last response to clipboard
     /paste                          to paste content
     /markdown                       toggle markdown output
     /stream                         toggle stream output
@@ -806,6 +824,9 @@ loop do
   when %r(^/paste$)
     puts bold { "Paste your content and then press C-d!" }
     content = STDIN.read
+  when %r(^/copy$)
+    copy_to_clipboard(messages)
+    next
   when %r(^/markdown$)
     $markdown.toggle
     next
