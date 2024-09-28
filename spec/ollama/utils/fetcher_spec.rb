@@ -6,7 +6,7 @@ RSpec.describe Ollama::Utils::Fetcher do
   end
 
   let :fetcher do
-    described_class.new
+    described_class.new.expose
   end
 
   it 'can be instantiated' do
@@ -36,7 +36,7 @@ RSpec.describe Ollama::Utils::Fetcher do
   it 'can #get without ssl peer verification' do
     fetcher = described_class.new(
       http_options: { ssl_verify_peer: false }
-    )
+    ).expose
     stub_request(:get, 'https://www.example.com/hello').
       with(headers: fetcher.headers).
       to_return(

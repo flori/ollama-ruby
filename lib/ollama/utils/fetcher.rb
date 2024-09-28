@@ -17,6 +17,40 @@ class Ollama::Utils::Fetcher
 
   class RetryWithoutStreaming < StandardError; end
 
+  def self.get(url, **options, &block)
+    new(**options).send(:get, url, &block)
+  end
+
+  def self.read(filename, &block)
+    if File.exist?(filename)
+      File.open(filename) do |file|
+        file.extend(Ollama::Utils::Fetcher::ContentType)
+        file.content_type = MIME::Types.type_for(filename).first
+        block.(file)
+      end
+    end
+  end
+
+  def self.execute(command, &block)
+    Tempfile.open do |tmp|
+      IO.popen(command) do |command|
+        until command.eof?
+          tmp.write command.read(4096)
+        end
+        tmp.rewind
+        tmp.extend(Ollama::Utils::Fetcher::ContentType)
+        tmp.content_type = MIME::Types['text/plain'].first
+        block.(tmp)
+      end
+    end
+  rescue => e
+    STDERR.puts "Cannot execute #{command.inspect} (#{e})"
+    if @debug && !e.is_a?(RuntimeError)
+      STDERR.puts "#{e.backtrace * ?\n}"
+    end
+    yield ContentType.failed
+  end
+
   def initialize(debug: false, http_options: {})
     @debug        = debug
     @started      = false
@@ -24,9 +58,7 @@ class Ollama::Utils::Fetcher
     @http_options = http_options
   end
 
-  def self.get(url, **options, &block)
-    new(**options).get(url, &block)
-  end
+  private
 
   def excon(url, **options)
     Excon.new(url, options.merge(@http_options))
@@ -104,35 +136,5 @@ class Ollama::Utils::Fetcher
       Tins::Unit.format(_1, format: '%.2f %U')
     }
     '%l ' + progress + ' in %te, ETA %e @%E'
-  end
-
-  def self.read(filename, &block)
-    if File.exist?(filename)
-      File.open(filename) do |file|
-        file.extend(Ollama::Utils::Fetcher::ContentType)
-        file.content_type = MIME::Types.type_for(filename).first
-        block.(file)
-      end
-    end
-  end
-
-  def self.execute(command, &block)
-    Tempfile.open do |tmp|
-      IO.popen(command) do |command|
-        until command.eof?
-          tmp.write command.read(4096)
-        end
-        tmp.rewind
-        tmp.extend(Ollama::Utils::Fetcher::ContentType)
-        tmp.content_type = MIME::Types['text/plain'].first
-        block.(tmp)
-      end
-    end
-  rescue => e
-    STDERR.puts "Cannot execute #{command.inspect} (#{e})"
-    if @debug && !e.is_a?(RuntimeError)
-      STDERR.puts "#{e.backtrace * ?\n}"
-    end
-    yield ContentType.failed
   end
 end

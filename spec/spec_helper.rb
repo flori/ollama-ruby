@@ -5,6 +5,7 @@ if ENV['START_SIMPLECOV'].to_i == 1
   end
 end
 require 'rspec'
+require 'tins/xt/expose'
 begin
   require 'debug'
 rescue LoadError

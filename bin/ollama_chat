@@ -251,7 +251,7 @@ def search_web(query, n = nil)
   n < 1 and n = 1
   query = URI.encode_uri_component(query)
   url = "https://www.duckduckgo.com/html/?q=#{query}"
-  Ollama::Utils::Fetcher.new(debug: $config.debug).get(url) do |tmp|
+  Ollama::Utils::Fetcher.get(url, debug: $config.debug) do |tmp|
     result = []
     doc = Nokogiri::HTML(tmp)
     doc.css('.results_links').each do |link|
