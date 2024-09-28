@@ -2,10 +2,9 @@ services:
   redis:
     image: redis:7.2.5-alpine
     restart: unless-stopped
-    ports:
-    - "9736:6379"
+    ports: [ "127.0.0.1:9736:6379" ]
     volumes:
-    - "redis-data:/data:delegated"
-    - "./config/redis.conf:/etc/redis.conf"
+      - "redis-data:/data:delegated"
+      - "./config/redis.conf:/etc/redis.conf"
 volumes:
   redis-data:
