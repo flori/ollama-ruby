@@ -512,7 +512,7 @@ def fetch_source(source, &block)
     raise "invalid source"
   end
 rescue => e
-  STDERR.puts "Cannot add source #{source.to_s.inspect}: #{e}\n#{e.backtrace * ?\n}"
+  STDERR.puts "Cannot fetch source #{source.to_s.inspect}: #{e}\n#{e.backtrace * ?\n}"
 end
 
 def import(source)
