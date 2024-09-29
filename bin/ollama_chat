@@ -65,6 +65,7 @@ class OllamaChatConfig
         url: <%= ENV.fetch('REDIS_URL', 'null') %>
       expiring:
         url: <%= ENV.fetch('REDIS_EXPIRING_URL', 'null') %>
+        ex: 86400
     debug: <%= ENV['OLLAMA_CHAT_DEBUG'].to_i == 1 ? true : false %>
     ssl_no_verify: []
     copy: pbcopy
@@ -493,7 +494,12 @@ def fetch_source(source, &block)
       block.(tmp)
     end
   when %r(\Ahttps?://\S+)
-    Utils::Fetcher.get(source, debug: $config.debug, http_options: http_options(source)) do |tmp|
+    Utils::Fetcher.get(
+      source,
+      cache:        $cache,
+      debug:        $config.debug,
+      http_options: http_options(source)
+    ) do |tmp|
       block.(tmp)
     end
   when %r(\Afile://(?:(?:[.-]|[[:alnum:]])*)(/\S*)|([~.]?/\S*))
@@ -817,6 +823,14 @@ if $embedding.on?
   end
 else
   $documents = Tins::NULL
+end
+
+if redis_expiring_url = $config.redis.expiring.url?
+  $cache = Ollama::Documents::RedisCache.new(
+    prefix: 'Expiring-',
+    url:    redis_expiring_url,
+    ex:     $config.redis.expiring.ex,
+  )
 end
 
 puts "Configuration read from #{config.filename.inspect} is:", $config

@@ -3,6 +3,7 @@ require 'tins/unit'
 require 'infobar'
 require 'mime-types'
 require 'stringio'
+require 'ollama/utils/cache_fetcher'
 
 class Ollama::Utils::Fetcher
   module ContentType
@@ -18,7 +19,21 @@ class Ollama::Utils::Fetcher
   class RetryWithoutStreaming < StandardError; end
 
   def self.get(url, **options, &block)
-    new(**options).send(:get, url, &block)
+    cache = options.delete(:cache) and
+      cache = Ollama::Utils::CacheFetcher.new(cache)
+    if result = cache&.get(url, &block)
+      infobar.puts "Getting #{url.inspect} from cache."
+      return result
+    else
+      new(**options).send(:get, url) do |tmp|
+        result = block.(tmp)
+        if cache && !tmp.is_a?(StringIO)
+          tmp.rewind
+          cache.put(url, tmp)
+        end
+        result
+      end
+    end
   end
 
   def self.read(filename, &block)
