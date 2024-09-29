@@ -163,6 +163,7 @@ The following commands can be given inside the chat, if prefixed by a `/`:
 /clobber                        clear the conversation and collection
 /pop [n]                        pop the last n exchanges, defaults to 1
 /model                          change the model
+/system                         change system prompt (clears conversation)
 /regenerate                     the last answer message
 /collection clear [tag]|change  clear or show stats of current collection
 /import source                  import the source's content

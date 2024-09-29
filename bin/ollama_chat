@@ -637,6 +637,23 @@ def show_system_prompt
   EOT
 end
 
+def set_system_prompt(messages, system)
+  $system = system
+  messages.clear
+  messages << Message.new(role: 'system', content: system)
+end
+
+def change_system_prompt(messages)
+  prompts = $config.system_prompts.attribute_names.compact
+  chosen  = Ollama::Utils::Chooser.choose(prompts)
+  system  = if chosen
+              $config.system_prompts.send(chosen)
+            else
+              default
+            end
+  set_system_prompt(messages, system)
+end
+
 def info
   puts "Current model is #{bold{$model}}."
   collection_stats
@@ -681,6 +698,7 @@ def display_chat_help
     /clobber                        clear the conversation and collection
     /pop [n]                        pop the last n exchanges, defaults to 1
     /model                          change the model
+    /system                         change system prompt (clears conversation)
     /regenerate                     the last answer message
     /collection clear [tag]|change  clear or show stats of current collection
     /import source                  import the source's content
@@ -752,19 +770,10 @@ if $opts[?c]
 else
   default = $config.system_prompts.default? || model_system
   if $opts[?s] == ??
-    prompts = $config.system_prompts.attribute_names.compact
-    chosen = Ollama::Utils::Chooser.choose(prompts)
-    system = if chosen
-               $config.system_prompts.send(chosen)
-             else
-               default
-             end
+    change_system_prompt(messages)
   else
     system = Ollama::Utils::FileArgument.get_file_argument($opts[?s], default:)
-  end
-  if system.present?
-    $system = system
-    messages << Message.new(role: 'system', content: system)
+    system.present? and set_system_prompt(messages, system)
   end
 end
 
@@ -863,6 +872,10 @@ loop do
     when 'change'
       choose_collection(collection)
     end
+    next
+  when %r(^/system$)
+    change_system_prompt(messages)
+    info
     next
   when %r(/info)
     info
