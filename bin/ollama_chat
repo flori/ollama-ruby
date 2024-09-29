@@ -286,7 +286,7 @@ def pull_model_unless_present(model, options, retried = false)
     end
   }
 rescue Errors::NotFoundError
-  puts "Model #{bold{model}} not found, attempting to pull it now…"
+  puts "Model #{bold{model}} not found locally, attempting to pull it from remote now…"
   ollama.pull(name: model)
   if retried
     exit 1
