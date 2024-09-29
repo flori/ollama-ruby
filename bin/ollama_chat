@@ -295,7 +295,7 @@ rescue Errors::NotFoundError
     retry
   end
 rescue Errors::Error => e
-  warn "Caught #{e.class}: #{e} => Exiting."
+  warn "Caught #{e.class} while pulling model: #{e} => Exiting."
   exit 1
 end
 
