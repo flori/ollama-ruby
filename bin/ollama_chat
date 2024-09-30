@@ -83,7 +83,7 @@ class OllamaChatConfig
     if @filename == default_path && !retried
       retried = true
       mkdir_p File.dirname(default_path)
-      File.secure_write(default_path.to_s, DEFAULT_CONFIG)
+      File.secure_write(default_path, DEFAULT_CONFIG)
       retry
     else
       raise

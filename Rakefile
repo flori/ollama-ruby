@@ -42,6 +42,7 @@ GemHadar do
   dependency             'logger',                '~> 1.0'
   dependency             'json',                  '~> 2.0'
   dependency             'xdg',                   '~> 7.0'
+  dependency             'tins',                  '~> 1.34'
   development_dependency 'all_images',            '~> 0.4'
   development_dependency 'rspec',                 '~> 3.2'
   development_dependency 'webmock'
