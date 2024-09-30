@@ -1,5 +1,51 @@
 # Changes
 
+## 2024-09-30 v0.6.0
+
+### Significant Changes
+
+* **Added voice toggle and change functionality**:
+	+ Removed `-v` command line switch
+	+ Added new Switch class for voice output
+	+ Added new method `change_voice` to toggle or change voice output
+	+ Updated `info` method to display current voice output if enabled
+	+ Updated `display_chat_help` method to include /voice command
+* **Added expiring cache support**:
+	+ Added `Ollama::Utils::CacheFetcher` class for caching HTTP responses
+	+ Modified `Ollama::Utils::Fetcher` to use the new cache class
+	+ Updated `ollama_chat` script to use the cache when fetching sources
+	+ Added specs for the new cache fetcher class
+* **Added change system prompt feature**:
+	+ Added `/system` command to change system prompt
+	+ Implemented `set_system_prompt` and `change_system_prompt` methods in `bin/ollama_chat`
+	+ Updated help messages in `README.md`
+
+### Other Changes
+
+* **Updated dependencies**:
+	+ Updated version of `xdg` gem to **7.0**
+	+ Added `xdg` dependency to Rakefile
+* **Refactored error handling**:
+	+ Warn message updated to include more context about the error
+	+ `warn` statement now mentions "while pulling model"
+* **Updated chat commands and added clipboard functionality**:
+	+ Added `/copy` command to copy last response to clipboard
+	+ Implemented `copy_to_clipboard` method in `ollama_chat`
+	+ Updated chat help display to include new `/copy` command
+* **Refactored Ollama::Utils::Fetcher**:
+	+ Made instance methods private and only exposed class methods
+	+ Added `expose` method to `Ollama::Utils::FetcherSpec` for testing
+* **Added version command to ollama chat binary**:
+	+ Added `version` method to print Ollama version and exit
+	+ Updated `$opts` string in `ollama` script to include `-V` option for version command
+	+ Added call to `version` method when `-V` option is used
+* **Updated system prompt display**:
+	+ Changed `Ollama::Utils::Width.wrap` to `Ollama::Utils::ANSIMarkdown.parse` in `show_system_prompt` method
+* **Added system prompt configuration via search_ui for ? argument value**:
+	+ Added `show_system_prompt` method to print configured system prompt
+	+ Modified `info` method to include system prompt in output
+	+ Implemented option `-s ?` to choose or specify system prompt
+
 ## 2024-09-26 v0.5.0
 
 ### New Features
