@@ -42,9 +42,10 @@ ollama_chat [OPTIONS]
   -s SYSTEM      the system prompt to use as a file, OLLAMA_CHAT_SYSTEM
   -c CHAT        a saved chat conversation to load
   -C COLLECTION  name of the collection used in this conversation
-  -D DOCUMENT    load document and add to collection (multiple)
+  -D DOCUMENT    load document and add to embeddings collection (multiple)
   -M             use (empty) MemoryCache for this chat session
   -E             disable embeddings for this chat session
+  -V             display the current version number and quit
   -h             this help
 ```
 
