@@ -32,7 +32,6 @@ class OllamaChatConfig
       options:
         num_ctx: 8192
     prompts:
-      system: <%= ENV.fetch('OLLAMA_CHAT_SYSTEM', 'null') %>
       embed: "This source was now embedded: %{source}"
       summarize: |
         Generate an abstract summary of the content in this document using
@@ -43,6 +42,8 @@ class OllamaChatConfig
         Answer the the query %{query} using these sources and summaries:
 
         %{results}
+    system_prompts:
+      default: <%= ENV.fetch('OLLAMA_CHAT_SYSTEM', 'null') %>
     voice:
       enabled: false
       default: Samantha
@@ -62,7 +63,7 @@ class OllamaChatConfig
       splitter:
         name: RecursiveCharacter
         chunk_size: 1024
-    cache: Ollama::Documents::Cache::RedisBackedMemoryCache
+    cache: Ollama::Documents::RedisBackedMemoryCache
     redis:
       documents:
         url: <%= ENV.fetch('REDIS_URL', 'null') %>
@@ -82,7 +83,7 @@ class OllamaChatConfig
     if @filename == default_path && !retried
       retried = true
       mkdir_p File.dirname(default_path)
-      File.secure_write(default_path, DEFAULT_CONFIG)
+      File.secure_write(default_path.to_s, DEFAULT_CONFIG)
       retry
     else
       raise
