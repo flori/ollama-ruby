@@ -45,7 +45,6 @@ ollama_chat [OPTIONS]
   -D DOCUMENT    load document and add to collection (multiple)
   -M             use (empty) MemoryCache for this chat session
   -E             disable embeddings for this chat session
-  -v             use voice output
   -h             this help
 ```
 
@@ -158,6 +157,7 @@ The following commands can be given inside the chat, if prefixed by a `/`:
 /paste                          to paste content
 /markdown                       toggle markdown output
 /stream                         toggle stream output
+/voice( change)                 toggle voice output or change the voice
 /list [n]                       list the last n / all conversation exchanges
 /clear                          clear the whole conversation
 /clobber                        clear the conversation and collection

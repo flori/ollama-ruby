@@ -43,7 +43,10 @@ class OllamaChatConfig
         Answer the the query %{query} using these sources and summaries:
 
         %{results}
-    voice: Samantha
+    voice:
+      enabled: false
+      default: Samantha
+      list: <%= `say -v ?`.lines.map { _1[/^(.+?)\s+[a-z]{2}_[a-zA-Z0-9]{2,}/, 1] }.uniq.sort.to_s.force_encoding('ASCII-8BIT') %>
     markdown: true
     stream: true
     embedding:
@@ -173,8 +176,8 @@ module CheckSwitch
 end
 
 class Switch
-  def initialize(name, msg:)
-    @value = !!$config.send("#{name}?")
+  def initialize(name, msg:, config: $config)
+    @value = !!config.send("#{name}?")
     @msg   = msg
   end
 
@@ -221,6 +224,15 @@ def setup_switches
       true  => "Streaming enabled.",
       false => "Streaming disabled.",
     }
+  )
+
+  $voice = Switch.new(
+    :stream,
+    msg: {
+      true  => "Voice output enabled.",
+      false => "Voice output disabled.",
+    },
+    config: $config.voice
   )
 
   $embedding_enabled = Switch.new(
@@ -632,14 +644,10 @@ rescue => e
   Ollama::Documents::MemoryCache
 end
 
-def $embedding.on?
-  $embedding.on?
-end
-
 def show_system_prompt
   puts <<~EOT
     Configured system prompt is:
-    #{Ollama::Utils::ANSIMarkdown.parse($system.to_s).gsub(/\n+\z/, '')}
+    #{Ollama::Utils::ANSIMarkdown.parse($system.to_s).gsub(/\n+\z/, '').full? || 'n/a'}
   EOT
 end
 
@@ -660,6 +668,11 @@ def change_system_prompt(messages)
   set_system_prompt(messages, system)
 end
 
+def change_voice
+  chosen  = Ollama::Utils::Chooser.choose($config.voice.list)
+  $current_voice = chosen.full? || $config.voice.default
+end
+
 def info
   puts "Current model is #{bold{$model}}."
   collection_stats
@@ -670,6 +683,9 @@ def info
   puts "Documents database cache is #{$documents.nil? ? 'n/a' : bold{$documents.cache.class}}"
   $markdown.show
   $stream.show
+  if $voice.on?
+    puts "Using voice #{bold{$current_voice}} to speak."
+  end
   show_system_prompt
 end
 
@@ -699,6 +715,7 @@ def display_chat_help
     /paste                          to paste content
     /markdown                       toggle markdown output
     /stream                         toggle stream output
+    /voice( change)                 toggle voice output or change the voice
     /list [n]                       list the last n / all conversation exchanges
     /clear                          clear the whole conversation
     /clobber                        clear the conversation and collection
@@ -732,7 +749,7 @@ def usage
       -D DOCUMENT    load document and add to embeddings collection (multiple)
       -M             use (empty) MemoryCache for this chat session
       -E             disable embeddings for this chat session
-      -v             use voice output
+      -V             display the current version number and quit
       -h             this help
 
   EOT
@@ -748,7 +765,7 @@ def ollama
   $ollama
 end
 
-$opts = go 'f:u:m:s:c:C:D:MEvVh'
+$opts = go 'f:u:m:s:c:C:D:MEVh'
 
 config = OllamaChatConfig.new($opts[?f])
 $config = config.config
@@ -766,10 +783,6 @@ options      = Options[$config.model.options]
 model_system = pull_model_unless_present($model, options)
 messages     = []
 $embedding_enabled.set($config.embedding.enabled && !$opts[?E])
-
-if voice = ($config.voice if $opts[?v])
-  puts "Using voice #{bold{voice}} to speak."
-end
 
 if $opts[?c]
   messages.concat load_conversation($opts[?c])
@@ -833,6 +846,8 @@ if redis_expiring_url = $config.redis.expiring.url?
   )
 end
 
+$current_voice = $config.voice.default
+
 puts "Configuration read from #{config.filename.inspect} is:", $config
 info
 puts "\nType /help to display the chat help."
@@ -855,6 +870,13 @@ loop do
     next
   when %r(^/stream$)
     $stream.toggle
+    next
+  when %r(^/voice(?:\s+(change))?$)
+    if $1 == 'change'
+      change_voice
+    else
+      $voice.toggle
+    end
     next
   when %r(^/list(?:\s+(\d*))?$)
     last = if $1
@@ -986,7 +1008,7 @@ loop do
 
   messages << Message.new(role: 'user', content:, images: images.dup)
   images.clear
-  handler = FollowChat.new(messages:, markdown: $markdown.on?, voice:)
+  handler = FollowChat.new(messages:, markdown: $markdown.on?, voice: ($current_voice if $voice.on?))
   ollama.chat(model: $model, messages:, options:, stream: $stream.on?, &handler)
 
   if $embedding.on? && !records.empty?
