@@ -426,12 +426,11 @@ def parse_source(source_io)
     parse_rss(source_io)
   when 'application/atom+xml'
     parse_atom(source_io)
-  when 'application/json'
-    source_io.read
+  # TODO when 'application/postscript'
   when 'application/pdf'
     reader = PDF::Reader.new(source_io)
     reader.pages.inject(+'') { |result, page| result << page.text }
-  when %r(\Atext/), nil
+  when %r(\Aapplication/(json|ld\+json|x-ruby-lang|x-perl|x-gawk|x-python|x-javascript|x-c?sh|x-dosexec|x-shellscript|x-tex|x-latex|x-lyx|x-bibtex)), %r(\Atext/), nil
     source_io.read
   else
     STDERR.puts "Cannot embed #{source_io&.content_type} document."
