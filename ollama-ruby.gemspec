@@ -47,5 +47,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<pdf-reader>.freeze, ["~> 2.0".freeze])
   s.add_runtime_dependency(%q<logger>.freeze, ["~> 1.0".freeze])
   s.add_runtime_dependency(%q<json>.freeze, ["~> 2.0".freeze])
-  s.add_runtime_dependency(%q<xdg>.freeze, ["~> 8.0".freeze])
+  s.add_runtime_dependency(%q<xdg>.freeze, ["~> 7.0".freeze])
 end
