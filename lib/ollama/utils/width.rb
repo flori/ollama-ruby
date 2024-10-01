@@ -2,6 +2,7 @@ require 'tins/terminal'
 
 module Ollama::Utils::Width
   include Term::ANSIColor
+  extend Term::ANSIColor
 
   module_function
 
@@ -26,10 +27,11 @@ module Ollama::Utils::Width
     percentage.nil? ^ length.nil? or
       raise ArgumentError, "either pass percentage or length argument"
     percentage and length ||= width(percentage:)
-    if length < 1
+    ellipsis_length = ellipsis.size
+    if length < ellipsis_length
       +''
-    elsif text.size > length
-      text[0, length - 1] + ?…
+    elsif text.size >= length + ellipsis_length
+      text[0, length - ellipsis_length] + ellipsis
     else
       text
     end
