@@ -4,9 +4,6 @@ require 'ollama'
 include Ollama
 require 'term/ansicolor'
 include Term::ANSIColor
-require 'tins'
-require 'tins/xt/full'
-require 'tins/xt/hash_union'
 include Tins::GO
 require 'reline'
 require 'reverse_markdown'

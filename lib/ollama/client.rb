@@ -1,6 +1,3 @@
-require 'tins/xt/string_camelize'
-require 'tins/annotate'
-
 class Ollama::Client
 end
 require 'ollama/client/doc'

@@ -1,6 +1,10 @@
 require 'json'
 require 'logger'
 require 'excon'
+require 'tins'
+require 'tins/xt/full'
+require 'tins/xt/hash_union'
+require 'tins/xt/string_camelize'
 
 module Ollama
 end
