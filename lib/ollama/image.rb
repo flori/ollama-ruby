@@ -7,6 +7,8 @@ class Ollama::Image
 
   attr_accessor :path
 
+  attr_reader :data
+
   class << self
     def for_base64(data, path: nil)
       obj = new(data)
@@ -31,7 +33,7 @@ class Ollama::Image
   end
 
   def ==(other)
-    @data == other..data
+    @data == other.data
   end
 
   def to_s

@@ -9,6 +9,11 @@ RSpec.describe Ollama::Image do
     expect(image).to be_a described_class
   end
 
+  it 'can be equal or not' do
+    expect(image).not_to eq described_class.for_string('')
+    expect(image).to eq described_class.for_filename(asset('kitten.jpg'))
+  end
+
   it 'cannot be created via .new' do
     expect {
       described_class.new('nix')
