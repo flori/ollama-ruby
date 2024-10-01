@@ -769,7 +769,7 @@ end
 
 def usage
   puts <<~EOT
-    #{File.basename($0)} [OPTIONS]
+    Usage: #{File.basename($0)} [OPTIONS]
 
       -f CONFIG      config file to read
       -u URL         the ollama base url, OLLAMA_URL

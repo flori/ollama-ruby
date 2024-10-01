@@ -8,8 +8,8 @@ include Tins::GO
 require 'json'
 
 def usage
-  puts <<~end
-    #{File.basename($0)} [OPTIONS]
+  puts <<~EOT
+    Usage: #{File.basename($0)} [OPTIONS]
 
       -u URL         the ollama base url, OLLAMA_URL
       -m MODEL       the ollama model to chat with, OLLAMA_MODEL
@@ -22,7 +22,7 @@ def usage
       -S             use streaming for generation
       -h             this help
 
-  end
+  EOT
   exit 0
 end
 
