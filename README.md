@@ -158,6 +158,7 @@ The following commands can be given inside the chat, if prefixed by a `/`:
 /paste                          to paste content
 /markdown                       toggle markdown output
 /stream                         toggle stream output
+/location                       toggle location submission
 /voice( change)                 toggle voice output or change the voice
 /list [n]                       list the last n / all conversation exchanges
 /clear                          clear the whole conversation

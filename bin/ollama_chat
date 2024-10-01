@@ -31,6 +31,11 @@ class OllamaChatConfig
       name: <%= ENV.fetch('OLLAMA_CHAT_MODEL', 'llama3.1') %>
       options:
         num_ctx: 8192
+    location:
+      enabled: false
+      name: Berlin
+      decimal_degrees: [ 52.514127, 13.475211 ]
+      units: SI (International System of Units) # or USCS (United States Customary System)
     prompts:
       embed: "This source was now embedded: %{source}"
       summarize: |
@@ -178,7 +183,7 @@ end
 
 class Switch
   def initialize(name, msg:, config: $config)
-    @value = !!config.send("#{name}?")
+    @value = [ false, true ].include?(config) ? config : !!config.send("#{name}?")
     @msg   = msg
   end
 
@@ -259,9 +264,21 @@ def setup_switches
       false => "Embedding is currently not performed.",
     }
   )
+
+  $location = Switch.new(
+    :location,
+    msg: {
+      true  => "Location and localtime enabled.",
+      false => "Location and localtime disabled.",
+    },
+    config: $config.location.enabled
+  )
 end
 
 def search_web(query, n = nil)
+  if l = at_location
+    query += " #{at_location}"
+  end
   n = n.to_i
   n < 1 and n = 1
   query = URI.encode_uri_component(query)
@@ -651,6 +668,18 @@ def show_system_prompt
   EOT
 end
 
+def at_location
+  if $location.on?
+    location_name            = $config.location.name
+    location_decimal_degrees = $config.location.decimal_degrees * ', '
+    localtime                = Time.now.iso8601
+    units                    = $config.location.units
+    $config.prompts.location % {
+      location_name:, location_decimal_degrees:, localtime:, units:,
+    }
+  end.to_s
+end
+
 def set_system_prompt(messages, system)
   $system = system
   messages.clear
@@ -683,6 +712,7 @@ def info
   puts "Documents database cache is #{$documents.nil? ? 'n/a' : bold{$documents.cache.class}}"
   $markdown.show
   $stream.show
+  $location.show
   if $voice.on?
     puts "Using voice #{bold{$current_voice}} to speak."
   end
@@ -715,6 +745,7 @@ def display_chat_help
     /paste                          to paste content
     /markdown                       toggle markdown output
     /stream                         toggle stream output
+    /location                       toggle location submission
     /voice( change)                 toggle voice output or change the voice
     /list [n]                       list the last n / all conversation exchanges
     /clear                          clear the whole conversation
@@ -871,6 +902,9 @@ loop do
   when %r(^/stream$)
     $stream.toggle
     next
+  when %r(^/location$)
+    $location.toggle
+    next
   when %r(^/voice(?:\s+(change))?$)
     if $1 == 'change'
       change_voice
@@ -1004,6 +1038,10 @@ loop do
       content += "\nConsider these chunks for your answer:\n\n"\
         "#{records.map { [ _1.text, _1.tags_set ] * ?\n }.join("\n\n---\n\n")}"
     end
+  end
+
+  if location = at_location.full?
+    content += " [#{location} – do not comment on this information, just consider it for eventual queries]"
   end
 
   messages << Message.new(role: 'user', content:, images: images.dup)
