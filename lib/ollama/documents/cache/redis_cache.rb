@@ -23,7 +23,13 @@ class Ollama::Documents::RedisCache
   end
 
   def []=(key, value)
-    redis.set(pre(key), JSON.generate(value), ex: @ex)
+    set(key, value)
+  end
+
+  def set(key, value, ex: nil)
+    ex ||= @ex
+    redis.set(pre(key), JSON.generate(value), ex:)
+    value
   end
 
   def ttl(key)

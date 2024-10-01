@@ -9,6 +9,8 @@ class Ollama::Utils::Fetcher
   module ContentType
     attr_accessor :content_type
 
+    attr_accessor :ex
+
     def self.failed
       object = StringIO.new.extend(self)
       object.content_type = MIME::Types['text/plain'].first
@@ -22,7 +24,7 @@ class Ollama::Utils::Fetcher
     cache = options.delete(:cache) and
       cache = Ollama::Utils::CacheFetcher.new(cache)
     if result = cache&.get(url, &block)
-      infobar.puts "Getting #{url.inspect} from cache."
+      infobar.puts "Getting #{url.to_s.inspect} from cache."
       return result
     else
       new(**options).send(:get, url) do |tmp|
@@ -128,6 +130,12 @@ class Ollama::Utils::Fetcher
     tmp.extend(ContentType)
     if content_type = MIME::Types[response.headers['content-type']].first
       tmp.content_type = content_type
+    end
+    if cache_control = response.headers['cache-control'] and
+        cache_control !~ /no-store|no-cache/ and
+        ex = cache_control[/s-maxage\s*=\s*(\d+)/, 1] || cache_control[/max-age\s*=\s*(\d+)/, 1]
+    then
+      tmp.ex = ex.to_i
     end
   end
 

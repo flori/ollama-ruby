@@ -25,8 +25,8 @@ class Ollama::Utils::CacheFetcher
     body.empty? and return
     content_type = io.content_type
     content_type.nil? and return
-    @cache[key(:body, url)]          = body
-    @cache[key(:content_type,  url)] = content_type.to_s
+    @cache.set(key(:body, url), body, ex: io.ex)
+    @cache.set(key(:content_type,  url), content_type.to_s, ex: io.ex)
     self
   end
 

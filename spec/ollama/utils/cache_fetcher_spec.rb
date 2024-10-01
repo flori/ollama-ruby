@@ -35,8 +35,9 @@ RSpec.describe Ollama::Utils::CacheFetcher do
     io = StringIO.new('world')
     io.extend(Ollama::Utils::Fetcher::ContentType)
     io.content_type = MIME::Types['text/plain'].first
-    expect(cache).to receive(:[]=).with('body-69ce405ab83f42dffa9fd22bbd47783f', 'world')
-    expect(cache).to receive(:[]=).with('content_type-69ce405ab83f42dffa9fd22bbd47783f', 'text/plain')
+    io.ex = 666
+    expect(cache).to receive(:set).with('body-69ce405ab83f42dffa9fd22bbd47783f', 'world', ex: 666)
+    expect(cache).to receive(:set).with('content_type-69ce405ab83f42dffa9fd22bbd47783f', 'text/plain', ex: 666)
     fetcher.put(url, io)
   end
 end
