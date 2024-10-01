@@ -25,7 +25,7 @@ class Ollama::Documents
     end
 
     def tags_set
-      Ollama::Utils::Tags.new(tags)
+      Ollama::Utils::Tags.new(tags, source:)
     end
 
     def ==(other)
@@ -57,8 +57,10 @@ class Ollama::Documents
 
   def add(inputs, batch_size: 10, source: nil, tags: [])
     inputs = Array(inputs)
-    tags   = Ollama::Utils::Tags.new(tags)
-    source and tags.add File.basename(source).gsub(/\?.*/, '')
+    tags = Ollama::Utils::Tags.new(tags, source:)
+    if source
+      tags.add(File.basename(source).gsub(/\?.*/, ''), source:)
+    end
     inputs.map! { |i|
       text = i.respond_to?(:read) ? i.read : i.to_s
       text
@@ -70,7 +72,7 @@ class Ollama::Documents
     end
     batches = inputs.each_slice(batch_size).
       with_infobar(
-        label: "Add #{truncate(tags.to_s, percentage: 25)}",
+        label: "Add #{truncate(tags.to_s(link: false), percentage: 25)}",
         total: inputs.size
       )
     batches.each do |batch|
@@ -159,7 +161,11 @@ class Ollama::Documents
   end
 
   def tags
-    @cache.inject(Ollama::Utils::Tags.new) { |t, (_, record)| t.merge(record.tags) }
+    @cache.each_with_object(Ollama::Utils::Tags.new) do |(_, record), t|
+      record.tags.each do |tag|
+        t.add(tag, source: record.source)
+      end
+    end
   end
 
   private

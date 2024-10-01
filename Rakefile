@@ -32,7 +32,6 @@ GemHadar do
   dependency             'redis',                 '~> 5.0'
   dependency             'numo-narray',           '~> 0.9'
   dependency             'more_math',             '~> 1.1'
-  dependency             'sorted_set',            '~> 1.0'
   dependency             'mime-types',            '~> 3.0'
   dependency             'reverse_markdown',      '~> 2.0'
   dependency             'complex_config',        '~> 0.22'

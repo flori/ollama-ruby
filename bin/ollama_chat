@@ -491,7 +491,7 @@ def embed_source(source_io, source)
       length: 10
     )
   end
-  $documents.add(inputs, source: source)
+  $documents.add(inputs, source:)
 end
 
 def add_image(images, source_io, source)
@@ -589,7 +589,7 @@ def parse_content(content, images)
   content.scan(%r([.~]?/\S+|https?://\S+|#\S+)).each do |source|
     case source
     when /\A#(\S+)/
-      tags << $1
+      tags.add($1, source:)
     else
       source = source.sub(/(["')]|\*+)\z/, '')
       fetch_source(source) do |source_io|
@@ -922,7 +922,7 @@ loop do
   when %r(^/clobber$)
     clear_messages(messages)
     $documents.clear
-    puts "Cleared messages and collection."
+    puts "Cleared messages and collection #{bold{$documents.collection}}."
     next
   when %r(^/collection\s+(clear|change)(?:\s+(.+))?$)
     command, arg = $1, $2
@@ -931,10 +931,10 @@ loop do
       tags = arg.present? ? arg.sub(/\A#*/, '') : nil
       if tags
         $documents.clear(tags:)
-        puts "Cleared tag ##{tags} from collection #{bold{collection}}."
+        puts "Cleared tag ##{tags} from collection #{bold{$documents.collection}}."
       else
         $documents.clear
-        puts "Cleared collection #{bold{collection}}."
+        puts "Cleared collection #{bold{$documents.collection}}."
       end
     when 'change'
       choose_collection(collection)
