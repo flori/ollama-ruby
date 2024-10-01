@@ -6,7 +6,7 @@ require 'stringio'
 require 'ollama/utils/cache_fetcher'
 
 class Ollama::Utils::Fetcher
-  module ContentType
+  module HeaderExtension
     attr_accessor :content_type
 
     attr_accessor :ex
@@ -41,7 +41,7 @@ class Ollama::Utils::Fetcher
   def self.read(filename, &block)
     if File.exist?(filename)
       File.open(filename) do |file|
-        file.extend(Ollama::Utils::Fetcher::ContentType)
+        file.extend(Ollama::Utils::Fetcher::HeaderExtension)
         file.content_type = MIME::Types.type_for(filename).first
         block.(file)
       end
@@ -55,7 +55,7 @@ class Ollama::Utils::Fetcher
           tmp.write command.read(4096)
         end
         tmp.rewind
-        tmp.extend(Ollama::Utils::Fetcher::ContentType)
+        tmp.extend(Ollama::Utils::Fetcher::HeaderExtension)
         tmp.content_type = MIME::Types['text/plain'].first
         block.(tmp)
       end
@@ -65,7 +65,7 @@ class Ollama::Utils::Fetcher
     if @debug && !e.is_a?(RuntimeError)
       STDERR.puts "#{e.backtrace * ?\n}"
     end
-    yield ContentType.failed
+    yield HeaderExtension.failed
   end
 
   def initialize(debug: false, http_options: {})
@@ -112,7 +112,7 @@ class Ollama::Utils::Fetcher
     if @debug && !e.is_a?(RuntimeError)
       STDERR.puts "#{e.backtrace * ?\n}"
     end
-    yield ContentType.failed
+    yield HeaderExtension.failed
   end
 
   def headers
@@ -125,9 +125,11 @@ class Ollama::Utils::Fetcher
     (Excon.defaults[:middlewares] + [ Excon::Middleware::RedirectFollower ]).uniq
   end
 
+  private
+
   def decorate_io(tmp, response)
     tmp.rewind
-    tmp.extend(ContentType)
+    tmp.extend(HeaderExtension)
     if content_type = MIME::Types[response.headers['content-type']].first
       tmp.content_type = content_type
     end

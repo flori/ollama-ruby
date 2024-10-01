@@ -33,7 +33,7 @@ RSpec.describe Ollama::Utils::CacheFetcher do
 
   it 'has #put' do
     io = StringIO.new('world')
-    io.extend(Ollama::Utils::Fetcher::ContentType)
+    io.extend(Ollama::Utils::Fetcher::HeaderExtension)
     io.content_type = MIME::Types['text/plain'].first
     io.ex = 666
     expect(cache).to receive(:set).with('body-69ce405ab83f42dffa9fd22bbd47783f', 'world', ex: 666)

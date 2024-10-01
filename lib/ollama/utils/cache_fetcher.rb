@@ -13,7 +13,7 @@ class Ollama::Utils::CacheFetcher
     if body && content_type
       io = StringIO.new(body)
       io.rewind
-      io.extend(Ollama::Utils::Fetcher::ContentType)
+      io.extend(Ollama::Utils::Fetcher::HeaderExtension)
       io.content_type = content_type
       block.(io)
     end
