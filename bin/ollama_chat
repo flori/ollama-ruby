@@ -785,7 +785,8 @@ def display_chat_help
     /model                          change the model
     /system                         change system prompt (clears conversation)
     /regenerate                     the last answer message
-    /collection clear [tag]|change  clear or show stats of current collection
+    /collection( clear|change)      change (default) collection or clear
+    /info                           show information for current session
     /import source                  import the source's content
     /summarize [n] source           summarize the source's content in n words
     /embedding                      toggle embedding paused or not
@@ -921,12 +922,12 @@ loop do
   content = Reline.readline(input_prompt, true)&.chomp
 
   case content
-  when %r(^/paste$)
-    puts bold { "Paste your content and then press C-d!" }
-    content = STDIN.read
   when %r(^/copy$)
     copy_to_clipboard(messages)
     next
+  when %r(^/paste$)
+    puts bold { "Paste your content and then press C-d!" }
+    content = STDIN.read
   when %r(^/markdown$)
     $markdown.toggle
     next
@@ -962,6 +963,34 @@ loop do
       puts 'Cancelled.'
     end
     next
+  when %r(^/pop(?:\s+(\d*))?$)
+    if messages.size > 1
+      n = $1.to_i.clamp(1, Float::INFINITY)
+      r =  messages.pop(2 * n)
+      m = r.size / 2
+      puts "Popped the last #{m} exchanges."
+    else
+      puts "No more exchanges you can pop."
+    end
+    list_conversation(messages, 2)
+    next
+  when %r(^/model$)
+    $model = choose_model('', $model)
+    next
+  when %r(^/system$)
+    change_system_prompt(messages, $system)
+    info
+    next
+  when %r(^/regenerate$)
+    if content = messages[-2]&.content
+      content.gsub!(/\nConsider these chunks for your answer.*\z/, '')
+      messages.pop(2)
+    else
+      puts "Not enough messages in this conversation."
+      redo
+    end
+    parse_content = false
+    content
   when %r(^/collection(?:\s+(clear|change))?$)
     case $1 || 'change'
     when 'clear'
@@ -991,37 +1020,9 @@ loop do
       choose_collection($documents.collection)
     end
     next
-  when %r(^/system$)
-    change_system_prompt(messages, $system)
-    info
-    next
   when %r(/info)
     info
     next
-  when %r(^/pop(?:\s+(\d*))?$)
-    if messages.size > 1
-      n = $1.to_i.clamp(1, Float::INFINITY)
-      r =  messages.pop(2 * n)
-      m = r.size / 2
-      puts "Popped the last #{m} exchanges."
-    else
-      puts "No more exchanges you can pop."
-    end
-    list_conversation(messages, 2)
-    next
-  when %r(^/model$)
-    $model = choose_model('', $model)
-    next
-  when %r(^/regenerate$)
-    if content = messages[-2]&.content
-      content.gsub!(/\nConsider these chunks for your answer.*\z/, '')
-      messages.pop(2)
-    else
-      puts "Not enough messages in this conversation."
-      redo
-    end
-    parse_content = false
-    content
   when %r(^/import\s+(.+))
     parse_content = false
     content       = import($1) or next
