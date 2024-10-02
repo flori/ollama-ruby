@@ -1,5 +1,43 @@
 # Changes
 
+## 2024-10-03 v0.7.0
+
+* **Refactor command line interface**
+	+ Moved case order
+	+ Renamed `/collection clear [tag]|change` to `/collection (clear|change)`
+	+ Improved help message, added /info
+* **Update README.md** 
+	+ Update README.md to reflect changed/added commands
+* **Add support for reading PostScript**
+	+ Extracted `pdf_read` method to read PDF files using `PDF::Reader`
+	+ Added `ps_read` method to read PostScript files by converting them to PDF with Ghostscript and using `pdf_read`.
+	+ Updated `parse_source` method to handle PostScript files
+* **Update read buffer size for tempfile writes**
+	+ Updated `tmp.write` to use a larger buffer size (**16KB**) in IO.popen block.
+* **Refactor Collection Chooser and usages**
+	+ Added confirmation prompt before clearing collection
+	+ Improved collection chooser with `[EXIT]` and `[ALL]` options
+	+ Added `ask?` method for user input
+* **Add prompt to choose method**
+	+ Added `prompt` parameter to `choose` method in `Ollama::Utils::Chooser`
+	+ Modified output formatting for selected entry in `choose` method
+	+ Updated `choose` method to handle cases better where no entry was chosen
+* **Fix Redis cache expiration logic**
+	+ Update `set` method to delete key expiration time is less than 1 second.
+* **Update dependencies and add source tracking** 
+	- Remove `sorted_set` dependency from Rakefile
+	- Modify `Ollama::Documents` class to track source of tags
+	- Update `Ollama::Utils::Tags` class to include source in tag output and add methods for tracking source
+	- Update tests for `Ollama::Utils::Tags` class
+* **Refactor width calculation and add tests for wrap and truncate methods.**
+	+ Extend `Term::ANSIColor` in `Ollama::Utils::Width`
+	+ Update `width` method to use ellipsis length when truncating text
+	+ Add tests for `wrap` and `truncate` methods with percentage and length arguments
+* **Add attr_reader for data and update equality check**
+	+ Added `attr_reader :data` to Ollama::Image class
+	+ Updated `==` method in Ollama::Image class to use `other.data`
+	+ Added test case in `image_spec.rb` to verify equality of images
+
 ## 2024-09-30 v0.6.0
 
 ### Significant Changes
