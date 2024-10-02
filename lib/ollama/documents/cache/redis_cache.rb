@@ -28,7 +28,11 @@ class Ollama::Documents::RedisCache
 
   def set(key, value, ex: nil)
     ex ||= @ex
-    redis.set(pre(key), JSON.generate(value), ex:)
+    if !ex.nil? && ex < 1
+      redis.del(pre(key))
+    else
+      redis.set(pre(key), JSON.generate(value), ex:)
+    end
     value
   end
 
