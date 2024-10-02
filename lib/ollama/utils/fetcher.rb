@@ -52,7 +52,7 @@ class Ollama::Utils::Fetcher
     Tempfile.open do |tmp|
       IO.popen(command) do |command|
         until command.eof?
-          tmp.write command.read(4096)
+          tmp.write command.read(1 << 14)
         end
         tmp.rewind
         tmp.extend(Ollama::Utils::Fetcher::HeaderExtension)
