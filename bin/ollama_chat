@@ -611,29 +611,37 @@ def parse_content(content, images)
   return content, (tags unless tags.empty?)
 end
 
-def choose_model(cli_model, default_model)
+def choose_model(cli_model, current_model)
   models = ollama.tags.models.map(&:name).sort
   model = if cli_model == ''
-            Ollama::Utils::Chooser.choose(models) || default_model
+            Ollama::Utils::Chooser.choose(models) || current_model
           else
-            cli_model || default_model
+            cli_model || current_model
           end
 ensure
   puts green { "Connecting to #{model}@#{ollama.base_url} now…" }
 end
 
-def choose_collection(default_collection)
-  collections = [ default_collection ] + $documents.collections
+def ask?(prompt:)
+  print prompt
+  STDIN.gets.chomp
+end
+
+def choose_collection(current_collection)
+  collections = [ current_collection ] + $documents.collections
   collections = collections.compact.map(&:to_s).uniq.sort
-  collections.unshift('[NEW]')
-  collection = Ollama::Utils::Chooser.choose(collections) || default_collection
-  if collection == '[NEW]'
-      print "Enter name of the new collection: "
-      collection = STDIN.gets.chomp
+  collections.unshift('[EXIT]').unshift('[NEW]')
+  collection = Ollama::Utils::Chooser.choose(collections) || current_collection
+  case collection
+  when '[NEW]'
+    $documents.collection = ask?(prompt: "Enter name of the new collection: ")
+  when nil, '[EXIT]'
+    puts "Exiting chooser."
+  when /./
+    $documents.collection = collection
   end
-  $documents.collection = collection
 ensure
-  puts "Changing to collection #{bold{collection}}."
+  puts "Using collection #{bold{$documents.collection}}."
   collection_stats
 end
 
@@ -683,7 +691,7 @@ def set_system_prompt(messages, system)
   messages << Message.new(role: 'system', content: system)
 end
 
-def change_system_prompt(messages)
+def change_system_prompt(messages, default)
   prompts = $config.system_prompts.attribute_names.compact
   chosen  = Ollama::Utils::Chooser.choose(prompts)
   system  = if chosen
@@ -817,7 +825,7 @@ if $opts[?c]
 else
   default = $config.system_prompts.default? || model_system
   if $opts[?s] == ??
-    change_system_prompt(messages)
+    change_system_prompt(messages, default)
   else
     system = Ollama::Utils::FileArgument.get_file_argument($opts[?s], default:)
     system.present? and set_system_prompt(messages, system)
@@ -920,28 +928,45 @@ loop do
     puts "Cleared messages."
     next
   when %r(^/clobber$)
-    clear_messages(messages)
-    $documents.clear
-    puts "Cleared messages and collection #{bold{$documents.collection}}."
+    if ask?(prompt: 'Are you sure? (y/n) ') =~ /\Ay/i
+      clear_messages(messages)
+      $documents.clear
+      puts "Cleared messages and collection #{bold{$documents.collection}}."
+    else
+      puts 'Cancelled.'
+    end
     next
-  when %r(^/collection\s+(clear|change)(?:\s+(.+))?$)
-    command, arg = $1, $2
-    case command
+  when %r(^/collection(?:\s+(clear|change))?$)
+    case $1 || 'change'
     when 'clear'
-      tags = arg.present? ? arg.sub(/\A#*/, '') : nil
-      if tags
-        $documents.clear(tags:)
-        puts "Cleared tag ##{tags} from collection #{bold{$documents.collection}}."
-      else
-        $documents.clear
-        puts "Cleared collection #{bold{$documents.collection}}."
+      loop do
+        tags = $documents.tags.add('[EXIT]').add('[ALL]')
+        tag = Ollama::Utils::Chooser.choose(tags, prompt: 'Clear? %s')
+        case tag
+        when nil, '[EXIT]'
+          puts "Exiting chooser."
+          break
+        when '[ALL]'
+          if ask?(prompt: 'Are you sure? (y/n) ') =~ /\Ay/i
+            $documents.clear
+            puts "Cleared collection #{bold{$documents.collection}}."
+            break
+          else
+            puts 'Cancelled.'
+            sleep 3
+          end
+        when /./
+          $documents.clear(tags: [ tag ])
+          puts "Cleared tag #{tag} from collection #{bold{$documents.collection}}."
+          sleep 3
+        end
       end
     when 'change'
-      choose_collection(collection)
+      choose_collection($documents.collection)
     end
     next
   when %r(^/system$)
-    change_system_prompt(messages)
+    change_system_prompt(messages, $system)
     info
     next
   when %r(/info)
