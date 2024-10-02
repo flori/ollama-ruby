@@ -415,6 +415,32 @@ def parse_atom(source_io)
   end
 end
 
+def pdf_read(io)
+  reader = PDF::Reader.new(io)
+  reader.pages.inject(+'') { |result, page| result << page.text }
+end
+
+def ps_read(io)
+  gs = `which gs`.chomp
+  if gs.present?
+    Tempfile.create do |tmp|
+      IO.popen("#{gs} -q -sDEVICE=pdfwrite -sOutputFile=#{tmp.path} -", 'wb') do |gs_io|
+        until io.eof?
+          buffer = io.read(1 << 17)
+          IO.select(nil, [ gs_io ], nil)
+          gs_io.write buffer
+        end
+        gs_io.close
+        File.open(tmp.path, 'rb') do |pdf|
+          pdf_read(pdf)
+        end
+      end
+    end
+  else
+    STDERR.puts "Cannot convert #{io&.content_type} whith ghostscript, gs not in path."
+  end
+end
+
 def parse_source(source_io)
   case source_io&.content_type
   when 'text/html'
@@ -440,10 +466,10 @@ def parse_source(source_io)
     parse_rss(source_io)
   when 'application/atom+xml'
     parse_atom(source_io)
-  # TODO when 'application/postscript'
+  when 'application/postscript'
+    ps_read(source_io)
   when 'application/pdf'
-    reader = PDF::Reader.new(source_io)
-    reader.pages.inject(+'') { |result, page| result << page.text }
+    pdf_read(source_io)
   when %r(\Aapplication/(json|ld\+json|x-ruby|x-perl|x-gawk|x-python|x-javascript|x-c?sh|x-dosexec|x-shellscript|x-tex|x-latex|x-lyx|x-bibtex)), %r(\Atext/), nil
     source_io.read
   else
