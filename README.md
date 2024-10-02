@@ -34,7 +34,7 @@ This a chat client, that can be used to connect to an ollama server and enter a
 chat converstation with a LLM. It can be called with the following arguments:
 
 ```
-ollama_chat [OPTIONS]
+Usage: ollama_chat [OPTIONS]
 
   -f CONFIG      config file to read
   -u URL         the ollama base url, OLLAMA_URL
@@ -167,7 +167,8 @@ The following commands can be given inside the chat, if prefixed by a `/`:
 /model                          change the model
 /system                         change system prompt (clears conversation)
 /regenerate                     the last answer message
-/collection clear [tag]|change  clear or show stats of current collection
+/collection( clear|change)      change (default) collection or clear
+/info                           show information for current session
 /import source                  import the source's content
 /summarize [n] source           summarize the source's content in n words
 /embedding                      toggle embedding paused or not
