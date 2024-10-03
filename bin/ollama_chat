@@ -683,6 +683,7 @@ def collection_stats
       Name: #{bold{$documents.collection}}
       Embedding model: #{bold{$embedding_model}}
       #Embeddings: #{$documents.size}
+      #Tags: #{$documents.tags.size}
       Tags: #{$documents.tags}
   EOT
 end
