@@ -55,8 +55,9 @@ class Ollama::Documents
     @cache.prefix = prefix
   end
 
-  def add(inputs, batch_size: 10, source: nil, tags: [])
+  def add(inputs, batch_size: nil, source: nil, tags: [])
     inputs = Array(inputs)
+    batch_size ||= 10
     tags = Ollama::Utils::Tags.new(tags, source:)
     if source
       tags.add(File.basename(source).gsub(/\?.*/, ''), source:)

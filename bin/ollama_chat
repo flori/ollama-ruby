@@ -59,6 +59,7 @@ class OllamaChatConfig
         options: {}
         # Retrieval prompt template:
         prompt: 'Represent this sentence for searching relevant passages: %s'
+      batch_size: 10
       collection: <%= ENV['OLLAMA_CHAT_COLLECTION'] %>
       found_texts_size: 4096
       found_texts_count: null
@@ -517,7 +518,7 @@ def embed_source(source_io, source)
       length: 10
     )
   end
-  $documents.add(inputs, source:)
+  $documents.add(inputs, source:, batch_size: $config.embedding.batch_size?)
 end
 
 def add_image(images, source_io, source)
