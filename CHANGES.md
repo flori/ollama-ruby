@@ -3,97 +3,97 @@
 ## 2024-10-03 v0.7.0
 
 * **Refactor command line interface**
-	+ Moved case order
-	+ Renamed `/collection clear [tag]|change` to `/collection (clear|change)`
-	+ Improved help message, added /info
+  + Moved case order
+  + Renamed `/collection clear [tag]|change` to `/collection (clear|change)`
+  + Improved help message, added /info
 * **Update README.md** 
-	+ Update README.md to reflect changed/added commands
+  + Update README.md to reflect changed/added commands
 * **Add support for reading PostScript**
-	+ Extracted `pdf_read` method to read PDF files using `PDF::Reader`
-	+ Added `ps_read` method to read PostScript files by converting them to PDF with Ghostscript and using `pdf_read`.
-	+ Updated `parse_source` method to handle PostScript files
+  + Extracted `pdf_read` method to read PDF files using `PDF::Reader`
+  + Added `ps_read` method to read PostScript files by converting them to PDF with Ghostscript and using `pdf_read`.
+  + Updated `parse_source` method to handle PostScript files
 * **Update read buffer size for tempfile writes**
-	+ Updated `tmp.write` to use a larger buffer size (**16KB**) in IO.popen block.
+  + Updated `tmp.write` to use a larger buffer size (**16KB**) in IO.popen block.
 * **Refactor Collection Chooser and usages**
-	+ Added confirmation prompt before clearing collection
-	+ Improved collection chooser with `[EXIT]` and `[ALL]` options
-	+ Added `ask?` method for user input
+  + Added confirmation prompt before clearing collection
+  + Improved collection chooser with `[EXIT]` and `[ALL]` options
+  + Added `ask?` method for user input
 * **Add prompt to choose method**
-	+ Added `prompt` parameter to `choose` method in `Ollama::Utils::Chooser`
-	+ Modified output formatting for selected entry in `choose` method
-	+ Updated `choose` method to handle cases better where no entry was chosen
+  + Added `prompt` parameter to `choose` method in `Ollama::Utils::Chooser`
+  + Modified output formatting for selected entry in `choose` method
+  + Updated `choose` method to handle cases better where no entry was chosen
 * **Fix Redis cache expiration logic**
-	+ Update `set` method to delete key expiration time is less than 1 second.
+  + Update `set` method to delete key expiration time is less than 1 second.
 * **Update dependencies and add source tracking** 
-	- Remove `sorted_set` dependency from Rakefile
-	- Modify `Ollama::Documents` class to track source of tags
-	- Update `Ollama::Utils::Tags` class to include source in tag output and add methods for tracking source
-	- Update tests for `Ollama::Utils::Tags` class
+  - Remove `sorted_set` dependency from Rakefile
+  - Modify `Ollama::Documents` class to track source of tags
+  - Update `Ollama::Utils::Tags` class to include source in tag output and add methods for tracking source
+  - Update tests for `Ollama::Utils::Tags` class
 * **Refactor width calculation and add tests for wrap and truncate methods.**
-	+ Extend `Term::ANSIColor` in `Ollama::Utils::Width`
-	+ Update `width` method to use ellipsis length when truncating text
-	+ Add tests for `wrap` and `truncate` methods with percentage and length arguments
+  + Extend `Term::ANSIColor` in `Ollama::Utils::Width`
+  + Update `width` method to use ellipsis length when truncating text
+  + Add tests for `wrap` and `truncate` methods with percentage and length arguments
 * **Add attr_reader for data and update equality check**
-	+ Added `attr_reader :data` to Ollama::Image class
-	+ Updated `==` method in Ollama::Image class to use `other.data`
-	+ Added test case in `image_spec.rb` to verify equality of images
+  + Added `attr_reader :data` to Ollama::Image class
+  + Updated `==` method in Ollama::Image class to use `other.data`
+  + Added test case in `image_spec.rb` to verify equality of images
 
 ## 2024-09-30 v0.6.0
 
 ### Significant Changes
 
 * **Added voice toggle and change functionality**:
-	+ Removed `-v` command line switch
-	+ Added new Switch class for voice output
-	+ Added new method `change_voice` to toggle or change voice output
-	+ Updated `info` method to display current voice output if enabled
-	+ Updated `display_chat_help` method to include /voice command
+  + Removed `-v` command line switch
+  + Added new Switch class for voice output
+  + Added new method `change_voice` to toggle or change voice output
+  + Updated `info` method to display current voice output if enabled
+  + Updated `display_chat_help` method to include /voice command
 * **Added expiring cache support**:
-	+ Added `Ollama::Utils::CacheFetcher` class for caching HTTP responses
-	+ Modified `Ollama::Utils::Fetcher` to use the new cache class
-	+ Updated `ollama_chat` script to use the cache when fetching sources
-	+ Added specs for the new cache fetcher class
+  + Added `Ollama::Utils::CacheFetcher` class for caching HTTP responses
+  + Modified `Ollama::Utils::Fetcher` to use the new cache class
+  + Updated `ollama_chat` script to use the cache when fetching sources
+  + Added specs for the new cache fetcher class
 * **Added change system prompt feature**:
-	+ Added `/system` command to change system prompt
-	+ Implemented `set_system_prompt` and `change_system_prompt` methods in `bin/ollama_chat`
-	+ Updated help messages in `README.md`
+  + Added `/system` command to change system prompt
+  + Implemented `set_system_prompt` and `change_system_prompt` methods in `bin/ollama_chat`
+  + Updated help messages in `README.md`
 
 ### Other Changes
 
 * **Updated dependencies**:
-	+ Updated version of `xdg` gem to **7.0**
-	+ Added `xdg` dependency to Rakefile
+  + Updated version of `xdg` gem to **7.0**
+  + Added `xdg` dependency to Rakefile
 * **Refactored error handling**:
-	+ Warn message updated to include more context about the error
-	+ `warn` statement now mentions "while pulling model"
+  + Warn message updated to include more context about the error
+  + `warn` statement now mentions "while pulling model"
 * **Updated chat commands and added clipboard functionality**:
-	+ Added `/copy` command to copy last response to clipboard
-	+ Implemented `copy_to_clipboard` method in `ollama_chat`
-	+ Updated chat help display to include new `/copy` command
+  + Added `/copy` command to copy last response to clipboard
+  + Implemented `copy_to_clipboard` method in `ollama_chat`
+  + Updated chat help display to include new `/copy` command
 * **Refactored Ollama::Utils::Fetcher**:
-	+ Made instance methods private and only exposed class methods
-	+ Added `expose` method to `Ollama::Utils::FetcherSpec` for testing
+  + Made instance methods private and only exposed class methods
+  + Added `expose` method to `Ollama::Utils::FetcherSpec` for testing
 * **Added version command to ollama chat binary**:
-	+ Added `version` method to print Ollama version and exit
-	+ Updated `$opts` string in `ollama` script to include `-V` option for version command
-	+ Added call to `version` method when `-V` option is used
+  + Added `version` method to print Ollama version and exit
+  + Updated `$opts` string in `ollama` script to include `-V` option for version command
+  + Added call to `version` method when `-V` option is used
 * **Updated system prompt display**:
-	+ Changed `Ollama::Utils::Width.wrap` to `Ollama::Utils::ANSIMarkdown.parse` in `show_system_prompt` method
+  + Changed `Ollama::Utils::Width.wrap` to `Ollama::Utils::ANSIMarkdown.parse` in `show_system_prompt` method
 * **Added system prompt configuration via search_ui for ? argument value**:
-	+ Added `show_system_prompt` method to print configured system prompt
-	+ Modified `info` method to include system prompt in output
-	+ Implemented option `-s ?` to choose or specify system prompt
+  + Added `show_system_prompt` method to print configured system prompt
+  + Modified `info` method to include system prompt in output
+  + Implemented option `-s ?` to choose or specify system prompt
 
 ## 2024-09-26 v0.5.0
 
 ### New Features
 
 * Add stdin substitution and variable expansion to `ollama_cli`:
-	+ Added support for `%{stdin}` in prompts, substituting with actual input
-	+ Added `-P` option to set prompt variables from command line arguments
-	+ Added handling of multiple placeholders in prompts
+  + Added support for `%{stdin}` in prompts, substituting with actual input
+  + Added `-P` option to set prompt variables from command line arguments
+  + Added handling of multiple placeholders in prompts
 * Add proxy support to Ollama chat client:
-	+ Add `tins/xt/hash_union` gem to dependencies
+  + Add `tins/xt/hash_union` gem to dependencies
     + Update `OllamaChatConfig` with new `proxy` option
     + Modify `http_options` method to include proxy and SSL verify peer options
       based on config settings
@@ -125,7 +125,7 @@
     + Added support for displaying a specific number of messages with `/list
       [n]`
 * Update chat commands' quit functionality:
-	+ Moved `/quit` command to exit the program
+  + Moved `/quit` command to exit the program
 * Refactor OllamaChatConfig web prompt:
     + Add `web` prompt to `OllamaChatConfig` class
     + Replace hardcoded content with variable `content`
@@ -155,10 +155,10 @@
 ### Refactoring
 
 * Refactor `file_argument.rb` for better readability:
-	+ Update conditionals in Ollama::Utils::FileArgument module
-	+ Simplify logic with improved variable usage
-	+ Remove unnecessary elsif statement
-	+ Use consistent indentation and spacing throughout the code
+  + Update conditionals in Ollama::Utils::FileArgument module
+  + Simplify logic with improved variable usage
+  + Remove unnecessary elsif statement
+  + Use consistent indentation and spacing throughout the code
 * Refactor Redis-backed memory cache:
     + Removed `pre` and `unpre` methods from `Ollama::Documents` use mixin
       instead.
@@ -166,12 +166,12 @@
 ### Documentation
 
 * Update README.md to reflect changes in `ollama_chat` functionality.
-	+ Modified commands:
-		- `/import source` to import the source's content
-		- `/embed source` to embed the source's content
+  + Modified commands:
+    - `/import source` to import the source's content
+    - `/embed source` to embed the source's content
         - `/summarize [n] source` to summarize the source's content in n words
         - `/embedding` to toggle embedding paused or not
-		- `/embed source` to embed the source's content
+    - `/embed source` to embed the source's content
 
 ### Dependencies and Date Updates
 
@@ -179,13 +179,13 @@
     + Added `logger` (~> **1.0**) and `json` (~> **2.0**) as runtime
       dependencies to Rakefile and ollama-ruby.gemspec.
     + Updated date in ollama-ruby.gemspec from "2024-09-21" to "2024-09-22".
-	+ Added `require 'logger'` to lib/ollama.rb.
+  + Added `require 'logger'` to lib/ollama.rb.
 
 ### Other Changes
 
 * Add SSL no verify option to OllamaChatConfig and Utils::Fetcher:
-	+ Added `ssl_no_verify` option to OllamaChatConfig
-	+ Updated Utils::Fetcher to take an
+  + Added `ssl_no_verify` option to OllamaChatConfig
+  + Updated Utils::Fetcher to take an
 
 ## 2024-09-21 v0.4.0
 
@@ -218,20 +218,20 @@
 ## 2024-09-15 v0.3.2
 
 * Add color support to chooser module:
-	+ Include `Term::ANSIColor` in `Ollama::Utils::Chooser` module
+  + Include `Term::ANSIColor` in `Ollama::Utils::Chooser` module
     + Use `blue`, `on_blue` ANSI color for selected item in query method
 * Refactor summarize method to also import sources:
-	+ Added `content` variable to store result of `parse_source`
-	+ Replaced `or return` with explicit assignment and return
-	+ Added calls to `source_io.rewind` and `import_document`
+  + Added `content` variable to store result of `parse_source`
+  + Replaced `or return` with explicit assignment and return
+  + Added calls to `source_io.rewind` and `import_document`
 * Add new test for `file_argument_spec.rb`
 * Refactor tag list initialization and merging:
-	+ Use array literals for initializing tags lists
-	+ Use array literals for passing to merge method
+  + Use array literals for initializing tags lists
+  + Use array literals for passing to merge method
 * Update dependencies and dates in Rakefile and gemspec:
-	+ Removed '.utilsrc' from ignored files in Rakefile
-	+ Updated date in `ollama-ruby.gemspec` to "2024-09-13"
-	+ Removed 'utils' development dependency from `ollama-ruby.gemspec`
+  + Removed '.utilsrc' from ignored files in Rakefile
+  + Updated date in `ollama-ruby.gemspec` to "2024-09-13"
+  + Removed 'utils' development dependency from `ollama-ruby.gemspec`
 * Refactor `search_web` method to allow n parameter to be optional and default
   to 1.
 
@@ -306,31 +306,31 @@
 ### Changes
 
 * **Added Web Search Functionality to `ollama_chat`**
-	+ Added `/web` command to fetch search results from DuckDuckGo
-	+ Updated `/summarize` command to handle cases where summarization fails
-	+ Fix bug in parsing content type of source document
+  + Added `/web` command to fetch search results from DuckDuckGo
+  + Updated `/summarize` command to handle cases where summarization fails
+  + Fix bug in parsing content type of source document
 * **Refactored Options Class and Usage**
-	+ Renamed `options` variable to use `Options[]` method in ollama_chat script
-	+ Added `[](value)` method to Ollama::Options class for casting hashes
-	+ Updated options_spec.rb with tests for casting hashes and error handling
+  + Renamed `options` variable to use `Options[]` method in ollama_chat script
+  + Added `[](value)` method to Ollama::Options class for casting hashes
+  + Updated options_spec.rb with tests for casting hashes and error handling
 * **Refactored Web Search Command**
-	+ Added support for specifying a page number in `/web` command
-	+ Updated regular expression to match new format
-	+ Passed page number as an argument to `search_web` method
-	+ Updated content string to reference the query and sources correctly
+  + Added support for specifying a page number in `/web` command
+  + Updated regular expression to match new format
+  + Passed page number as an argument to `search_web` method
+  + Updated content string to reference the query and sources correctly
 * **DTO Class Changes**
-	+ Renamed `json_create` method to `from_hash` in Ollama::DTO class
-	+ Updated `as_json` method to remove now unnecessary hash creation
+  + Renamed `json_create` method to `from_hash` in Ollama::DTO class
+  + Updated `as_json` method to remove now unnecessary hash creation
 * **Message and Tool Spec Changes**
-	+ Removed `json_class` from JSON serialization in message_spec
-	+ Removed `json_class` from JSON serialization in tool_spec
+  + Removed `json_class` from JSON serialization in message_spec
+  + Removed `json_class` from JSON serialization in tool_spec
 * **Command Spec Changes**
-	+ Removed `json_class` from JSON serialization in various command specs (e.g. generate_spec, pull_spec, etc.)
+  + Removed `json_class` from JSON serialization in various command specs (e.g. generate_spec, pull_spec, etc.)
 * **Miscellaneous Changes**
-	+ Improved width calculation for text truncation
-	+ Updated FollowChat class to display evaluation statistics
-	+ Update OllamaChatConfig to use EOT instead of end for heredoc syntax
-	+ Add .keep file to tmp directory
+  + Improved width calculation for text truncation
+  + Updated FollowChat class to display evaluation statistics
+  + Update OllamaChatConfig to use EOT instead of end for heredoc syntax
+  + Add .keep file to tmp directory
 
 ## 2024-08-30 v0.1.0
 
@@ -339,18 +339,18 @@
 #### Significant Changes
 
 * **Document Splitting and Embedding Functionality**: Added `Ollama::Documents` class with methods for adding documents, checking existence, deleting documents, and finding similar documents.
-	+ Introduced two types of caches: `MemoryCache` and `RedisCache`
-	+ Implemented `SemanticSplitter` class to split text into sentences based on semantic similarity
+  + Introduced two types of caches: `MemoryCache` and `RedisCache`
+  + Implemented `SemanticSplitter` class to split text into sentences based on semantic similarity
 * **Improved Ollama Chat Client**: Added support for document embeddings and web/file RAG
-	+ Allowed configuration per yaml file
-	+ Parse user input for URLs or files to send images to multimodal models
+  + Allowed configuration per yaml file
+  + Parse user input for URLs or files to send images to multimodal models
 * **Redis Docker Service**: Set `REDIS_URL` environment variable to `redis://localhost:9736`
-	+ Added Redis service to `docker-compose.yml`
+  + Added Redis service to `docker-compose.yml`
 * **Status Display and Progress Updates**: Added infobar.label = response.status when available
-	+ Updated infobar with progress message on each call if total and completed are set
-	+ Display error message from response.error if present
+  + Updated infobar with progress message on each call if total and completed are set
+  + Display error message from response.error if present
 * **Refactored Chat Commands**: Simplified regular expression patterns for `/pop`, `/save`, `/load`, and `/image` commands
-	+ Added whitespace to some command patterns for better readability
+  + Added whitespace to some command patterns for better readability
 
 #### Other Changes
 
@@ -366,13 +366,13 @@
 ## 2024-08-16 v0.0.1
 
 * **New Features**
-	+ Added missing options parameter to Embed command
-	+ Documented new `/api/embed` endpoint
+  + Added missing options parameter to Embed command
+  + Documented new `/api/embed` endpoint
 * **Improvements**
-	+ Improved example in README.md
+  + Improved example in README.md
 * **Code Refactoring**
-	+ Renamed `client` to `ollama` in client and command specs
-	+ Updated expectations to use `ollama` instead of `client`
+  + Renamed `client` to `ollama` in client and command specs
+  + Updated expectations to use `ollama` instead of `client`
 
 ## 2024-08-12 v0.0.0
 
