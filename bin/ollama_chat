@@ -479,9 +479,14 @@ def parse_source(source_io)
   end
 end
 
-def embed_source(source_io, source)
+def embed_source(source_io, source, count: nil)
   $embedding.on? or return parse_source(source_io)
-  puts "Embedding #{italic { source_io&.content_type }} document #{source.to_s.inspect}."
+  m = "Embedding #{italic { source_io&.content_type }} document #{source.to_s.inspect}."
+  if count
+    puts '%u. %s' % [ count, m ]
+  else
+    puts m
+  end
   text = parse_source(source_io) or return
   text.downcase!
   splitter_config = $config.embedding.splitter
@@ -890,11 +895,13 @@ if $embedding.on?
       end
     end
     puts "Collection #{bold{collection}}: Adding #{document_list.size} documents…"
+    count = 1
     document_list.each_slice(25) do |docs|
       docs.each do |doc|
         fetch_source(doc) do |doc_io|
-          embed_source(doc_io, doc)
+          embed_source(doc_io, doc, count:)
         end
+        count += 1
       end
     end
   end
