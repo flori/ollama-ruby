@@ -7,7 +7,7 @@ class Ollama::Handlers::Markdown
   def initialize(output: $stdout)
     super
     @output.sync = true
-    @content = ''
+    @content     = ''
   end
 
   def call(response)
@@ -16,7 +16,6 @@ class Ollama::Handlers::Markdown
       markdown_content = Ollama::Utils::ANSIMarkdown.parse(@content)
       @output.print clear_screen, move_home, markdown_content
     end
-    response.done and @output.puts
     self
   end
 end
