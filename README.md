@@ -468,7 +468,7 @@ The following commands can be given inside the chat, if prefixed by a `/`:
 
 The homepage of this library is located at
 
-* https://github.com/flori/ollama
+* https://github.com/flori/ollama-ruby
 
 ## Author
 
