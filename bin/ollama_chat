@@ -560,7 +560,7 @@ def fetch_source(source, &block)
     ) do |tmp|
       block.(tmp)
     end
-  when %r(\Afile://(?:(?:[.-]|[[:alnum:]])*)(/\S*)|\A((?:\.\.|[~.]?)/\S*))
+  when %r(\Afile://(/\S*)|\A((?:\.\.|[~.]?)/\S*))
     filename = $~.captures.compact.first
     filename = File.expand_path(filename)
     Utils::Fetcher.read(filename) do |tmp|
