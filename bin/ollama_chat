@@ -560,7 +560,7 @@ def fetch_source(source, &block)
     ) do |tmp|
       block.(tmp)
     end
-  when %r(\Afile://(?:(?:[.-]|[[:alnum:]])*)(/\S*)|([~.]?/\S*))
+  when %r(\Afile://(?:(?:[.-]|[[:alnum:]])*)(/\S*)|\A((?:\.\.|[~.]?)/\S*))
     filename = $~.captures.compact.first
     filename = File.expand_path(filename)
     Utils::Fetcher.read(filename) do |tmp|
@@ -618,7 +618,7 @@ def parse_content(content, images)
   images.clear
   tags = Utils::Tags.new
 
-  content.scan(%r([.~]?/\S+|https?://\S+|#\S+)).each do |source|
+  content.scan(%r((?:\.\.|[.~])?/\S+|https?://\S+|#\S+)).each do |source|
     case source
     when /\A#(\S+)/
       tags.add($1, source:)

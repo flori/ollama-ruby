@@ -45,6 +45,8 @@ class Ollama::Utils::Fetcher
         file.content_type = MIME::Types.type_for(filename).first
         block.(file)
       end
+    else
+      STDERR.puts "File #{filename.to_s.inspect} doesn't exist."
     end
   end
 
