@@ -1,5 +1,30 @@
 # Changes
 
+## 2024-10-07 v0.8.0
+
+* **Refactor source handling in Ollama chat**:
+  + Update regular expression to match dot-dot, dot or tilde prefix for local files
+  + Add error handling for non-existent files in `Utils::Fetcher.read`
+  + Stop matching the "hostname" part in file:// URLs
+* **Update voice list command to suppress errors**:
+  + Changed `say` command in OllamaChatConfig to `-v ? 2>/dev/null`
+* **Add 'List:' and list of collections to the collection stats output**
+* **Update collection stats display**:
+  + Added new stat: `#Tags` to `collection_stats` method in `ollama_chat.rb`
+  + Displaying number of tags for the current document collection
+* **Refactor embed_source function to include document count**:
+  + Added `count` parameter to `embed_source` method
+  + Updated `puts` statements in `embed_source` and main loop to display document counts
+  + Incremented `count` variable in main loop to track total documents embedded
+  + Passed `count:` keyword argument to `embed_source` method
+* **Add config option for batch_size and update document adding logic**:
+  + Added `batch_size` option to `OllamaChatConfig`
+  + Updated `embed_source` method in `bin/ollama_chat` to use `batch_size` from `config`
+  + Updated `add` method in `lib/ollama/documents.rb` to accept `batch_size` and default to 10
+* **Update Redis image to valkey/valkey:7.2.7-alpine**:
+  + Updated `image` in `docker-compose.yml` to `valkey/valkey:7.2.7-alpine`
+* **Reformat CHANGES.md**
+
 ## 2024-10-03 v0.7.0
 
 * **Refactor command line interface**
