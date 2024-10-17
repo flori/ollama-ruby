@@ -57,7 +57,7 @@ RSpec.describe Ollama::Documents::RedisCache do
       key, value = 'foo', { test: true }
       expect(redis).to receive(:set).with('test-' + key, JSON(value), ex: 3_600)
       cache[key] = value
-      allow(redis).to receive(:ttl).with('test-' + key).and_return 3_600
+      expect(redis).to receive(:ttl).with('test-' + key).and_return 3_600
       expect(cache.ttl(key)).to eq 3_600
     end
 

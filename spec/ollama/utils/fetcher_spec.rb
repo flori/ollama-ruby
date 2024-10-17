@@ -105,7 +105,7 @@ RSpec.describe Ollama::Utils::Fetcher do
   end
 
   it 'can .execute and fail' do
-    allow(IO).to receive(:popen).and_raise StandardError
+    expect(IO).to receive(:popen).and_raise StandardError
     described_class.execute('foobar') do |file|
       expect(file).to be_a StringIO
       expect(file.read).to be_empty

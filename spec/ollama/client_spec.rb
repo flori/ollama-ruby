@@ -54,21 +54,21 @@ RSpec.describe Ollama::Client do
   end
 
   it 'can raise error on connection error' do
-    allow(excon).to receive(:post).and_raise Excon::Error::Socket
+    expect(excon).to receive(:post).and_raise Excon::Error::Socket
     expect {
       ollama.generate(model: 'llama3.1', prompt: 'Hello World')
     }.to raise_error(Ollama::Errors::SocketError)
   end
 
   it 'can raise error on timeout' do
-    allow(excon).to receive(:post).and_raise Excon::Errors::Timeout
+    expect(excon).to receive(:post).and_raise Excon::Errors::Timeout
     expect {
       ollama.generate(model: 'llama3.1', prompt: 'Hello World')
     }.to raise_error(Ollama::Errors::TimeoutError)
   end
 
   it 'can raise a generic error' do
-    allow(excon).to receive(:post).and_raise Excon::Errors::Error
+    expect(excon).to receive(:post).and_raise Excon::Errors::Error
     expect {
       ollama.generate(model: 'llama3.1', prompt: 'Hello World')
     }.to raise_error(Ollama::Errors::Error)

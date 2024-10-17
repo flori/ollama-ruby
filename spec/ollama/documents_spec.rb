@@ -42,7 +42,7 @@ RSpec.describe Ollama::Documents do
   end
 
   it 'can find strings' do
-    allow(ollama).to receive(:embed).
+    expect(ollama).to receive(:embed).
       with(model:, input: [ 'foo' ], options: nil).
       and_return(double(embeddings: [ [ 0.1 ] ]))
     expect(documents << 'foo').to eq documents
@@ -57,7 +57,7 @@ RSpec.describe Ollama::Documents do
   end
 
   it 'can find only tagged strings' do
-    allow(ollama).to receive(:embed).
+    expect(ollama).to receive(:embed).
       with(model:, input: [ 'foo' ], options: nil).
       and_return(double(embeddings: [ [ 0.1 ] ]))
     expect(documents.add('foo', tags: %i[ test ])).to eq documents
@@ -77,10 +77,10 @@ RSpec.describe Ollama::Documents do
   end
 
   it 'can find strings conditionally' do
-    allow(ollama).to receive(:embed).
+    expect(ollama).to receive(:embed).
       with(model:, input: [ 'foobar' ], options: nil).
       and_return(double(embeddings: [ [ 0.01 ] ]))
-    allow(ollama).to receive(:embed).
+    expect(ollama).to receive(:embed).
       with(model:, input: [ 'foo' ], options: nil).
       and_return(double(embeddings: [ [ 0.1 ] ]))
     expect(documents << 'foobar').to eq documents
@@ -132,7 +132,7 @@ RSpec.describe Ollama::Documents do
     end
 
     it 'can clear texts with tags' do
-      allow(ollama).to receive(:embed).
+      expect(ollama).to receive(:embed).
         with(model:, input: %w[ bar ], options: nil).
         and_return(double(embeddings: [ [ 0.1 ] ]))
       expect(documents.add('foo', tags: %i[ test ])).to eq documents

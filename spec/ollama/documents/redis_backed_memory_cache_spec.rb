@@ -78,7 +78,7 @@ RSpec.describe Ollama::Documents::RedisBackedMemoryCache do
     end
 
     it 'returns size' do
-      allow(cache).to receive(:count).and_return 3
+      expect(cache).to receive(:count).and_return 3
       expect(cache.size).to eq 3
     end
 
