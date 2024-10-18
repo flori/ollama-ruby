@@ -1034,7 +1034,7 @@ loop do
       choose_collection($documents.collection)
     end
     next
-  when %r(/info)
+  when %r(^/info$)
     info
     next
   when %r(^/import\s+(.+))
