@@ -52,6 +52,7 @@ class OllamaChatConfig
       list: <%= `say -v ? 2>/dev/null`.lines.map { _1[/^(.+?)\s+[a-z]{2}_[a-zA-Z0-9]{2,}/, 1] }.uniq.sort.to_s.force_encoding('ASCII-8BIT') %>
     markdown: true
     stream: true
+    document_policy: importing
     embedding:
       enabled: true
       model:
@@ -479,6 +480,84 @@ def parse_source(source_io)
   end
 end
 
+def http_options(url)
+  options = {}
+  if ssl_no_verify = $config.ssl_no_verify?
+    hostname = URI.parse(url).hostname
+    options |= { ssl_verify_peer: !ssl_no_verify.include?(hostname) }
+  end
+  if proxy = $config.proxy?
+    options |= { proxy: }
+  end
+  options
+end
+
+def fetch_source(source, &block)
+  case source
+  when %r(\A!(.*))
+    command = $1
+    Utils::Fetcher.execute(command) do |tmp|
+      block.(tmp)
+    end
+  when %r(\Ahttps?://\S+)
+    Utils::Fetcher.get(
+      source,
+      cache:        $cache,
+      debug:        $config.debug,
+      http_options: http_options(source)
+    ) do |tmp|
+      block.(tmp)
+    end
+  when %r(\Afile://(/\S*)|\A((?:\.\.|[~.]?)/\S*))
+    filename = $~.captures.compact.first
+    filename = File.expand_path(filename)
+    Utils::Fetcher.read(filename) do |tmp|
+      block.(tmp)
+    end
+  else
+    raise "invalid source"
+  end
+rescue => e
+  STDERR.puts "Cannot fetch source #{source.to_s.inspect}: #{e}\n#{e.backtrace * ?\n}"
+end
+
+def add_image(images, source_io, source)
+  STDERR.puts "Adding #{source_io&.content_type} image #{source.to_s.inspect}."
+  image = Image.for_io(source_io, path: source.to_s)
+  (images << image).uniq!
+end
+
+def import_source(source_io, source)
+  source = source.to_s
+  puts "Importing #{italic { source_io&.content_type }} document #{source.inspect} now."
+  "Imported #{source.inspect}:\n%s\n\n" % parse_source(source_io)
+end
+
+def import(source)
+  fetch_source(source) do |source_io|
+    content = import_source(source_io, source) or return
+    source_io.rewind
+    content
+  end
+end
+
+def summarize_source(source_io, source, words: nil)
+  puts "Summarizing #{italic { source_io&.content_type }} document #{source.inspect} now."
+  words = words.to_i
+  words < 1 and words = 100
+  source_content = parse_source(source_io)
+  source_content.present? or return
+  $config.prompts.summarize % { source_content:, words: }
+end
+
+def summarize(source, words: nil)
+  fetch_source(source) do |source_io|
+    content = summarize_source(source_io, source, words:) or return
+    source_io.rewind
+    content
+  end
+end
+
 def embed_source(source_io, source, count: nil)
   $embedding.on? or return parse_source(source_io)
   m = "Embedding #{italic { source_io&.content_type }} document #{source.to_s.inspect}."
@@ -526,77 +605,6 @@ def embed_source(source_io, source, count: nil)
   $documents.add(inputs, source:, batch_size: $config.embedding.batch_size?)
 end
 
-def add_image(images, source_io, source)
-  STDERR.puts "Adding #{source_io&.content_type} image #{source.to_s.inspect}."
-  image = Image.for_io(source_io, path: source.to_s)
-  (images << image).uniq!
-end
-
-def http_options(url)
-  options = {}
-  if ssl_no_verify = $config.ssl_no_verify?
-    hostname = URI.parse(url).hostname
-    options |= { ssl_verify_peer: !ssl_no_verify.include?(hostname) }
-  end
-  if proxy = $config.proxy?
-    options |= { proxy: }
-  end
-  options
-end
-
-def fetch_source(source, &block)
-  case source
-  when %r(\A!(.*))
-    command = $1
-    Utils::Fetcher.execute(command) do |tmp|
-      block.(tmp)
-    end
-  when %r(\Ahttps?://\S+)
-    Utils::Fetcher.get(
-      source,
-      cache:        $cache,
-      debug:        $config.debug,
-      http_options: http_options(source)
-    ) do |tmp|
-      block.(tmp)
-    end
-  when %r(\Afile://(/\S*)|\A((?:\.\.|[~.]?)/\S*))
-    filename = $~.captures.compact.first
-    filename = File.expand_path(filename)
-    Utils::Fetcher.read(filename) do |tmp|
-      block.(tmp)
-    end
-  else
-    raise "invalid source"
-  end
-rescue => e
-  STDERR.puts "Cannot fetch source #{source.to_s.inspect}: #{e}\n#{e.backtrace * ?\n}"
-end
-
-def import(source)
-  puts "Now importing #{source.to_s.inspect}."
-  fetch_source(source) do |source_io|
-    content = parse_source(source_io)
-    content.present? or return
-    source_io.rewind
-    content
-  end
-end
-
-def summarize(source, words: nil)
-  words = words.to_i
-  words < 1 and words = 100
-  puts "Now summarizing #{source.to_s.inspect}."
-  source_content =
-    fetch_source(source) do |source_io|
-      content = parse_source(source_io)
-      content.present? or return
-      source_io.rewind
-      content
-    end
-  $config.prompts.summarize % { source_content:, words: }
-end
-
 def embed(source)
   if $embedding.on?
     puts "Now embedding #{source.to_s.inspect}."
@@ -618,6 +626,7 @@ def parse_content(content, images)
   images.clear
   tags = Utils::Tags.new
 
+  contents = [ content ]
   content.scan(%r((?:\.\.|[.~])?/\S+|https?://\S+|#\S+)).each do |source|
     case source
     when /\A#(\S+)/
@@ -628,8 +637,15 @@ def parse_content(content, images)
         case source_io&.content_type&.media_type
         when 'image'
           add_image(images, source_io, source)
-        when 'text', 'application'
-          embed_source(source_io, source)
+        when 'text', 'application', nil
+          case $document_policy
+          when 'importing'
+            contents << import_source(source_io, source)
+          when 'embedding'
+            embed_source(source_io, source)
+          when 'summarizing'
+            contents << summarize_source(source_io, source)
+          end
         else
           STDERR.puts(
             "Cannot fetch #{source.to_s.inspect} with content type "\
@@ -639,8 +655,8 @@ def parse_content(content, images)
       end
     end
   end
-
-  return content, (tags unless tags.empty?)
+  new_content = contents.select(&:present?).compact * "\n\n"
+  return new_content, (tags unless tags.empty?)
 end
 
 def choose_model(cli_model, current_model)
@@ -674,7 +690,29 @@ def choose_collection(current_collection)
   end
 ensure
   puts "Using collection #{bold{$documents.collection}}."
-  collection_stats
+  info
+end
+
+def choose_document_policy
+  policies = %w[ importing embedding summarizing ].sort
+  current  = if policies.index($document_policy)
+               $document_policy
+             elsif policies.index($config.document_policy)
+               $config.document_policy
+             else
+               policies.first
+             end
+  policies.unshift('[EXIT]')
+  policy = Ollama::Utils::Chooser.choose(policies)
+  case policy
+  when nil, '[EXIT]'
+    puts "Exiting chooser."
+    policy = current
+  end
+  $document_policy = policy
+ensure
+  puts "Using document policy #{bold{$document_policy}}."
+  info
 end
 
 def collection_stats
@@ -756,6 +794,7 @@ def info
   $markdown.show
   $stream.show
   $location.show
+  puts "Document policy for references in user text: #{bold{$document_policy}}"
   if $voice.on?
     puts "Using voice #{bold{$current_voice}} to speak."
   end
@@ -799,6 +838,7 @@ def display_chat_help
     /regenerate                     the last answer message
     /collection( clear|change)      change (default) collection or clear
     /info                           show information for current session
+    /document_policy                pick a scan policy for document references
     /import source                  import the source's content
     /summarize [n] source           summarize the source's content in n words
     /embedding                      toggle embedding paused or not
@@ -853,10 +893,11 @@ $opts[?V] and version
 base_url = $opts[?u] || $config.url
 $ollama      = Client.new(base_url:, debug: $config.debug)
 
-$model       = choose_model($opts[?m], $config.model.name)
-options      = Options[$config.model.options]
-model_system = pull_model_unless_present($model, options)
-messages     = []
+$document_policy = $config.document_policy
+$model           = choose_model($opts[?m], $config.model.name)
+options          = Options[$config.model.options]
+model_system     = pull_model_unless_present($model, options)
+messages         = []
 $embedding_enabled.set($config.embedding.enabled && !$opts[?E])
 
 if $opts[?c]
@@ -1036,6 +1077,9 @@ loop do
     next
   when %r(^/info$)
     info
+    next
+  when %r(^/document_policy$)
+    choose_document_policy
     next
   when %r(^/import\s+(.+))
     parse_content = false

@@ -38,7 +38,7 @@ ollama = Client.new(base_url: 'http://localhost:11434')
 messages = Message.new(role: 'user', content: 'Why is the sky blue?')
 ollama.chat(model: 'llama3.1', stream: true, messages:, &Print) # or
 print ollama.chat(model: 'llama3.1', stream: true, messages:).lazy.map { |response|
-	response.message.content
+  response.message.content
 }
 ```
 
@@ -453,6 +453,7 @@ The following commands can be given inside the chat, if prefixed by a `/`:
 /regenerate                     the last answer message
 /collection( clear|change)      change (default) collection or clear
 /info                           show information for current session
+/document_policy                pick a scan policy for document references
 /import source                  import the source's content
 /summarize [n] source           summarize the source's content in n words
 /embedding                      toggle embedding paused or not
