@@ -38,6 +38,12 @@ class Ollama::Utils::Fetcher
     end
   end
 
+  def self.normalize_url(url)
+    url = URI.decode_uri_component(url)
+    url = url.sub(/#.*/, '')
+    URI::Parser.new.escape(url).to_s
+  end
+
   def self.read(filename, &block)
     if File.exist?(filename)
       File.open(filename) do |file|
@@ -80,6 +86,7 @@ class Ollama::Utils::Fetcher
   private
 
   def excon(url, **options)
+    url = self.class.normalize_url(url)
     Excon.new(url, options.merge(@http_options))
   end
 

@@ -504,7 +504,7 @@ def fetch_source(source, &block)
       source,
       cache:        $cache,
       debug:        $config.debug,
-      http_options: http_options(source)
+      http_options: http_options(Utils::Fetcher.normalize_url(source))
     ) do |tmp|
       block.(tmp)
     end
@@ -518,7 +518,7 @@ def fetch_source(source, &block)
     raise "invalid source"
   end
 rescue => e
-  STDERR.puts "Cannot fetch source #{source.to_s.inspect}: #{e}\n#{e.backtrace * ?\n}"
+  STDERR.puts "Cannot fetch source #{source.to_s.inspect}: #{e.class} #{e}\n#{e.backtrace * ?\n}"
 end
 
 def add_image(images, source_io, source)
@@ -530,7 +530,8 @@ end
 def import_source(source_io, source)
   source = source.to_s
   puts "Importing #{italic { source_io&.content_type }} document #{source.inspect} now."
-  "Imported #{source.inspect}:\n%s\n\n" % parse_source(source_io)
+	source_content = parse_source(source_io)
+  "Imported #{source.inspect}:\n%{source_content}\n\n" % { source_content: }
 end
 
 def import(source)
