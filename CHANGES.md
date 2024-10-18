@@ -1,5 +1,23 @@
 # Changes
 
+## 2024-10-18 v0.9.0
+
+* Add document policy chooser and modify embedding/importing/summarizing
+  behavior:
+  + Add `/document_policy` command to choose a scan policy for document
+    references
+  + Modify `embed_source`, `import_source`, and `summarize_source` methods to
+    use the chosen document policy
+  + Update `choose_model` method to set `$document_policy` based on
+    configuration or chat command
+* Fix regular expression in `ollama_chat` script:
+  + Updated regular expression for `/info` to `/^/info$`
+* Improve ask prompt to ask about clearing messages and collection.
+* Update specs to use `expect` instead of `allow`
+* Fix library homepage URL in README.md
+* Refactor Markdown handler to remove unnecessary puts statement
+* Reorder chapters in README.md a bit
+
 ## 2024-10-07 v0.8.0
 
 * **Refactor source handling in Ollama chat**:
