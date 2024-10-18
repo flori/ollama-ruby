@@ -108,7 +108,7 @@ class OllamaChatConfig
 end
 
 class FollowChat
-  include Ollama::Handlers::Concern
+  include Handlers::Concern
   include Term::ANSIColor
 
   def initialize(messages:, markdown: false, voice: nil, output: $stdout)
@@ -282,7 +282,7 @@ def search_web(query, n = nil)
   n < 1 and n = 1
   query = URI.encode_uri_component(query)
   url = "https://www.duckduckgo.com/html/?q=#{query}"
-  Ollama::Utils::Fetcher.get(url, debug: $config.debug) do |tmp|
+  Utils::Fetcher.get(url, debug: $config.debug) do |tmp|
     result = []
     doc = Nokogiri::HTML(tmp)
     doc.css('.results_links').each do |link|
@@ -334,7 +334,7 @@ def load_conversation(filename)
     return
   end
   File.open(filename, 'r') do |output|
-    return JSON(output.read).map { Ollama::Message.from_hash(_1) }
+    return JSON(output.read).map { Message.from_hash(_1) }
   end
 end
 
@@ -572,17 +572,17 @@ def embed_source(source_io, source, count: nil)
   inputs = nil
   case splitter_config.name
   when 'Character'
-    splitter = Ollama::Documents::Splitters::Character.new(
+    splitter = Documents::Splitters::Character.new(
       chunk_size: splitter_config.chunk_size,
     )
     inputs = splitter.split(text)
   when 'RecursiveCharacter'
-    splitter = Ollama::Documents::Splitters::RecursiveCharacter.new(
+    splitter = Documents::Splitters::RecursiveCharacter.new(
       chunk_size: splitter_config.chunk_size,
     )
     inputs = splitter.split(text)
   when 'Semantic'
-    splitter = Ollama::Documents::Splitters::Semantic.new(
+    splitter = Documents::Splitters::Semantic.new(
       ollama:, model: $config.embedding.model.name,
       chunk_size: splitter_config.chunk_size,
     )
@@ -597,7 +597,7 @@ def embed_source(source_io, source, count: nil)
   inputs or return
   source = source.to_s
   if source.start_with?(?!)
-    source = Ollama::Utils::Width.truncate(
+    source = Utils::Width.truncate(
       source[1..-1].gsub(/\W+/, ?_),
       length: 10
     )
@@ -662,7 +662,7 @@ end
 def choose_model(cli_model, current_model)
   models = ollama.tags.models.map(&:name).sort
   model = if cli_model == ''
-            Ollama::Utils::Chooser.choose(models) || current_model
+            Utils::Chooser.choose(models) || current_model
           else
             cli_model || current_model
           end
@@ -679,7 +679,7 @@ def choose_collection(current_collection)
   collections = [ current_collection ] + $documents.collections
   collections = collections.compact.map(&:to_s).uniq.sort
   collections.unshift('[EXIT]').unshift('[NEW]')
-  collection = Ollama::Utils::Chooser.choose(collections) || current_collection
+  collection = Utils::Chooser.choose(collections) || current_collection
   case collection
   when '[NEW]'
     $documents.collection = ask?(prompt: "Enter name of the new collection: ")
@@ -703,7 +703,7 @@ def choose_document_policy
                policies.first
              end
   policies.unshift('[EXIT]')
-  policy = Ollama::Utils::Chooser.choose(policies)
+  policy = Utils::Chooser.choose(policies)
   case policy
   when nil, '[EXIT]'
     puts "Exiting chooser."
@@ -733,19 +733,19 @@ end
 
 def configure_cache
   if $opts[?M]
-    Ollama::Documents::MemoryCache
+    Documents::MemoryCache
   else
     Object.const_get($config.cache)
   end
 rescue => e
   STDERR.puts "Caught #{e.class}: #{e} => Falling back to MemoryCache."
-  Ollama::Documents::MemoryCache
+  Documents::MemoryCache
 end
 
 def show_system_prompt
   puts <<~EOT
     Configured system prompt is:
-    #{Ollama::Utils::ANSIMarkdown.parse($system.to_s).gsub(/\n+\z/, '').full? || 'n/a'}
+    #{Utils::ANSIMarkdown.parse($system.to_s).gsub(/\n+\z/, '').full? || 'n/a'}
   EOT
 end
 
@@ -769,7 +769,7 @@ end
 
 def change_system_prompt(messages, default)
   prompts = $config.system_prompts.attribute_names.compact
-  chosen  = Ollama::Utils::Chooser.choose(prompts)
+  chosen  = Utils::Chooser.choose(prompts)
   system  = if chosen
               $config.system_prompts.send(chosen)
             else
@@ -779,7 +779,7 @@ def change_system_prompt(messages, default)
 end
 
 def change_voice
-  chosen  = Ollama::Utils::Chooser.choose($config.voice.list)
+  chosen  = Utils::Chooser.choose($config.voice.list)
   $current_voice = chosen.full? || $config.voice.default
 end
 
@@ -872,7 +872,7 @@ def usage
 end
 
 def version
-  puts "%s %s" % [ File.basename($0), Ollama::VERSION ]
+  puts "%s %s" % [ File.basename($0), VERSION ]
   exit 0
 end
 
@@ -907,7 +907,7 @@ else
   if $opts[?s] == ??
     change_system_prompt(messages, default)
   else
-    system = Ollama::Utils::FileArgument.get_file_argument($opts[?s], default:)
+    system = Utils::FileArgument.get_file_argument($opts[?s], default:)
     system.present? and set_system_prompt(messages, system)
   end
 end
@@ -957,7 +957,7 @@ else
 end
 
 if redis_expiring_url = $config.redis.expiring.url?
-  $cache = Ollama::Documents::RedisCache.new(
+  $cache = Documents::RedisCache.new(
     prefix: 'Expiring-',
     url:    redis_expiring_url,
     ex:     $config.redis.expiring.ex,
@@ -1051,7 +1051,7 @@ loop do
     when 'clear'
       loop do
         tags = $documents.tags.add('[EXIT]').add('[ALL]')
-        tag = Ollama::Utils::Chooser.choose(tags, prompt: 'Clear? %s')
+        tag = Utils::Chooser.choose(tags, prompt: 'Clear? %s')
         case tag
         when nil, '[EXIT]'
           puts "Exiting chooser."
