@@ -969,7 +969,7 @@ loop do
     puts "Cleared messages."
     next
   when %r(^/clobber$)
-    if ask?(prompt: 'Are you sure? (y/n) ') =~ /\Ay/i
+    if ask?(prompt: 'Are you sure to clear messages and collection? (y/n) ') =~ /\Ay/i
       clear_messages(messages)
       $documents.clear
       puts "Cleared messages and collection #{bold{$documents.collection}}."
