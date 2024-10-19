@@ -1,5 +1,21 @@
 # Changes
 
+## 2024-10-19 v0.9.1
+
+* Fixing string interpolation in `import_source` method:
+  + Changed result to use `#{}` instead of `%{}` for string interpolation
+* Move `pull_model_unless_present` method:
+  + Moved the method before other methods
+* Moved Switch classes and `setup_switches` method into Switches module:
+  + Moved the classes and method into a new module
+* Utils::Fetcher: Normalize URL in fetcher utility:
+  + Added `normalize_url` method to class Ollama::Utils::Fetcher
+  + Normalizes URL by decoding URI components, removing anchors, and escaping special characters
+  + `excon` method now calls `normalize_url` on the provided URL
+  + Added specs for `normalize_url` in `fetcher_spec.rb`
+* Remove Ollama top level Namespace b/c we include it from `ollama_chat`: 
+  + Removed the top-level namespace
+
 ## 2024-10-18 v0.9.0
 
 * Add document policy chooser and modify embedding/importing/summarizing
