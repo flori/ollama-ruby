@@ -375,89 +375,37 @@ def list_conversation(messages, last = nil)
   end
 end
 
-def reverse_markdown(html)
-  ReverseMarkdown.convert(
-    html,
-    unknown_tags: :bypass,
-    github_flavored: true,
-    tag_border: ''
-  )
-end
-
-def parse_rss(source_io)
-  feed = RSS::Parser.parse(source_io, false, false)
-  title = <<~EOT
-    # #{feed&.channel&.title}
-
-  EOT
-  feed.items.inject(title) do |text, item|
-    text << <<~EOT
-      ## [#{item&.title}](#{item&.link})
-
-      updated on #{item&.pubDate}
-
-      #{reverse_markdown(item&.description)}
-
-    EOT
-  end
-end
-
-def parse_atom(source_io)
-  feed = RSS::Parser.parse(source_io, false, false)
-  title = <<~EOT
-    # #{feed.title.content}
-
-  EOT
-  feed.items.inject(title) do |text, item|
-    text << <<~EOT
-      ## [#{item&.title&.content}](#{item&.link&.href})
-
-      updated on #{item&.updated&.content}
-
-      #{reverse_markdown(item&.content&.content)}
-
-    EOT
-  end
-end
-
-def pdf_read(io)
-  reader = PDF::Reader.new(io)
-  reader.pages.inject(+'') { |result, page| result << page.text }
-end
-
-def ps_read(io)
-  gs = `which gs`.chomp
-  if gs.present?
-    Tempfile.create do |tmp|
-      IO.popen("#{gs} -q -sDEVICE=pdfwrite -sOutputFile=#{tmp.path} -", 'wb') do |gs_io|
-        until io.eof?
-          buffer = io.read(1 << 17)
-          IO.select(nil, [ gs_io ], nil)
-          gs_io.write buffer
-        end
-        gs_io.close
-        File.open(tmp.path, 'rb') do |pdf|
-          pdf_read(pdf)
-        end
+module SourceParsing
+  def parse_source(source_io)
+    case source_io&.content_type
+    when 'text/html'
+      reverse_markdown(source_io.read)
+    when 'text/xml'
+      if source_io.readline =~ %r(^\s*<rss\s)
+        source_io.rewind
+        return parse_rss(source_io)
       end
-    end
-  else
-    STDERR.puts "Cannot convert #{io&.content_type} whith ghostscript, gs not in path."
-  end
-end
-
-def parse_source(source_io)
-  case source_io&.content_type
-  when 'text/html'
-    reverse_markdown(source_io.read)
-  when 'text/xml'
-    if source_io.readline =~ %r(^\s*<rss\s)
       source_io.rewind
-      return parse_rss(source_io)
+      source_io.read
+    when 'text/csv' # TODO
+      parse_csv(source_io)
+    when 'application/rss+xml'
+      parse_rss(source_io)
+    when 'application/atom+xml'
+      parse_atom(source_io)
+    when 'application/postscript'
+      ps_read(source_io)
+    when 'application/pdf'
+      pdf_read(source_io)
+    when %r(\Aapplication/(json|ld\+json|x-ruby|x-perl|x-gawk|x-python|x-javascript|x-c?sh|x-dosexec|x-shellscript|x-tex|x-latex|x-lyx|x-bibtex)), %r(\Atext/), nil
+      source_io.read
+    else
+      STDERR.puts "Cannot embed #{source_io&.content_type} document."
+      return
     end
-    source_io.rewind
-    source_io.read
-  when 'text/csv'
+  end
+
+  def parse_csv(source_io)
     result = +''
     CSV.table(File.new(source_io), col_sep: ?,).each do |row|
       next if row.fields.select(&:present?).size == 0
@@ -467,21 +415,80 @@ def parse_source(source_io)
       result << "\n\n"
     end
     result
-  when 'application/rss+xml'
-    parse_rss(source_io)
-  when 'application/atom+xml'
-    parse_atom(source_io)
-  when 'application/postscript'
-    ps_read(source_io)
-  when 'application/pdf'
-    pdf_read(source_io)
-  when %r(\Aapplication/(json|ld\+json|x-ruby|x-perl|x-gawk|x-python|x-javascript|x-c?sh|x-dosexec|x-shellscript|x-tex|x-latex|x-lyx|x-bibtex)), %r(\Atext/), nil
-    source_io.read
-  else
-    STDERR.puts "Cannot embed #{source_io&.content_type} document."
-    return
+  end
+
+  def parse_rss(source_io)
+    feed = RSS::Parser.parse(source_io, false, false)
+    title = <<~EOT
+      # #{feed&.channel&.title}
+
+    EOT
+    feed.items.inject(title) do |text, item|
+      text << <<~EOT
+        ## [#{item&.title}](#{item&.link})
+
+        updated on #{item&.pubDate}
+
+        #{reverse_markdown(item&.description)}
+
+      EOT
+    end
+  end
+
+  def parse_atom(source_io)
+    feed = RSS::Parser.parse(source_io, false, false)
+    title = <<~EOT
+      # #{feed.title.content}
+
+    EOT
+    feed.items.inject(title) do |text, item|
+      text << <<~EOT
+        ## [#{item&.title&.content}](#{item&.link&.href})
+
+        updated on #{item&.updated&.content}
+
+        #{reverse_markdown(item&.content&.content)}
+
+      EOT
+    end
+  end
+
+  def pdf_read(io)
+    reader = PDF::Reader.new(io)
+    reader.pages.inject(+'') { |result, page| result << page.text }
+  end
+
+  def ps_read(io)
+    gs = `which gs`.chomp
+    if gs.present?
+      Tempfile.create do |tmp|
+        IO.popen("#{gs} -q -sDEVICE=pdfwrite -sOutputFile=#{tmp.path} -", 'wb') do |gs_io|
+          until io.eof?
+            buffer = io.read(1 << 17)
+            IO.select(nil, [ gs_io ], nil)
+            gs_io.write buffer
+          end
+          gs_io.close
+          File.open(tmp.path, 'rb') do |pdf|
+            pdf_read(pdf)
+          end
+        end
+      end
+    else
+      STDERR.puts "Cannot convert #{io&.content_type} whith ghostscript, gs not in path."
+    end
+  end
+
+  def reverse_markdown(html)
+    ReverseMarkdown.convert(
+      html,
+      unknown_tags: :bypass,
+      github_flavored: true,
+      tag_border: ''
+    )
   end
 end
+include SourceParsing
 
 def http_options(url)
   options = {}
