@@ -39,6 +39,7 @@ class Ollama::Utils::Fetcher
   end
 
   def self.normalize_url(url)
+    url = url.to_s
     url = URI.decode_uri_component(url)
     url = url.sub(/#.*/, '')
     URI::Parser.new.escape(url).to_s
