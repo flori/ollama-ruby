@@ -277,6 +277,31 @@ module Switches
 end
 include Switches
 
+def pull_model_unless_present(model, options, retried = false)
+  ollama.show(name: model) { |response|
+    puts "Model #{bold{model}} with architecture "\
+      "#{response.model_info['general.architecture']} found."
+    if system = response.system
+      puts "Configured model system prompt is:\n#{italic { system }}"
+      return system
+    else
+      return
+    end
+  }
+rescue Errors::NotFoundError
+  puts "Model #{bold{model}} not found locally, attempting to pull it from remote now…"
+  ollama.pull(name: model)
+  if retried
+    exit 1
+  else
+    retried = true
+    retry
+  end
+rescue Errors::Error => e
+  warn "Caught #{e.class} while pulling model: #{e} => Exiting."
+  exit 1
+end
+
 def search_web(query, n = nil)
   if l = at_location
     query += " #{at_location}"
@@ -304,31 +329,6 @@ def search_web(query, n = nil)
     end
     result
   end
-end
-
-def pull_model_unless_present(model, options, retried = false)
-  ollama.show(name: model) { |response|
-    puts "Model #{bold{model}} with architecture "\
-      "#{response.model_info['general.architecture']} found."
-    if system = response.system
-      puts "Configured model system prompt is:\n#{italic { system }}"
-      return system
-    else
-      return
-    end
-  }
-rescue Errors::NotFoundError
-  puts "Model #{bold{model}} not found locally, attempting to pull it from remote now…"
-  ollama.pull(name: model)
-  if retried
-    exit 1
-  else
-    retried = true
-    retry
-  end
-rescue Errors::Error => e
-  warn "Caught #{e.class} while pulling model: #{e} => Exiting."
-  exit 1
 end
 
 def load_conversation(filename)
