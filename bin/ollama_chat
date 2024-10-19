@@ -726,7 +726,6 @@ def collection_stats
   puts <<~EOT
     Current Collection
       Name: #{bold{$documents.collection}}
-      Embedding model: #{bold{$embedding_model}}
       #Embeddings: #{$documents.size}
       #Tags: #{$documents.tags.size}
       Tags: #{$documents.tags}
@@ -789,9 +788,16 @@ end
 
 def info
   puts "Current model is #{bold{$model}}."
+  if $model_options.present?
+    puts "  Options: #{JSON.pretty_generate($model_options).gsub(/(?<!\A)^/, '  ')}"
+  end
   collection_stats
   $embedding.show
   if $embedding.on?
+    puts "Embedding model is #{bold{$embedding_model}}"
+    if $embedding_model_options.present?
+      puts "  Options: #{JSON.pretty_generate($embedding_model_options).gsub(/(?<!\A)^/, '  ')}"
+    end
     puts "Text splitter is #{bold{$config.embedding.splitter.name}}."
   end
   puts "Documents database cache is #{$documents.nil? ? 'n/a' : bold{$documents.cache.class}}"
@@ -895,12 +901,12 @@ $opts[?h] and usage
 $opts[?V] and version
 
 base_url = $opts[?u] || $config.url
-$ollama      = Client.new(base_url:, debug: $config.debug)
+$ollama  = Client.new(base_url:, debug: $config.debug)
 
 $document_policy = $config.document_policy
 $model           = choose_model($opts[?m], $config.model.name)
-options          = Options[$config.model.options]
-model_system     = pull_model_unless_present($model, options)
+$model_options   = Options[$config.model.options]
+model_system     = pull_model_unless_present($model, $model_options)
 messages         = []
 $embedding_enabled.set($config.embedding.enabled && !$opts[?E])
 
@@ -918,8 +924,8 @@ end
 
 if $embedding.on?
   $embedding_model         = $config.embedding.model.name
-  embedding_model_options = Options[$config.embedding.model.options]
-  pull_model_unless_present($embedding_model, embedding_model_options)
+  $embedding_model_options = Options[$config.embedding.model.options]
+  pull_model_unless_present($embedding_model, $embedding_model_options)
   collection = $opts[?C] || $config.embedding.collection
   $documents = Documents.new(
     ollama:,
@@ -1158,7 +1164,7 @@ loop do
   messages << Message.new(role: 'user', content:, images: images.dup)
   images.clear
   handler = FollowChat.new(messages:, markdown: $markdown.on?, voice: ($current_voice if $voice.on?))
-  ollama.chat(model: $model, messages:, options:, stream: $stream.on?, &handler)
+  ollama.chat(model: $model, messages:, options: $model_options, stream: $stream.on?, &handler)
 
   if $embedding.on? && !records.empty?
     puts "", records.map { |record|
