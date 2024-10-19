@@ -33,6 +33,10 @@ module Ollama::DTO
 
   alias to_hash as_json
 
+  def empty?
+    to_hash.empty?
+  end
+
   def to_json(*)
     as_json.to_json(*)
   end
