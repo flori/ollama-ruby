@@ -876,7 +876,7 @@ def usage
 end
 
 def version
-  puts "%s %s" % [ File.basename($0), VERSION ]
+  puts "%s %s" % [ File.basename($0), Ollama::VERSION ]
   exit 0
 end
 
