@@ -164,115 +164,118 @@ class FollowChat
   end
 end
 
-module CheckSwitch
-  extend Tins::Concern
+module Switches
+  module CheckSwitch
+    extend Tins::Concern
 
-  included do
-    alias_method :on?, :value
+    included do
+      alias_method :on?, :value
+    end
+
+    def off?
+      !on?
+    end
+
+    def show
+      puts @msg[value]
+    end
   end
 
-  def off?
-    !on?
+  class Switch
+    def initialize(name, msg:, config: $config)
+      @value = [ false, true ].include?(config) ? config : !!config.send("#{name}?")
+      @msg   = msg
+    end
+
+    attr_reader :value
+
+    def set(value, show: false)
+      @value = !!value
+      show && self.show
+    end
+
+    def toggle(show: true)
+      @value = !@value
+      show && self.show
+    end
+
+    include CheckSwitch
   end
 
-  def show
-    puts @msg[value]
+  class CombinedSwitch
+    def initialize(value:, msg:)
+      @value = value
+      @msg   = msg
+    end
+
+    def value
+      @value.()
+    end
+
+    include CheckSwitch
+  end
+
+  def setup_switches
+    $markdown = Switch.new(
+      :markdown,
+      msg: {
+        true  => "Using #{italic{'ANSI'}} markdown to output content.",
+        false => "Using plaintext for outputting content.",
+      }
+    )
+
+    $stream = Switch.new(
+      :stream,
+      msg: {
+        true  => "Streaming enabled.",
+        false => "Streaming disabled.",
+      }
+    )
+
+    $voice = Switch.new(
+      :stream,
+      msg: {
+        true  => "Voice output enabled.",
+        false => "Voice output disabled.",
+      },
+      config: $config.voice
+    )
+
+    $embedding_enabled = Switch.new(
+      :embedding_enabled,
+      msg: {
+        true  => "Embedding enabled.",
+        false => "Embedding disabled.",
+      }
+    )
+
+    $embedding_paused = Switch.new(
+      :embedding_paused,
+      msg: {
+        true  => "Embedding paused.",
+        false => "Embedding resumed.",
+      }
+    )
+
+    $embedding = CombinedSwitch.new(
+      value: -> { $embedding_enabled.on? && $embedding_paused.off? },
+      msg: {
+        true  => "Embedding is currently performed.",
+        false => "Embedding is currently not performed.",
+      }
+    )
+
+    $location = Switch.new(
+      :location,
+      msg: {
+        true  => "Location and localtime enabled.",
+        false => "Location and localtime disabled.",
+      },
+      config: $config.location.enabled
+    )
   end
 end
-
-class Switch
-  def initialize(name, msg:, config: $config)
-    @value = [ false, true ].include?(config) ? config : !!config.send("#{name}?")
-    @msg   = msg
-  end
-
-  attr_reader :value
-
-  def set(value, show: false)
-    @value = !!value
-    show && self.show
-  end
-
-  def toggle(show: true)
-    @value = !@value
-    show && self.show
-  end
-
-  include CheckSwitch
-end
-
-class CombinedSwitch
-  def initialize(value:, msg:)
-    @value = value
-    @msg   = msg
-  end
-
-  def value
-    @value.()
-  end
-
-  include CheckSwitch
-end
-
-def setup_switches
-  $markdown = Switch.new(
-    :markdown,
-    msg: {
-      true  => "Using #{italic{'ANSI'}} markdown to output content.",
-      false => "Using plaintext for outputting content.",
-    }
-  )
-
-  $stream = Switch.new(
-    :stream,
-    msg: {
-      true  => "Streaming enabled.",
-      false => "Streaming disabled.",
-    }
-  )
-
-  $voice = Switch.new(
-    :stream,
-    msg: {
-      true  => "Voice output enabled.",
-      false => "Voice output disabled.",
-    },
-    config: $config.voice
-  )
-
-  $embedding_enabled = Switch.new(
-    :embedding_enabled,
-    msg: {
-      true  => "Embedding enabled.",
-      false => "Embedding disabled.",
-    }
-  )
-
-  $embedding_paused = Switch.new(
-    :embedding_paused,
-    msg: {
-      true  => "Embedding paused.",
-      false => "Embedding resumed.",
-    }
-  )
-
-  $embedding = CombinedSwitch.new(
-    value: -> { $embedding_enabled.on? && $embedding_paused.off? },
-    msg: {
-      true  => "Embedding is currently performed.",
-      false => "Embedding is currently not performed.",
-    }
-  )
-
-  $location = Switch.new(
-    :location,
-    msg: {
-      true  => "Location and localtime enabled.",
-      false => "Location and localtime disabled.",
-    },
-    config: $config.location.enabled
-  )
-end
+include Switches
 
 def search_web(query, n = nil)
   if l = at_location
