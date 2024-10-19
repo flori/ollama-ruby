@@ -2,9 +2,9 @@
 
 require 'ollama'
 include Ollama
+include Tins::GO
 require 'term/ansicolor'
 include Term::ANSIColor
-include Tins::GO
 require 'reline'
 require 'reverse_markdown'
 require 'complex_config'
