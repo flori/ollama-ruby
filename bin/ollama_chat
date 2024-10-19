@@ -791,7 +791,6 @@ def info
   if $model_options.present?
     puts "  Options: #{JSON.pretty_generate($model_options).gsub(/(?<!\A)^/, '  ')}"
   end
-  collection_stats
   $embedding.show
   if $embedding.on?
     puts "Embedding model is #{bold{$embedding_model}}"
@@ -799,6 +798,7 @@ def info
       puts "  Options: #{JSON.pretty_generate($embedding_model_options).gsub(/(?<!\A)^/, '  ')}"
     end
     puts "Text splitter is #{bold{$config.embedding.splitter.name}}."
+    collection_stats
   end
   puts "Documents database cache is #{$documents.nil? ? 'n/a' : bold{$documents.cache.class}}"
   $markdown.show
