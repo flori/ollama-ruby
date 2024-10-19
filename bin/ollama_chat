@@ -534,7 +534,7 @@ def import_source(source_io, source)
   source = source.to_s
   puts "Importing #{italic { source_io&.content_type }} document #{source.inspect} now."
 	source_content = parse_source(source_io)
-  "Imported #{source.inspect}:\n%{source_content}\n\n" % { source_content: }
+  "Imported #{source.inspect}:\n#{source_content}\n\n"
 end
 
 def import(source)
