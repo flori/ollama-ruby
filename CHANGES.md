@@ -2,7 +2,7 @@
 
 ## 2024-10-20 v0.9.2
 
-* Added SourceParsing module and update parse_source method to use it:
+* Added SourceParsing module and update `parse_source` method to use it:
   + Added `SourceParsing` module with `parse_source` method that handles
     different file types (e.g. HTML, XML, CSV, RSS)
   + Added `parse_csv` method to `SourceParsing` module
