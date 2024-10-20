@@ -1,5 +1,23 @@
 # Changes
 
+## 2024-10-20 v0.9.2
+
+* Added SourceParsing module and update parse_source method to use it:
+  + Added `SourceParsing` module with `parse_source` method that handles
+    different file types (e.g. HTML, XML, CSV, RSS)
+  + Added `parse_csv` method to `SourceParsing` module
+  + Updated `parse_source` method in main file to include new functionality
+* Add colorize texts spec for Ollama::Utils::ColorizeTexts to test its
+  functionality.
+* Added test for expected output of `documents.tags`
+* Add test for empty Ollama options:
+  + Added test case for `Ollama::Options` being empty
+* Display (embedding) model options in info output
+* Only show `collection_stats` if embedding is performed
+* Add empty? method to DTO class:
+  + Added `empty?` method to `Ollama::DTO` class using `to_hash.empty?`
+  + Method is used to check if the object's hash representation is empty.
+
 ## 2024-10-19 v0.9.1
 
 * Fixing string interpolation in `import_source` method:
