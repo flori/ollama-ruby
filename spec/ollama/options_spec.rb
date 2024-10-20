@@ -13,6 +13,10 @@ RSpec.describe Ollama::Options do
     expect(options).to be_a described_class
   end
 
+  it 'can be empty' do
+    expect(described_class.new).to be_empty
+  end
+
   it 'can be used to cast hashes' do
     expect(described_class[{
       penalize_newline: true,
