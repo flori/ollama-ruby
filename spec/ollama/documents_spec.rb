@@ -60,16 +60,16 @@ RSpec.describe Ollama::Documents do
     expect(ollama).to receive(:embed).
       with(model:, input: [ 'foo' ], options: nil).
       and_return(double(embeddings: [ [ 0.1 ] ]))
-    expect(documents.add('foo', tags: %i[ test ])).to eq documents
+    expect(documents.add('foo', tags: %w[ test ])).to eq documents
     expect(ollama).to receive(:embed).
       with(model:, input: 'foo', options: nil).
       and_return(double(embeddings: [ [ 0.1 ] ]))
-    records = documents.find('foo', tags: %i[ nix ])
+    records = documents.find('foo', tags: %w[ nix ])
     expect(records).to eq []
     expect(ollama).to receive(:embed).
       with(model:, input: 'foo', options: nil).
       and_return(double(embeddings: [ [ 0.1 ] ]))
-    records = documents.find('foo', tags: %i[ test ])
+    records = documents.find('foo', tags: %w[ test ])
     expect(records).to eq [
       Ollama::Documents::Record[text: 'foo', embedding: [ 0.1 ], similarity: 1.0 ]
     ]
@@ -135,8 +135,9 @@ RSpec.describe Ollama::Documents do
       expect(ollama).to receive(:embed).
         with(model:, input: %w[ bar ], options: nil).
         and_return(double(embeddings: [ [ 0.1 ] ]))
-      expect(documents.add('foo', tags: %i[ test ])).to eq documents
-      expect(documents.add('bar', tags: %i[ test2 ])).to eq documents
+      expect(documents.add('foo', tags: %w[ test ])).to eq documents
+      expect(documents.add('bar', tags: %w[ test2 ])).to eq documents
+      expect(documents.tags.to_a).to eq %w[ test test2 ]
       expect {
         documents.clear tags: 'test'
       }.to change { documents.size }.from(2).to(1)
