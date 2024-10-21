@@ -1,5 +1,11 @@
 # Changes
 
+## 2024-10-21 v0.9.3
+
+* Update dependencies and date:
+  + dependency `complex_config` updated to `~> 0.22` and `>= 0.22.2`
+  + Date changed in ollama-ruby.gemspec from "2024-10-20" to "2024-10-21"
+
 ## 2024-10-20 v0.9.2
 
 * Added SourceParsing module and update `parse_source` method to use it:
