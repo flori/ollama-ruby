@@ -34,7 +34,7 @@ GemHadar do
   dependency             'more_math',             '~> 1.1'
   dependency             'mime-types',            '~> 3.0'
   dependency             'reverse_markdown',      '~> 2.0'
-  dependency             'complex_config',        '~> 0.22'
+  dependency             'complex_config',        '~> 0.22', '>= 0.22.2'
   dependency             'search_ui',             '~> 0.0'
   dependency             'amatch',                '~> 0.4.1'
   dependency             'pdf-reader',            '~> 2.0'
