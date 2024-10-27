@@ -1165,7 +1165,8 @@ loop do
   end
 
   if location = at_location.full?
-    content += " [#{location} – do not comment on this information, just consider it for eventual queries]"
+    content += " [#{location} – do not comment on this the time and location, "\
+      "just consider it for eventual queries]"
   end
 
   messages << Message.new(role: 'user', content:, images: images.dup)
