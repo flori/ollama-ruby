@@ -1,4 +1,6 @@
 module Ollama::Documents::Cache::Common
+  include Ollama::Utils::Math
+
   attr_writer :prefix
 
   def collections(prefix)

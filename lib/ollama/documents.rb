@@ -14,7 +14,6 @@ require 'ollama/documents/splitters/character'
 require 'ollama/documents/splitters/semantic'
 
 class Ollama::Documents
-  include Ollama::Utils::Math
   include Ollama::Utils::Width
 
   class Record < JSON::GenericObject
@@ -79,7 +78,7 @@ class Ollama::Documents
     batches.each do |batch|
       embeddings = fetch_embeddings(model:, options: @model_options, input: batch)
       batch.zip(embeddings) do |text, embedding|
-        norm       = norm(embedding)
+        norm       = @cache.norm(embedding)
         self[text] = Record[text:, embedding:, norm:, source:, tags: tags.to_a]
       end
       infobar.progress by: batch.size
@@ -125,7 +124,7 @@ class Ollama::Documents
 
   def find(string, tags: nil, prompt: nil)
     needle      = convert_to_vector(string, prompt:)
-    needle_norm = norm(needle)
+    needle_norm = @cache.norm(needle)
     records = @cache
     if tags
       tags = Ollama::Utils::Tags.new(tags).to_a
@@ -133,7 +132,7 @@ class Ollama::Documents
     end
     records = records.sort_by { |key, record|
       record.key        = key
-      record.similarity = cosine_similarity(
+      record.similarity = @cache.cosine_similarity(
         a: needle,
         b: record.embedding,
         a_norm: needle_norm,
@@ -193,11 +192,8 @@ class Ollama::Documents
     if prompt
       input = prompt % input
     end
-    if input.is_a?(String)
-      Numo::NArray[*fetch_embeddings(model:, input:).first]
-    else
-      super(input)
-    end
+    input.is_a?(String) and input = fetch_embeddings(model:, input:).first
+    @cache.convert_to_vector(input)
   end
 
   def fetch_embeddings(model:, input:, options: nil)
