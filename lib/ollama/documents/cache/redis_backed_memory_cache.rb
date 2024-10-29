@@ -7,6 +7,7 @@ class Ollama::Documents
       url or raise ArgumentError, 'require redis url'
       @prefix, @url, @object_class = prefix, url, object_class
       @redis_cache  = Ollama::Documents::RedisCache.new(prefix:, url:, object_class:)
+      @redis_cache.extend(Ollama::Documents::Cache::Records::RedisFullEach)
       @redis_cache.full_each do |key, value|
         @data[key] = value
       end

@@ -64,12 +64,4 @@ class Ollama::Documents::RedisCache
     self
   end
   include Enumerable
-
-  def full_each(&block)
-    redis.scan_each(match: [ Ollama::Documents, ?* ] * ?-) do |key|
-      value = redis.get(key) or next
-      value = JSON(value, object_class: Ollama::Documents::Record)
-      block.(key, value)
-    end
-  end
 end

@@ -4,8 +4,9 @@ require 'kramdown/ansi'
 
 class Ollama::Documents
 end
-class Ollama::Documents::Cache
+module Ollama::Documents::Cache
 end
+require 'ollama/documents/cache/records'
 require 'ollama/documents/cache/memory_cache'
 require 'ollama/documents/cache/redis_cache'
 require 'ollama/documents/cache/redis_backed_memory_cache'
@@ -16,6 +17,7 @@ require 'ollama/documents/splitters/semantic'
 
 class Ollama::Documents
   include Kramdown::ANSI::Width
+  include Ollama::Documents::Cache
 
   class Record < JSON::GenericObject
     def to_s
@@ -79,7 +81,7 @@ class Ollama::Documents
     batches.each do |batch|
       embeddings = fetch_embeddings(model:, options: @model_options, input: batch)
       batch.zip(embeddings) do |text, embedding|
-        norm       = @cache.norm(embedding)
+        norm       = @cache.norm(embedding) # TODO
         self[text] = Record[text:, embedding:, norm:, source:, tags: tags.to_a]
       end
       infobar.progress by: batch.size
@@ -110,37 +112,13 @@ class Ollama::Documents
   end
 
   def clear(tags: nil)
-    if tags
-      tags = Ollama::Utils::Tags.new(Array(tags)).to_a
-      @cache.each do |key, record|
-        if (tags & record.tags).size >= 1
-          @cache.delete(@cache.unpre(key))
-        end
-      end
-    else
-      @cache.clear
-    end
+    @cache.clear(tags:)
     self
   end
 
   def find(string, tags: nil, prompt: nil)
-    needle      = convert_to_vector(string, prompt:)
-    needle_norm = @cache.norm(needle)
-    records = @cache
-    if tags
-      tags = Ollama::Utils::Tags.new(tags).to_a
-      records = records.select { |_key, record| (tags & record.tags).size >= 1 }
-    end
-    records = records.sort_by { |key, record|
-      record.key        = key
-      record.similarity = @cache.cosine_similarity(
-        a: needle,
-        b: record.embedding,
-        a_norm: needle_norm,
-        b_norm: record.norm,
-      )
-    }
-    records.transpose.last&.reverse.to_a
+    needle = convert_to_vector(string, prompt:)
+    @cache.find_records(needle, tags:)
   end
 
   def find_where(string, text_size: nil, text_count: nil, **opts)
@@ -162,11 +140,7 @@ class Ollama::Documents
   end
 
   def tags
-    @cache.each_with_object(Ollama::Utils::Tags.new) do |(_, record), t|
-      record.tags.each do |tag|
-        t.add(tag, source: record.source)
-      end
-    end
+    @cache.tags
   end
 
   private
@@ -186,6 +160,10 @@ class Ollama::Documents
     end
   ensure
     cache ||= MemoryCache.new(prefix:)
+    cache.extend(Records)
+    if cache.respond_to?(:redis)
+      cache.extend(Records::RedisFullEach)
+    end
     return cache
   end
 
