@@ -638,31 +638,36 @@ def parse_content(content, images)
   tags = Utils::Tags.new
 
   contents = [ content ]
-  content.scan(%r((?:\.\.|[.~])?/\S+|https?://\S+|#\S+)).each do |source|
-    case source
-    when /\A#(\S+)/
-      tags.add($1, source:)
-    else
-      source = source.sub(/(["')]|\*+)\z/, '')
-      fetch_source(source) do |source_io|
-        case source_io&.content_type&.media_type
-        when 'image'
-          add_image(images, source_io, source)
-        when 'text', 'application', nil
-          case $document_policy
-          when 'importing'
-            contents << import_source(source_io, source)
-          when 'embedding'
-            embed_source(source_io, source)
-          when 'summarizing'
-            contents << summarize_source(source_io, source)
-          end
-        else
-          STDERR.puts(
-            "Cannot fetch #{source.to_s.inspect} with content type "\
-            "#{source_io&.content_type.inspect}"
-          )
+  content.scan(%r((https?://\S+)|(#\S+)|(\S+\/\S+))).each do |url, tag, file|
+    case
+    when tag
+      tags.add(tag)
+      next
+    when file
+      file =~ %r(\A[~./]) or file.prepend('./')
+      File.exist?(file) or next
+      source = file
+    when url
+      source = url
+    end
+    fetch_source(source) do |source_io|
+      case source_io&.content_type&.media_type
+      when 'image'
+        add_image(images, source_io, source)
+      when 'text', 'application', nil
+        case $document_policy
+        when 'importing'
+          contents << import_source(source_io, source)
+        when 'embedding'
+          embed_source(source_io, source)
+        when 'summarizing'
+          contents << summarize_source(source_io, source)
         end
+      else
+        STDERR.puts(
+          "Cannot fetch #{source.to_s.inspect} with content type "\
+          "#{source_io&.content_type.inspect}"
+        )
       end
     end
   end
