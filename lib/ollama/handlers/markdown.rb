@@ -1,4 +1,5 @@
 require 'term/ansicolor'
+require 'kramdown/ansi'
 
 class Ollama::Handlers::Markdown
   include Ollama::Handlers::Concern
@@ -13,7 +14,7 @@ class Ollama::Handlers::Markdown
   def call(response)
     if content = response.response || response.message&.content
       @content << content
-      markdown_content = Ollama::Utils::ANSIMarkdown.parse(@content)
+      markdown_content = Kramdown::ANSI.parse(@content)
       @output.print clear_screen, move_home, markdown_content
     end
     self

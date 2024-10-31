@@ -16,8 +16,6 @@ end
 
 module Ollama::Utils
 end
-require 'ollama/utils/width'
-require 'ollama/utils/ansi_markdown'
 require 'ollama/utils/tags'
 require 'ollama/utils/math'
 require 'ollama/utils/colorize_texts'

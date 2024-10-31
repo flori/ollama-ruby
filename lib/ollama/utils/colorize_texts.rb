@@ -1,7 +1,10 @@
+require 'term/ansicolor'
+require 'kramdown/ansi'
+
 class Ollama::Utils::ColorizeTexts
   include Math
   include Term::ANSIColor
-  include Ollama::Utils::Width
+  include Kramdown::ANSI::Width
 
   # Initializes a new instance of Ollama::Utils::ColorizeTexts
   #

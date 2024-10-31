@@ -132,7 +132,7 @@ class FollowChat
       content = response.message&.content
       @messages.last.content << content
       if @markdown and content = @messages.last.content.full?
-        markdown_content = Utils::ANSIMarkdown.parse(content)
+        markdown_content = Kramdown::ANSI.parse(content)
         @output.print clear_screen, move_home, @user, ?\n, markdown_content
       else
         @output.print content
@@ -159,7 +159,7 @@ class FollowChat
       load_duration:        Tins::Duration.new(response.load_duration / 1e9),
     }.map { _1 * '=' } * ' '
     '📊 ' + color(111) {
-      Utils::Width.wrap(stats_text, percentage: 90).gsub(/(?<!\A)^/, '   ')
+      Kramdown::ANSI::Width.wrap(stats_text, percentage: 90).gsub(/(?<!\A)^/, '   ')
     }
   end
 end
@@ -364,7 +364,7 @@ def list_conversation(messages, last = nil)
                  when 'system' then 213
                  else 210
                  end
-    content = m.content.full? { $markdown.on? ? Utils::ANSIMarkdown.parse(_1) : _1 }
+    content = m.content.full? { $markdown.on? ? Kramdown::ANSI.parse(_1) : _1 }
     message_text = message_type(m.images) + " "
     message_text += bold { color(role_color) { m.role } }
     message_text += ":\n#{content}"
@@ -608,7 +608,7 @@ def embed_source(source_io, source, count: nil)
   inputs or return
   source = source.to_s
   if source.start_with?(?!)
-    source = Utils::Width.truncate(
+    source = Kramdown::ANSI::Width.truncate(
       source[1..-1].gsub(/\W+/, ?_),
       length: 10
     )
@@ -761,7 +761,7 @@ end
 def show_system_prompt
   puts <<~EOT
     Configured system prompt is:
-    #{Utils::ANSIMarkdown.parse($system.to_s).gsub(/\n+\z/, '').full? || 'n/a'}
+    #{Kramdown::ANSI.parse($system.to_s).gsub(/\n+\z/, '').full? || 'n/a'}
   EOT
 end
 

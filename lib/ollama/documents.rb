@@ -1,5 +1,6 @@
 require 'numo/narray'
 require 'digest'
+require 'kramdown/ansi'
 
 class Ollama::Documents
 end
@@ -14,7 +15,7 @@ require 'ollama/documents/splitters/character'
 require 'ollama/documents/splitters/semantic'
 
 class Ollama::Documents
-  include Ollama::Utils::Width
+  include Kramdown::ANSI::Width
 
   class Record < JSON::GenericObject
     def to_s

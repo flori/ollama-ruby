@@ -14,7 +14,7 @@ GemHadar do
   test_dir    'spec'
   ignore      '.*.sw[pon]', 'pkg', 'Gemfile.lock', '.AppleDouble', '.bundle',
     '.yardoc', 'doc', 'tags', 'errors.lst', 'cscope.out', 'coverage', 'tmp',
-    'corpus'
+    'corpus', 'yard'
   package_ignore '.all_images.yml', '.tool-versions', '.gitignore', 'VERSION',
      '.rspec', *Dir.glob('.github/**/*', File::FNM_DOTMATCH)
   readme      'README.md'
@@ -42,6 +42,7 @@ GemHadar do
   dependency             'json',                  '~> 2.0'
   dependency             'xdg',                   '~> 7.0'
   dependency             'tins',                  '~> 1.34'
+  dependency             'kramdown-ansi',         '~> 0.0'
   development_dependency 'all_images',            '~> 0.4'
   development_dependency 'rspec',                 '~> 3.2'
   development_dependency 'webmock'
