@@ -1,5 +1,29 @@
 # Changes
 
+## 2024-10-31 v0.10.0
+
+* Improved URL and tag parsing in `parse_content`:
+  + Added support for `file://` protocol to content scans.
+  + Updated regex pattern to match local files starting with `~`, `.`, or `/`.
+  + Remove # anchors for file URLs (and files)
+* Improved parsing of content in ollama_chat:
+  + Use `content.scan(%r((https?://\S+)|(#\S+)|(\S+\/\S+)))` to match URLs, tags and files.
+  + For foo/bar file pathes prepend `./`foo/bar, for foo you have to enter ./foo still.
+  + Added a check for file existence before fetching its content
+* Move vector methods into cache implementations:
+  + Update `documents.rb` to use `@cache.norm` and `@cache.cosine_similarity`
+  + Remove unused code in `documents.rb` (including `Ollama::Utils::Math`)
+  + Add `include Ollama::Utils::Math` in `cache/common.rb`
+* Document existing collections, pre, and unpre methods:
+  + Update module Ollama::Documents::Cache::Common to include documentation for existing methods
+* Use kramdown-ansi gem for Markdown output in terminal:
+  + Update `kramdown-ansi` to **0.0** in Gemfile and Rakefile
+  + Remove `ollama/utils/width.rb` as it's no longer needed
+  + Remove `spec/ollama/utils/width_spec.rb` and `spec/ollama/utils/ansi_markdown_spec.rb` as they're not used anymore
+  + Update `ollama-ruby.gemspec` to reflect the new dependencies and remove unused files
+* Updated print messages to include `.to_s.inspect` for accurate inspection of
+  source content in `ollama_chat`.
+
 ## 2024-10-21 v0.9.3
 
 * Update dependencies and date:
