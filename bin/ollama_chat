@@ -539,7 +539,7 @@ end
 
 def import_source(source_io, source)
   source = source.to_s
-  puts "Importing #{italic { source_io&.content_type }} document #{source.inspect} now."
+  puts "Importing #{italic { source_io&.content_type }} document #{source.to_s.inspect} now."
 	source_content = parse_source(source_io)
   "Imported #{source.inspect}:\n#{source_content}\n\n"
 end
@@ -553,7 +553,7 @@ def import(source)
 end
 
 def summarize_source(source_io, source, words: nil)
-  puts "Summarizing #{italic { source_io&.content_type }} document #{source.inspect} now."
+  puts "Summarizing #{italic { source_io&.content_type }} document #{source.to_s.inspect} now."
   words = words.to_i
   words < 1 and words = 100
   source_content = parse_source(source_io)
