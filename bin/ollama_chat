@@ -638,12 +638,13 @@ def parse_content(content, images)
   tags = Utils::Tags.new
 
   contents = [ content ]
-  content.scan(%r((https?://\S+)|(#\S+)|(\S+\/\S+))).each do |url, tag, file|
+  content.scan(%r((https?://\S+)|(#\S+)|(?:file://)?(\S*\/\S+))).each do |url, tag, file|
     case
     when tag
       tags.add(tag)
       next
     when file
+      file = file.sub(/#.*/, '')
       file =~ %r(\A[~./]) or file.prepend('./')
       File.exist?(file) or next
       source = file
