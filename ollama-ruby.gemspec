@@ -33,8 +33,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<excon>.freeze, ["~> 0.111".freeze])
   s.add_runtime_dependency(%q<infobar>.freeze, ["~> 0.8".freeze])
   s.add_runtime_dependency(%q<term-ansicolor>.freeze, ["~> 1.11".freeze])
-  s.add_runtime_dependency(%q<kramdown-parser-gfm>.freeze, ["~> 1.1".freeze])
-  s.add_runtime_dependency(%q<terminal-table>.freeze, ["~> 3.0".freeze])
   s.add_runtime_dependency(%q<redis>.freeze, ["~> 5.0".freeze])
   s.add_runtime_dependency(%q<numo-narray>.freeze, ["~> 0.9".freeze])
   s.add_runtime_dependency(%q<more_math>.freeze, ["~> 1.1".freeze])
@@ -48,5 +46,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<json>.freeze, ["~> 2.0".freeze])
   s.add_runtime_dependency(%q<xdg>.freeze, ["~> 7.0".freeze])
   s.add_runtime_dependency(%q<tins>.freeze, ["~> 1.34".freeze])
-  s.add_runtime_dependency(%q<kramdown-ansi>.freeze, ["~> 0.0".freeze])
+  s.add_runtime_dependency(%q<kramdown-ansi>.freeze, ["~> 0.0".freeze, ">= 0.0.1".freeze])
 end
