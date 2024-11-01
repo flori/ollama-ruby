@@ -114,10 +114,10 @@ class FollowChat
   def initialize(messages:, markdown: false, voice: nil, output: $stdout)
     super(output:)
     @output.sync = true
-    @markdown = markdown
-    @say = voice ? Handlers::Say.new(voice:) : NOP
-    @messages = messages
-    @user     = nil
+    @markdown    = markdown
+    @say         = voice ? Handlers::Say.new(voice:) : NOP
+    @messages    = messages
+    @user        = nil
   end
 
   def call(response)
