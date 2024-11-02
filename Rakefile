@@ -24,7 +24,7 @@ GemHadar do
 
   required_ruby_version  '~> 3.1'
 
-  dependency             'excon',                 '~> 0.111'
+  dependency             'excon',                 '~> 1.0'
   dependency             'infobar',               '~> 0.8'
   dependency             'term-ansicolor',        '~> 1.11'
   dependency             'redis',                 '~> 5.0'
@@ -41,6 +41,7 @@ GemHadar do
   dependency             'xdg',                   '~> 7.0'
   dependency             'tins',                  '~> 1.34'
   dependency             'kramdown-ansi',         '~> 0.0', '>= 0.0.1'
+  dependency             'ostruct',               '~> 0.0'
   development_dependency 'all_images',            '~> 0.4'
   development_dependency 'rspec',                 '~> 3.2'
   development_dependency 'webmock'

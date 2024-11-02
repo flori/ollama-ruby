@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
   s.authors = ["Florian Frank".freeze]
-  s.date = "2024-10-31"
+  s.date = "2024-11-02"
   s.description = "Library that allows interacting with the Ollama API".freeze
   s.email = "flori@ping.de".freeze
   s.executables = ["ollama_console".freeze, "ollama_chat".freeze, "ollama_update".freeze, "ollama_cli".freeze]
@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.licenses = ["MIT".freeze]
   s.rdoc_options = ["--title".freeze, "Ollama-ruby - Interacting with the Ollama API".freeze, "--main".freeze, "README.md".freeze]
   s.required_ruby_version = Gem::Requirement.new("~> 3.1".freeze)
-  s.rubygems_version = "3.5.22".freeze
+  s.rubygems_version = "3.5.18".freeze
   s.summary = "Interacting with the Ollama API".freeze
   s.test_files = ["spec/ollama/client/doc_spec.rb".freeze, "spec/ollama/client_spec.rb".freeze, "spec/ollama/commands/chat_spec.rb".freeze, "spec/ollama/commands/copy_spec.rb".freeze, "spec/ollama/commands/create_spec.rb".freeze, "spec/ollama/commands/delete_spec.rb".freeze, "spec/ollama/commands/embed_spec.rb".freeze, "spec/ollama/commands/embeddings_spec.rb".freeze, "spec/ollama/commands/generate_spec.rb".freeze, "spec/ollama/commands/ps_spec.rb".freeze, "spec/ollama/commands/pull_spec.rb".freeze, "spec/ollama/commands/push_spec.rb".freeze, "spec/ollama/commands/show_spec.rb".freeze, "spec/ollama/commands/tags_spec.rb".freeze, "spec/ollama/documents/memory_cache_spec.rb".freeze, "spec/ollama/documents/redis_backed_memory_cache_spec.rb".freeze, "spec/ollama/documents/redis_cache_spec.rb".freeze, "spec/ollama/documents/splitters/character_spec.rb".freeze, "spec/ollama/documents/splitters/semantic_spec.rb".freeze, "spec/ollama/documents_spec.rb".freeze, "spec/ollama/handlers/collector_spec.rb".freeze, "spec/ollama/handlers/dump_json_spec.rb".freeze, "spec/ollama/handlers/dump_yaml_spec.rb".freeze, "spec/ollama/handlers/markdown_spec.rb".freeze, "spec/ollama/handlers/nop_spec.rb".freeze, "spec/ollama/handlers/print_spec.rb".freeze, "spec/ollama/handlers/progress_spec.rb".freeze, "spec/ollama/handlers/say_spec.rb".freeze, "spec/ollama/handlers/single_spec.rb".freeze, "spec/ollama/image_spec.rb".freeze, "spec/ollama/message_spec.rb".freeze, "spec/ollama/options_spec.rb".freeze, "spec/ollama/tool_spec.rb".freeze, "spec/ollama/utils/cache_fetcher_spec.rb".freeze, "spec/ollama/utils/colorize_texts_spec.rb".freeze, "spec/ollama/utils/fetcher_spec.rb".freeze, "spec/ollama/utils/file_argument_spec.rb".freeze, "spec/ollama/utils/tags_spec.rb".freeze, "spec/spec_helper.rb".freeze]
 
@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency(%q<webmock>.freeze, [">= 0".freeze])
   s.add_development_dependency(%q<debug>.freeze, [">= 0".freeze])
   s.add_development_dependency(%q<simplecov>.freeze, [">= 0".freeze])
-  s.add_runtime_dependency(%q<excon>.freeze, ["~> 0.111".freeze])
+  s.add_runtime_dependency(%q<excon>.freeze, ["~> 1.0".freeze])
   s.add_runtime_dependency(%q<infobar>.freeze, ["~> 0.8".freeze])
   s.add_runtime_dependency(%q<term-ansicolor>.freeze, ["~> 1.11".freeze])
   s.add_runtime_dependency(%q<redis>.freeze, ["~> 5.0".freeze])
@@ -47,4 +47,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<xdg>.freeze, ["~> 7.0".freeze])
   s.add_runtime_dependency(%q<tins>.freeze, ["~> 1.34".freeze])
   s.add_runtime_dependency(%q<kramdown-ansi>.freeze, ["~> 0.0".freeze, ">= 0.0.1".freeze])
+  s.add_runtime_dependency(%q<ostruct>.freeze, ["~> 0.0".freeze])
 end
