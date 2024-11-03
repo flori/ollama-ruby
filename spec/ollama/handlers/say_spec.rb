@@ -56,7 +56,7 @@ RSpec.describe Ollama::Handlers::Say do
   end
 
   it 'can say response' do
-    output = double('output', :sync= => true)
+    output = double('output', :sync= => true, closed?: false)
     expect(output).to receive(:print).with('testing')
     expect(output).to receive(:close)
     say = described_class.new(output:)
@@ -67,7 +67,7 @@ RSpec.describe Ollama::Handlers::Say do
   end
 
   it 'can say message content' do
-    output = double('output', :sync= => true)
+    output = double('output', :sync= => true, closed?: false)
     expect(output).to receive(:print).with('testing')
     expect(output).to receive(:close)
     say = described_class.new(output:)
@@ -76,4 +76,18 @@ RSpec.describe Ollama::Handlers::Say do
     response = double('response', response: nil, message: nil, done: true)
     say.call(response)
   end
+
+  it 'can reopen output if closed' do
+    output = double('output', :sync= => true, closed?: true)
+    reopened_output = double('output', :sync= => true, closed?: false, pid: 666)
+    expect(reopened_output).to receive(:print).with('testing')
+    expect(reopened_output).to receive(:close)
+    say = described_class.new(output:)
+    expect(say).to receive(:open_output).and_return(reopened_output)
+    response = double('response', response: 'testing', done: false)
+    say.call(response)
+    response = double('response', response: nil, message: nil, done: true)
+    say.call(response)
+  end
+
 end
