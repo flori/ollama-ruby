@@ -77,12 +77,12 @@ RSpec.describe Ollama::Utils::Fetcher do
     stub_request(:get, url).
       with(headers: fetcher.headers).
       to_return(status: 500)
-		expect(STDERR).to receive(:puts).with(/cannot.*get.*#{url}/i)
-    fetcher.get(url) do |tmp|
-      expect(tmp).to be_a StringIO
-      expect(tmp.read).to eq ''
-      expect(tmp.content_type).to eq 'text/plain'
-    end
+    expect(STDERR).to receive(:puts).with(/cannot.*get.*#{url}/i)
+      fetcher.get(url) do |tmp|
+        expect(tmp).to be_a StringIO
+        expect(tmp.read).to eq ''
+        expect(tmp.content_type).to eq 'text/plain'
+      end
   end
 
   it 'can redirect' do
@@ -107,7 +107,7 @@ RSpec.describe Ollama::Utils::Fetcher do
 
   it 'can .execute and fail' do
     expect(IO).to receive(:popen).and_raise StandardError
-		expect(STDERR).to receive(:puts).with(/cannot.*execute.*foobar/i)
+    expect(STDERR).to receive(:puts).with(/cannot.*execute.*foobar/i)
     described_class.execute('foobar') do |file|
       expect(file).to be_a StringIO
       expect(file.read).to be_empty
@@ -115,23 +115,23 @@ RSpec.describe Ollama::Utils::Fetcher do
     end
   end
 
-	describe '.normalize_url' do
-		it 'can handle umlauts' do
-			expect(described_class.normalize_url('https://foo.de/bär')).to eq(
-				'https://foo.de/b%C3%A4r'
-			)
-		end
+  describe '.normalize_url' do
+    it 'can handle umlauts' do
+      expect(described_class.normalize_url('https://foo.de/bär')).to eq(
+        'https://foo.de/b%C3%A4r'
+      )
+    end
 
-		it 'can handle escaped umlauts' do
-			expect(described_class.normalize_url('https://foo.de/b%C3%A4r')).to eq(
-				'https://foo.de/b%C3%A4r'
-			)
-		end
+    it 'can handle escaped umlauts' do
+      expect(described_class.normalize_url('https://foo.de/b%C3%A4r')).to eq(
+        'https://foo.de/b%C3%A4r'
+      )
+    end
 
-		it 'can remove #anchors' do
-			expect(described_class.normalize_url('https://foo.de#bar')).to eq(
-				'https://foo.de'
-			)
-		end
-	end
+    it 'can remove #anchors' do
+      expect(described_class.normalize_url('https://foo.de#bar')).to eq(
+        'https://foo.de'
+      )
+    end
+  end
 end
