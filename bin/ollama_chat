@@ -657,6 +657,8 @@ def parse_content(content, images)
         add_image(images, source_io, source)
       when 'text', 'application', nil
         case $document_policy
+        when 'ignoring'
+          nil
         when 'importing'
           contents << import_source(source_io, source)
         when 'embedding'
@@ -711,7 +713,7 @@ ensure
 end
 
 def choose_document_policy
-  policies = %w[ importing embedding summarizing ].sort
+  policies = %w[ importing embedding summarizing ignoring ].sort
   current  = if policies.index($document_policy)
                $document_policy
              elsif policies.index($config.document_policy)
