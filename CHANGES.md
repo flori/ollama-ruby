@@ -1,5 +1,24 @@
 # Changes
 
+## 2024-11-20 v0.11.0
+
+* Added `voice` and `interactive` reader attributes to the Say handler class.
+* Refactored the `call` method in the Say handler to reopen the output stream
+  if it has been closed.
+* Added the `open_output` method to open a new IO stream with synchronization
+  enabled.
+* Added a test for the reopened output stream in the Say spec.
+* Updated `initialize` method in `lib/ollama/handlers/say.rb` to add
+  `interactive` option and call new `command` method.
+* Add private `command` method in lib/ollama/handlers/say.rb to generate
+  command for say utility based on voice and interactive options.
+* Update specs in `spec/ollama/handlers/say_spec.rb` to test new behavior.
+* Updated `FollowChat` class to correctly initialize markdown and voice
+  attributes
+* Update `choose_document_policy` policy list in chat script to include
+  'ignoring'
+* Updated `parse_content` method to handle 'ignoring' document policy.
+
 ## 2024-10-31 v0.10.0
 
 * Improved URL and tag parsing in `parse_content`:
