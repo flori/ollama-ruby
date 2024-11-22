@@ -316,7 +316,7 @@ def search_web(query, n = nil)
     doc.css('.results_links').each do |link|
       if n > 0
         url = link.css('.result__a').first&.[]('href')
-        url.sub!(%r(\A/l/\?uddg=), '')
+        url.sub!(%r(\A(//duckduckgo\.com)?/l/\?uddg=), '')
         url.sub!(%r(&rut=.*), '')
         url = URI.decode_uri_component(url)
         url = URI.parse(url)
