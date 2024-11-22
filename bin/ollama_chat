@@ -603,7 +603,6 @@ def embed_source(source_io, source, count: nil)
       percentage: splitter_config.percentage?,
       percentile: splitter_config.percentile?,
     )
-    inputs = splitter.split(text)
   end
   inputs or return
   source = source.to_s
