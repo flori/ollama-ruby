@@ -108,14 +108,13 @@ class Ollama::Documents::Cache::SQLiteCache
     vector
   end
 
-  # Do you have any improvements for this method:
   def find_records(needle, tags: nil, max_records: nil)
-    max_records = [ max_records, size, 4_096 ].compact.min
     needle.size != @embedding_length and
       raise ArgumentError, "needle embedding length != %s" % @embedding_length
     needle_binary = needle.pack("f*")
-    tags_filter = tags
-    tags_where = 'true'
+    max_records   = [ max_records, size, 4_096 ].compact.min
+    tags_filter   = tags
+    tags_where    = 'true'
     if tags_filter
       tags_filter = Ollama::Utils::Tags.new(tags_filter).to_a
       unless  tags_filter.empty?
