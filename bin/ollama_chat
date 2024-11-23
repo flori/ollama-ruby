@@ -674,7 +674,7 @@ def parse_content(content, images)
       end
     end
   end
-  new_content = contents.select(&:present?).compact * "\n\n"
+  new_content = contents.select { _1.present? rescue nil }.compact * "\n\n"
   return new_content, (tags unless tags.empty?)
 end
 
