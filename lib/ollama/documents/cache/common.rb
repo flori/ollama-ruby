@@ -1,7 +1,11 @@
 module Ollama::Documents::Cache::Common
   include Ollama::Utils::Math
 
-  attr_writer :prefix # current prefix defined for the cache
+  def initialize(prefix:)
+    self.prefix = prefix
+  end
+
+  attr_accessor :prefix # current prefix defined for the cache
 
   # Returns an array of collection names that match the given prefix.
   #

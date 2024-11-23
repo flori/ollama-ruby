@@ -5,7 +5,7 @@ class Ollama::Documents
     def initialize(prefix:, url: ENV['REDIS_URL'], object_class: nil)
       super(prefix:)
       url or raise ArgumentError, 'require redis url'
-      @prefix, @url, @object_class = prefix, url, object_class
+      @url, @object_class = url, object_class
       @redis_cache  = Ollama::Documents::RedisCache.new(prefix:, url:, object_class:)
       @redis_cache.extend(Ollama::Documents::Cache::Records::RedisFullEach)
       @redis_cache.full_each do |key, value|

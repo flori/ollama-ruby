@@ -4,7 +4,7 @@ class Ollama::Documents::MemoryCache
   include Ollama::Documents::Cache::Common
 
   def initialize(prefix:)
-    @prefix = prefix
+    super(prefix:)
     @data   = {}
   end
 

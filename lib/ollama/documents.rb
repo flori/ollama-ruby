@@ -10,6 +10,7 @@ require 'ollama/documents/cache/records'
 require 'ollama/documents/cache/memory_cache'
 require 'ollama/documents/cache/redis_cache'
 require 'ollama/documents/cache/redis_backed_memory_cache'
+require 'ollama/documents/cache/sqlite_cache'
 module Ollama::Documents::Splitters
 end
 require 'ollama/documents/splitters/character'
@@ -37,13 +38,13 @@ class Ollama::Documents
     alias inspect to_s
   end
 
-  def initialize(ollama:, model:, model_options: nil, collection: nil, cache: MemoryCache, redis_url: nil, debug: false)
+  def initialize(ollama:, model:, model_options: nil, collection: nil, embedding_length: 1_024, cache: MemoryCache, database_filename: nil, redis_url: nil, debug: false)
     collection ||= default_collection
     @ollama, @model, @model_options, @collection =
       ollama, model, model_options, collection.to_sym
-    @redis_url = redis_url
-    @cache     = connect_cache(cache)
-    @debug     = debug
+    database_filename ||= ':memory:'
+    @cache = connect_cache(cache, redis_url, embedding_length, database_filename)
+    @debug = debug
   end
 
   def default_collection
@@ -81,7 +82,7 @@ class Ollama::Documents
     batches.each do |batch|
       embeddings = fetch_embeddings(model:, options: @model_options, input: batch)
       batch.zip(embeddings) do |text, embedding|
-        norm       = @cache.norm(embedding) # TODO
+        norm       = @cache.norm(embedding)
         self[text] = Record[text:, embedding:, norm:, source:, tags: tags.to_a]
       end
       infobar.progress by: batch.size
@@ -116,12 +117,15 @@ class Ollama::Documents
     self
   end
 
-  def find(string, tags: nil, prompt: nil)
+  def find(string, tags: nil, prompt: nil, max_records: nil)
     needle = convert_to_vector(string, prompt:)
-    @cache.find_records(needle, tags:)
+    @cache.find_records(needle, tags:, max_records: nil)
   end
 
   def find_where(string, text_size: nil, text_count: nil, **opts)
+    if text_count
+      opts[:max_records] =  text_count
+    end
     records = find(string, **opts)
     size, count = 0, 0
     records.take_while do |record|
@@ -145,23 +149,26 @@ class Ollama::Documents
 
   private
 
-  def connect_cache(cache_class)
+  def connect_cache(cache_class, redis_url, embedding_length, database_filename)
     cache = nil
-    if cache_class.instance_method(:redis)
+    if (cache_class.instance_method(:redis) rescue nil)
       begin
-        cache = cache_class.new(prefix:, url: @redis_url, object_class: Record)
+        cache = cache_class.new(prefix:, url: redis_url, object_class: Record)
         cache.size
       rescue Redis::CannotConnectError
         STDERR.puts(
-          "Cannot connect to redis URL #{@redis_url.inspect}, "\
+          "Cannot connect to redis URL #{redis_url.inspect}, "\
           "falling back to MemoryCache."
         )
       end
+    elsif cache_class == SQLiteCache
+      cache = cache_class.new(prefix:, embedding_length:, filename: database_filename) # TODO filename
     end
   ensure
-    cache ||= MemoryCache.new(prefix:)
-    cache.extend(Records)
-    if cache.respond_to?(:redis)
+    cache ||= MemoryCache.new(prefix:,)
+    cache.respond_to?(:find_records) or cache.extend(Records::FindRecords)
+    cache.extend(Records::Tags)
+    if cache.respond_to?(:redis) # TODO check this
       cache.extend(Records::RedisFullEach)
     end
     return cache

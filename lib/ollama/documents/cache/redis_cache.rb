@@ -5,8 +5,9 @@ class Ollama::Documents::RedisCache
   include Ollama::Documents::Cache::Common
 
   def initialize(prefix:, url: ENV['REDIS_URL'], object_class: nil, ex: nil)
+    super(prefix:)
     url or raise ArgumentError, 'require redis url'
-    @prefix, @url, @object_class, @ex = prefix, url, object_class, ex
+    @url, @object_class, @ex = url, object_class, ex
   end
 
   attr_reader :object_class
@@ -18,7 +19,7 @@ class Ollama::Documents::RedisCache
   def [](key)
     value = redis.get(pre(key))
     unless value.nil?
-      JSON(value, object_class:)
+      object_class ? JSON(value, object_class:) : JSON(value)
     end
   end
 
