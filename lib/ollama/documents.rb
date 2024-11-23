@@ -162,13 +162,13 @@ class Ollama::Documents
         )
       end
     elsif cache_class == SQLiteCache
-      cache = cache_class.new(prefix:, embedding_length:, filename: database_filename) # TODO filename
+      cache = cache_class.new(prefix:, embedding_length:, filename: database_filename)
     end
   ensure
     cache ||= MemoryCache.new(prefix:,)
     cache.respond_to?(:find_records) or cache.extend(Records::FindRecords)
     cache.extend(Records::Tags)
-    if cache.respond_to?(:redis) # TODO check this
+    if cache.respond_to?(:redis)
       cache.extend(Records::RedisFullEach)
     end
     return cache
