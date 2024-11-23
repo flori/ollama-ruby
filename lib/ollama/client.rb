@@ -10,7 +10,7 @@ class Ollama::Client
 
   annotate :doc
 
-  def initialize(base_url: nil, output: $stdout, connect_timeout: nil, read_timeout: nil, write_timeout: nil, debug: nil)
+  def initialize(base_url: nil, output: $stdout, connect_timeout: nil, read_timeout: nil, write_timeout: nil, debug: nil, user_agent: nil)
     base_url.nil? and base_url = ENV.fetch('OLLAMA_URL') do
       raise ArgumentError,
         'missing :base_url parameter or OLLAMA_URL environment variable'
@@ -21,8 +21,8 @@ class Ollama::Client
     @ssl_verify_peer = base_url.query.to_s.split(?&).inject({}) { |h, l|
       h.merge Hash[*l.split(?=)]
     }['ssl_verify_peer'] != 'false'
-    @base_url, @output, @connect_timeout, @read_timeout, @write_timeout, @debug =
-      base_url, output, connect_timeout, read_timeout, write_timeout, debug
+    @base_url, @output, @connect_timeout, @read_timeout, @write_timeout, @debug, @user_agent =
+      base_url, output, connect_timeout, read_timeout, write_timeout, debug, user_agent
   end
 
   attr_accessor :output
@@ -111,13 +111,13 @@ class Ollama::Client
 
   def headers
     {
-      'User-Agent'   => self.class.user_agent,
+      'User-Agent'   => @user_agent || self.class.user_agent,
       'Content-Type' => 'application/json; charset=utf-8',
     }
   end
 
   def self.user_agent
-    '%s/%s' % [ self.class, Ollama::VERSION ]
+    '%s/%s' % [ self, Ollama::VERSION ]
   end
 
   def excon(url)

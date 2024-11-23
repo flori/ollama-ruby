@@ -927,8 +927,9 @@ setup_switches
 $opts[?h] and usage
 $opts[?V] and version
 
-base_url = $opts[?u] || $config.url
-$ollama  = Client.new(base_url:, debug: $config.debug)
+base_url   = $opts[?u] || $config.url
+user_agent = [ File.basename($0), Ollama::VERSION ] * ?/
+$ollama    = Client.new(base_url:, debug: $config.debug, user_agent:)
 
 $document_policy = $config.document_policy
 $model           = choose_model($opts[?m], $config.model.name)

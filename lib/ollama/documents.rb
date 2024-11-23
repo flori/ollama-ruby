@@ -40,11 +40,10 @@ class Ollama::Documents
 
   def initialize(ollama:, model:, model_options: nil, collection: nil, embedding_length: 1_024, cache: MemoryCache, database_filename: nil, redis_url: nil, debug: false)
     collection ||= default_collection
-    @ollama, @model, @model_options, @collection =
-      ollama, model, model_options, collection.to_sym
+    @ollama, @model, @model_options, @collection, @debug =
+      ollama, model, model_options, collection.to_sym, debug
     database_filename ||= ':memory:'
     @cache = connect_cache(cache, redis_url, embedding_length, database_filename)
-    @debug = debug
   end
 
   def default_collection
@@ -162,7 +161,12 @@ class Ollama::Documents
         )
       end
     elsif cache_class == SQLiteCache
-      cache = cache_class.new(prefix:, embedding_length:, filename: database_filename)
+      cache = cache_class.new(
+        prefix:,
+        embedding_length:,
+        filename: database_filename,
+        debug: @debug
+      )
     end
   ensure
     cache ||= MemoryCache.new(prefix:,)
