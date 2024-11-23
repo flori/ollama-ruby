@@ -785,10 +785,11 @@ def set_system_prompt(messages, system)
   messages << Message.new(role: 'system', content: system)
 end
 
-def change_system_prompt(messages, default)
-  prompts = $config.system_prompts.attribute_names.compact
-  chosen  = Utils::Chooser.choose(prompts)
-  system  = if chosen
+def change_system_prompt(messages, default, system: nil)
+  selector = Regexp.new(system.to_s[1..-1].to_s)
+  prompts  = $config.system_prompts.attribute_names.compact.grep(selector)
+  chosen   = Utils::Chooser.choose(prompts, return_immediately: true)
+  system   = if chosen
               $config.system_prompts.send(chosen)
             else
               default
@@ -929,8 +930,8 @@ if $opts[?c]
   messages.concat load_conversation($opts[?c])
 else
   default = $config.system_prompts.default? || model_system
-  if $opts[?s] == ??
-    change_system_prompt(messages, default)
+  if $opts[?s] =~ /\A\?/
+    change_system_prompt(messages, default, system: $opts[?s])
   else
     system = Utils::FileArgument.get_file_argument($opts[?s], default:)
     system.present? and set_system_prompt(messages, system)
