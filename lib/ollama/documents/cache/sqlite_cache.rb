@@ -146,15 +146,15 @@ class Ollama::Documents::Cache::SQLiteCache
   private
 
   def execute(*a)
-    a[0] = a[0].gsub(/^\s*\n/, '')
-    a[0] = a[0].gsub(/\A\s+/, '')
-    n = $&.to_s.size
-    a[0] = a[0].gsub(/^\s{0,#{n}}/, '')
-    a[0] = a[0].chomp
     if @debug
+      e = a[0].gsub(/^\s*\n/, '')
+      e = e.gsub(/\A\s+/, '')
+      n = $&.to_s.size
+      e = e.gsub(/^\s{0,#{n}}/, '')
+      e = e.chomp
       STDERR.puts("EXPLANATION:\n%s\n%s" % [
-        a[0],
-        @database.execute("EXPLAIN #{a[0]}", *a[1..-1]).pretty_inspect
+        e,
+        @database.execute("EXPLAIN #{e}", *a[1..-1]).pretty_inspect
       ])
     end
     @database.execute(*a)
