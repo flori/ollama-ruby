@@ -6,11 +6,12 @@ require 'digest/md5'
 class Ollama::Documents::Cache::SQLiteCache
   include Ollama::Documents::Cache::Common
 
-  def initialize(prefix:, embedding_length: 1_024, filename: ':memory:')
+  def initialize(prefix:, embedding_length: 1_024, filename: ':memory:', debug: false)
     super(prefix:)
     @embedding_length = embedding_length
     @filename         = filename
-    @database         = setup_database(filename)
+    @debug            = debug
+    setup_database(filename)
   end
 
   attr_reader :filename # filename for the database, `:memory:` is in memory
@@ -148,6 +149,17 @@ class Ollama::Documents::Cache::SQLiteCache
   private
 
   def execute(*a)
+    a[0] = a[0].gsub(/^\s*\n/, '')
+    a[0] = a[0].gsub(/\A\s+/, '')
+    n = $&.to_s.size
+    a[0] = a[0].gsub(/^\s{0,#{n}}/, '')
+    a[0] = a[0].chomp
+    if @debug
+      STDERR.puts("EXPLANATION:\n%s\n%s" % [
+        a[0],
+        @database.execute("EXPLAIN #{a[0]}", *a[1..-1]).pretty_inspect
+      ])
+    end
     @database.execute(*a)
   end
 
@@ -156,27 +168,26 @@ class Ollama::Documents::Cache::SQLiteCache
   end
 
   def setup_database(filename)
-    database = SQLite3::Database.new(filename)
-    database.enable_load_extension(true)
-    SqliteVec.load(database)
-    database.enable_load_extension(false)
-    database.execute %{
+    @database = SQLite3::Database.new(filename)
+    @database.enable_load_extension(true)
+    SqliteVec.load(@database)
+    @database.enable_load_extension(false)
+    execute %{
       CREATE VIRTUAL TABLE IF NOT EXISTS embeddings USING vec0(
         embedding float[#@embedding_length]
       )
     }
-    database.execute %{
+    execute %{
       CREATE TABLE IF NOT EXISTS records (
-        key          text,
-        text         text,
+        key          text NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+        text         text NOT NULL DEFAULT '',
         embedding_id integer,
-        norm         float,
+        norm         float NOT NULL DEFAULT 0.0,
         source       text,
-        tags         json,
+        tags         json NOT NULL DEFAULT [],
         FOREIGN KEY(embedding_id) REFERENCES embeddings(id) ON DELETE CASCADE
       )
     }
-    database
   end
 
   def convert_value_to_record(value)
