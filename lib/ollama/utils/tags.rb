@@ -3,7 +3,7 @@ class Ollama::Utils::Tags
     include Term::ANSIColor
 
     def initialize(tag, source: nil)
-      super(tag.to_s)
+      super(tag.to_s.gsub(/\A#+/, ''))
       self.source = source
     end
 
@@ -26,6 +26,7 @@ class Ollama::Utils::Tags
   end
 
   def initialize(tags = [], source: nil)
+    tags = Array(tags)
     @set = []
     tags.each { |tag| add(tag, source:) }
   end
