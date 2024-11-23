@@ -963,7 +963,7 @@ if $embedding.on?
     collection:        ,
     cache:             configure_cache,
     redis_url:         $config.redis.documents.url?,
-    debug:             ENV['DEBUG'].to_i == 1,
+    debug:             $config.debug
   )
 
   document_list = $opts[?D].to_a
