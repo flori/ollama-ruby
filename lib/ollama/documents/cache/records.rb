@@ -1,4 +1,28 @@
 module Ollama::Documents::Cache::Records
+  class Record < JSON::GenericObject
+    def initialize(*a)
+      super
+      self.text ||= ''
+      self.norm ||= 0.0
+    end
+
+    def to_s
+      my_tags = tags_set
+      my_tags.empty? or my_tags = " #{my_tags}"
+      "#<#{self.class} #{text.inspect}#{my_tags} #{similarity || 'n/a'}>"
+    end
+
+    def tags_set
+      Ollama::Utils::Tags.new(tags, source:)
+    end
+
+    def ==(other)
+      text == other.text
+    end
+
+    alias inspect to_s
+  end
+
   module RedisFullEach
     def full_each(&block)
       redis.scan_each(match: [ Ollama::Documents, ?* ] * ?-) do |key|

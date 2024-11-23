@@ -20,23 +20,7 @@ class Ollama::Documents
   include Kramdown::ANSI::Width
   include Ollama::Documents::Cache
 
-  class Record < JSON::GenericObject
-    def to_s
-      my_tags = tags_set
-      my_tags.empty? or my_tags = " #{my_tags}"
-      "#<#{self.class} #{text.inspect}#{my_tags} #{similarity || 'n/a'}>"
-    end
-
-    def tags_set
-      Ollama::Utils::Tags.new(tags, source:)
-    end
-
-    def ==(other)
-      text == other.text
-    end
-
-    alias inspect to_s
-  end
+  Record = Class.new Ollama::Documents::Cache::Records::Record
 
   def initialize(ollama:, model:, model_options: nil, collection: nil, embedding_length: 1_024, cache: MemoryCache, database_filename: nil, redis_url: nil, debug: false)
     collection ||= default_collection
