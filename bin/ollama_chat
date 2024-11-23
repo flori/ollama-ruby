@@ -57,13 +57,15 @@ class OllamaChatConfig
       enabled: true
       model:
         name: mxbai-embed-large
+        embedding_length: 1024
         options: {}
         # Retrieval prompt template:
         prompt: 'Represent this sentence for searching relevant passages: %s'
       batch_size: 10
+      database_filename: null # ':memory:'
       collection: <%= ENV['OLLAMA_CHAT_COLLECTION'] %>
       found_texts_size: 4096
-      found_texts_count: null
+      found_texts_count: 10
       splitter:
         name: RecursiveCharacter
         chunk_size: 1024
@@ -81,12 +83,15 @@ class OllamaChatConfig
 
   def initialize(filename = nil)
     @filename = filename || default_path
+    unless File.directory?(cache_dir_path)
+      mkdir_p cache_dir_path.to_s
+    end
     @config = Provider.config(@filename, '⚙️')
     retried = false
   rescue ConfigurationFileMissing
     if @filename == default_path && !retried
       retried = true
-      mkdir_p File.dirname(default_path)
+      mkdir_p config_dir_path.to_s
       File.secure_write(default_path, DEFAULT_CONFIG)
       retry
     else
@@ -104,6 +109,14 @@ class OllamaChatConfig
 
   def config_dir_path
     XDG.new.config_home + 'ollama_chat'
+  end
+
+  def cache_dir_path
+    XDG.new.cache_home + 'ollama_chat'
+  end
+
+  def database_path
+    cache_dir_path + 'documents.db'
   end
 end
 
@@ -387,7 +400,7 @@ module SourceParsing
       end
       source_io.rewind
       source_io.read
-    when 'text/csv' # TODO
+    when 'text/csv'
       parse_csv(source_io)
     when 'application/rss+xml'
       parse_rss(source_io)
@@ -623,7 +636,6 @@ def embed(source)
       content.present? or return
       source_io.rewind
       embed_source(source_io, source)
-      content
     end
     $config.prompts.embed % { source: }
   else
@@ -907,8 +919,8 @@ end
 
 $opts = go 'f:u:m:s:c:C:D:MEVh'
 
-config = OllamaChatConfig.new($opts[?f])
-$config = config.config
+$ollama_chat_config = OllamaChatConfig.new($opts[?f])
+$config             = $ollama_chat_config.config
 
 setup_switches
 
@@ -944,12 +956,13 @@ if $embedding.on?
   collection = $opts[?C] || $config.embedding.collection
   $documents = Documents.new(
     ollama:,
-    model:         $embedding_model,
-    model_options: $config.embedding.model.options,
-    collection:,
-    cache:         configure_cache,
-    redis_url:     $config.redis.documents.url?,
-    debug:         ENV['DEBUG'].to_i == 1,
+    model:             $embedding_model,
+    model_options:     $config.embedding.model.options,
+    database_filename: $config.embedding.database_filename || $ollama_chat_config.database_path,
+    collection:        ,
+    cache:             configure_cache,
+    redis_url:         $config.redis.documents.url?,
+    debug:             ENV['DEBUG'].to_i == 1,
   )
 
   document_list = $opts[?D].to_a
@@ -991,7 +1004,7 @@ end
 
 $current_voice = $config.voice.default
 
-puts "Configuration read from #{config.filename.inspect} is:", $config
+puts "Configuration read from #{$ollama_chat_config.filename.inspect} is:", $config
 info
 puts "\nType /help to display the chat help."
 
