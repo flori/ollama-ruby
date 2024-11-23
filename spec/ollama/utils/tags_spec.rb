@@ -10,6 +10,11 @@ RSpec.describe Ollama::Utils::Tags do
     expect(tags.to_a).to eq %w[ bar foo ]
   end
 
+  it 'can contain unique tags with leading # characters and is sorted' do
+    tags = described_class.new(%w[ #bar ##foo ])
+    expect(tags.to_a).to eq %w[ bar foo ]
+  end
+
   it 'tags can be added to it' do
     tags = described_class.new([ 'foo' ])
     tags.add 'bar'
@@ -27,13 +32,13 @@ RSpec.describe Ollama::Utils::Tags do
     expect { tags.clear }.to change { tags.size }.from(2).to(0)
   end
 
-  it 'tags can be empt' do
+  it 'tags can be empty' do
     tags = described_class.new([ 'foo' ])
     expect { tags.clear }.to change { tags.empty? }.from(false).to(true)
   end
 
   it 'can be output nicely' do
-    expect(described_class.new(%w[ foo bar ]).to_s).to eq '#bar #foo'
+    expect(described_class.new(%w[ #foo bar ]).to_s).to eq '#bar #foo'
   end
 
   it 'can be output nicely with links to source' do
