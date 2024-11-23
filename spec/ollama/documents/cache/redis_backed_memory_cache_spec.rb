@@ -1,17 +1,21 @@
 require 'spec_helper'
 
 RSpec.describe Ollama::Documents::RedisBackedMemoryCache do
+  let :prefix do
+    'test-'
+  end
+
+  let :cache do
+    described_class.new prefix: 'test-', url: 'something'
+  end
+
   it 'raises ArgumentError if url is missing' do
     expect {
-      described_class.new prefix: 'test-', url: nil
+      described_class.new prefix:, url: nil
     }.to raise_error ArgumentError
   end
 
   context 'test redis interactions' do
-    let :cache do
-      described_class.new prefix: 'test-', url: 'something'
-    end
-
     let :data do
       cache.instance_eval { @data }
     end
@@ -31,12 +35,10 @@ RSpec.describe Ollama::Documents::RedisBackedMemoryCache do
     end
 
     it 'can be instantiated and initialized' do
-      cache = described_class.new prefix: 'test-', url: 'something'
       expect(cache).to be_a described_class
     end
 
     it 'defaults to nil object_class' do
-      cache = described_class.new prefix: 'test-', url: 'something'
       expect(cache.object_class).to be_nil
     end
 
@@ -75,6 +77,16 @@ RSpec.describe Ollama::Documents::RedisBackedMemoryCache do
       expect(data).to receive(:delete).with('test-' + key)
       expect(redis).to receive(:del).with('test-' + key)
       cache.delete(key)
+    end
+
+    it 'can iterate over keys, values' do
+      key, value = 'foo', { 'test' => true }
+      expect(redis).to receive(:set).with('test-' + key, JSON(value))
+      cache[key] = value
+      cache.each do |k, v|
+        expect(k).to eq prefix + key
+        expect(v).to eq value
+      end
     end
 
     it 'returns size' do

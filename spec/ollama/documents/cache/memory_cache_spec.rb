@@ -1,8 +1,12 @@
 require 'spec_helper'
 
 RSpec.describe Ollama::Documents::MemoryCache do
+  let :prefix do
+    'test-'
+  end
+
   let :cache do
-    described_class.new prefix: 'test-'
+    described_class.new prefix:
   end
 
   it 'can be instantiated' do
@@ -29,12 +33,22 @@ RSpec.describe Ollama::Documents::MemoryCache do
 
   it 'can delete' do
     key, value = 'foo', { test: true }
+    expect(cache.delete(key)).to be_falsy
     cache[key] = value
     expect {
-      cache.delete(key)
+      expect(cache.delete(key)).to be_truthy
     }.to change {
       cache.key?(key)
     }.from(true).to(false)
+  end
+
+  it 'can iterate over keys, values' do
+    key, value = 'foo', { test: true }
+    cache[key] = value
+    cache.each do |k, v|
+      expect(k).to eq prefix + key
+      expect(v).to eq value
+    end
   end
 
   it 'returns size' do
@@ -58,6 +72,6 @@ RSpec.describe Ollama::Documents::MemoryCache do
 
   it 'can iterate over keys under a prefix' do
     cache['foo'] = 'bar'
-    expect(cache.to_a).to eq [ %w[ test-foo bar ] ]
+    expect(cache.to_a).to eq [ %W[ #{prefix}foo bar ] ]
   end
 end
