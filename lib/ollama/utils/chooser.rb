@@ -8,7 +8,21 @@ module Ollama::Utils::Chooser
 
   module_function
 
-  def choose(entries, prompt: 'Search? %s')
+  # The choose method presents a list of entries and prompts the user
+  # for input, allowing them to select one entry based on their input.
+  #
+  # @param entries [Array] the list of entries to present to the user
+  # @param prompt [String] the prompt message to display when asking for input (default: 'Search? %s')
+  # @param return_immediately [Boolean] whether to immediately return the first entry if there is only one or nil when there is none (default: false)
+  #
+  # @return [Object] the selected entry, or nil if no entry was chosen
+  #
+  # @example
+  #   choose(['entry1', 'entry2'], prompt: 'Choose an option:')
+  def choose(entries, prompt: 'Search? %s', return_immediately: false)
+    if return_immediately && entries.size <= 1
+      return entries.first
+    end
     entry = Search.new(
       prompt:,
       match: -> answer {
