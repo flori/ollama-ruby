@@ -44,8 +44,8 @@ print ollama.chat(model: 'llama3.1', stream: true, messages:).lazy.map { |respon
 
 ## Try out things in ollama\_console
 
-This is an interactive console, that can be used to try the different commands
-provided by an `Ollama::Client` instance. For example this command generate a
+This is an interactive console where you can try out the different commands
+provided by an `Ollama::Client` instance. For example, this command generates a
 response and displays it on the screen using the Markdown handler:
 
 ```
