@@ -6,7 +6,8 @@ dockerfile: |-
 script: &script |-
   echo -e "\e[1m"
   ruby -v
-  bundle
+  bundle install --full-index
+  bundle update
   echo -e "\e[0m"
   rake test
 
