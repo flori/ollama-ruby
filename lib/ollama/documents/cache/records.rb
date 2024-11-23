@@ -45,9 +45,13 @@ module Ollama::Documents::Cache::Records
     end
 
     def tags
-      each_with_object(Ollama::Utils::Tags.new) do |(_, record), t|
-        record.tags.each do |tag|
-          t.add(tag, source: record.source)
+      if defined? super
+        super
+      else
+        each_with_object(Ollama::Utils::Tags.new) do |(_, record), t|
+          record.tags.each do |tag|
+            t.add(tag, source: record.source)
+          end
         end
       end
     end

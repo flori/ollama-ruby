@@ -63,6 +63,17 @@ class Ollama::Documents::Cache::SQLiteCache
     result
   end
 
+  def tags
+    result = Ollama::Utils::Tags.new
+    execute(%{
+        SELECT DISTINCT(tags) FROM records WHERE key LIKE ?
+      }, [ "#@prefix%" ]
+    ).flatten.each do
+      JSON(_1).each { |t| result.add(t) }
+    end
+    result
+  end
+
   def size
     execute(%{SELECT COUNT(*) FROM records WHERE key LIKE ?}, [ "#@prefix%" ]).flatten.first
   end
