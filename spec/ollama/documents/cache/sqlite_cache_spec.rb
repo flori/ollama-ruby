@@ -95,6 +95,11 @@ RSpec.describe Ollama::Documents::SQLiteCache do
     }.from(0).to(1)
   end
 
+  it 'can convert_to_vector' do
+    vector = [ 23.0, 666.0 ]
+    expect(cache.convert_to_vector(vector)).to eq vector
+  end
+
   it 'can clear' do
     key, value = 'foo', { embedding: [ 0.5 ] * 1_024 }
     cache[key] = value
