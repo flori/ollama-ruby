@@ -105,6 +105,20 @@ RSpec.describe Ollama::Documents::SQLiteCache do
     }.from(1).to(0)
   end
 
+  it 'can clear for tags' do
+    key, value = 'foo', { tags: %w[ foo ], embedding: [ 0.5 ] * 1_024 }
+    cache[key] = value
+    key, value = 'bar', { embedding: [ 0.5 ] * 1_024 }
+    cache[key] = value
+    expect {
+      expect(cache.clear_for_tags(%w[ #foo ])).to eq cache
+    }.to change {
+      cache.size
+    }.from(2).to(1)
+    expect(cache).not_to be_key 'foo'
+    expect(cache).to be_key 'bar'
+  end
+
   it 'can iterate over keys under a prefix' do
     cache['foo'] = test_value
     expect(cache.to_a).to eq [ [ 'test-foo', Ollama::Documents::Record[test_value] ] ]
