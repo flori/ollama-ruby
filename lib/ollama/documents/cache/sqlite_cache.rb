@@ -113,7 +113,7 @@ class Ollama::Documents::Cache::SQLiteCache
       raise ArgumentError, "needle embedding length != %s" % @embedding_length
     needle_binary = needle.pack("f*")
     max_records   = [ max_records, size, 4_096 ].compact.min
-    if tags&.size&.>(0)
+    if tags.present?
       tags_filter = Ollama::Utils::Tags.new(tags).to_a
       unless  tags_filter.empty?
         tags_where  = ' AND (%s)' % tags_filter.map { 'tags LIKE "%%%s%%"' % quote(_1) }.join(' OR ')

@@ -35,9 +35,9 @@ module Ollama::Documents::Cache::Records
 
   module FindRecords
     def find_records(needle, tags: nil, max_records: nil)
-      tags and tags = Ollama::Utils::Tags.new(tags).to_a
+      tags = Ollama::Utils::Tags.new(Array(tags)).to_a
       records = self
-      if tags
+      if tags.present?
         records = records.select { |_key, record| (tags & record.tags).size >= 1 }
       end
       needle_norm = norm(needle)
@@ -56,8 +56,8 @@ module Ollama::Documents::Cache::Records
 
   module Tags
     def clear(tags: nil)
-      if tags
-        tags = Ollama::Utils::Tags.new(Array(tags)).to_a
+      tags = Ollama::Utils::Tags.new(tags).to_a
+      if tags.present?
         each do |key, record|
           if (tags & record.tags.to_a).size >= 1
             delete(unpre(key))
