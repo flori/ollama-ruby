@@ -746,17 +746,12 @@ ensure
 end
 
 def collection_stats
-  list = $documents.collections.sort.map { |c|
-    '  ' + ($documents.collection == c ? bold { c } : c).to_s
-  }.join(?\n)
   puts <<~EOT
     Current Collection
       Name: #{bold{$documents.collection}}
       #Embeddings: #{$documents.size}
       #Tags: #{$documents.tags.size}
       Tags: #{$documents.tags}
-    List:
-    #{list}
   EOT
 end
 
