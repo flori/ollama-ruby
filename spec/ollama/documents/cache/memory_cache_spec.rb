@@ -31,6 +31,26 @@ RSpec.describe Ollama::Documents::MemoryCache do
     }.from(false).to(true)
   end
 
+  it 'can set key with different prefixes' do
+    key, value = 'foo', { test: true }
+    expect {
+      cache[key] = value
+    }.to change {
+      cache.size
+    }.from(0).to(1)
+    cache2 = cache.dup
+    cache2.prefix = 'test2-'
+    expect {
+      cache2[key] = value
+    }.to change {
+      cache2.size
+    }.from(0).to(1)
+    expect(cache.size).to eq 1
+    s = 0
+    cache.full_each { s += 1 }
+    expect(s).to eq 2
+  end
+
   it 'can delete' do
     key, value = 'foo', { test: true }
     expect(cache.delete(key)).to be_falsy

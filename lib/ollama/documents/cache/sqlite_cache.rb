@@ -101,7 +101,7 @@ class Ollama::Documents::Cache::SQLiteCache
   include Enumerable
 
   def full_each(&block)
-    each(prefix: '', &block)
+    each(prefix: ?%, &block)
   end
 
   def convert_to_vector(vector)
