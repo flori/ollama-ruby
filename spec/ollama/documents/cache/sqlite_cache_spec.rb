@@ -119,6 +119,16 @@ RSpec.describe Ollama::Documents::SQLiteCache do
     expect(cache).to be_key 'bar'
   end
 
+  it 'can return tags' do
+    key, value = 'foo', { tags: %w[ foo ], embedding: [ 0.5 ] * 1_024 }
+    cache[key] = value
+    key, value = 'bar', { tags: %w[ bar baz ], embedding: [ 0.5 ] * 1_024 }
+    cache[key] = value
+    tags = cache.tags
+    expect(tags).to be_a Ollama::Utils::Tags
+    expect(tags.to_a).to eq %w[ bar baz foo ]
+  end
+
   it 'can iterate over keys under a prefix' do
     cache['foo'] = test_value
     expect(cache.to_a).to eq [ [ 'test-foo', Ollama::Documents::Record[test_value] ] ]
