@@ -79,6 +79,18 @@ class Ollama::Documents::Cache::SQLiteCache
     execute(%{SELECT COUNT(*) FROM records WHERE key LIKE ?}, [ "#@prefix%" ]).flatten.first
   end
 
+  def clear_for_tags(tags = nil)
+    tags = Ollama::Utils::Tags.new(tags).to_a
+    if tags.present?
+      records = find_records_for_tags(tags)
+      keys = '(%s)' % records.transpose.first.map { "'%s'" % quote(_1) }.join(?,)
+      execute(%{DELETE FROM records WHERE key IN #{keys}})
+    else
+      clear
+    end
+    self
+  end
+
   def clear
     execute(%{DELETE FROM records WHERE key LIKE ?}, [ "#@prefix%" ])
     self
@@ -108,26 +120,35 @@ class Ollama::Documents::Cache::SQLiteCache
     vector
   end
 
-  def find_records(needle, tags: nil, max_records: nil)
-    needle.size != @embedding_length and
-      raise ArgumentError, "needle embedding length != %s" % @embedding_length
-    needle_binary = needle.pack("f*")
-    max_records   = [ max_records, size, 4_096 ].compact.min
+  def find_records_for_tags(tags)
     if tags.present?
       tags_filter = Ollama::Utils::Tags.new(tags).to_a
       unless  tags_filter.empty?
-        tags_where  = ' AND (%s)' % tags_filter.map { 'tags LIKE "%%%s%%"' % quote(_1) }.join(' OR ')
+        tags_where  = ' AND (%s)' % tags_filter.map {
+          'tags LIKE "%%%s%%"' % quote(_1)
+        }.join(' OR ')
       end
     end
-    keys = execute(%{
+    records = execute(%{
       SELECT key, tags, embedding_id
       FROM records
       WHERE key LIKE ?#{tags_where}
     }, [ "#@prefix%" ])
     if tags_filter
-      keys = keys.select { |key, tags, embedding_id| (tags_filter & JSON(tags.to_s).to_a).size >= 1 }
+      records = records.select { |key, tags, embedding_id|
+        (tags_filter & JSON(tags.to_s).to_a).size >= 1
+      }
     end
-    rowids_where = '(%s)' % keys.transpose.last&.join(?,)
+    records
+  end
+
+  def find_records(needle, tags: nil, max_records: nil)
+    needle.size != @embedding_length and
+      raise ArgumentError, "needle embedding length != %s" % @embedding_length
+    needle_binary = needle.pack("f*")
+    max_records   = [ max_records, size, 4_096 ].compact.min
+    records = find_records_for_tags(tags)
+    rowids_where = '(%s)' % records.transpose.last&.join(?,)
     execute(%{
       SELECT records.key, records.text, records.norm, records.source,
         records.tags, embeddings.embedding

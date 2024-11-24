@@ -58,9 +58,13 @@ module Ollama::Documents::Cache::Records
     def clear(tags: nil)
       tags = Ollama::Utils::Tags.new(tags).to_a
       if tags.present?
-        each do |key, record|
-          if (tags & record.tags.to_a).size >= 1
-            delete(unpre(key))
+        if respond_to?(:clear_for_tags)
+          clear_for_tags(tags)
+        else
+          each do |key, record|
+            if (tags & record.tags.to_a).size >= 1
+              delete(unpre(key))
+            end
           end
         end
       else
