@@ -21,6 +21,7 @@ module Ollama::Documents::Splitters
         e
       end
       infobar.newline
+      embeddings.size < 2 and return sentences
       distances = embeddings.each_cons(2).map do |a, b|
         1.0 - cosine_similarity(a:, b:)
       end
