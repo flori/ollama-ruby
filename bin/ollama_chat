@@ -334,6 +334,7 @@ def search_web(query, n = nil)
         url = URI.decode_uri_component(url)
         url = URI.parse(url)
         url.host =~ /duckduckgo\.com/ and next
+        $links.add(url.to_s)
         result << url
         n -= 1
       else
@@ -523,6 +524,7 @@ def fetch_source(source, &block)
       block.(tmp)
     end
   when %r(\Ahttps?://\S+)
+    $links.add(source.to_s)
     Utils::Fetcher.get(
       source,
       cache:        $cache,
@@ -660,6 +662,7 @@ def parse_content(content, images)
       File.exist?(file) or next
       source = file
     when url
+      $links.add(url.to_s)
       source = url
     end
     fetch_source(source) do |source_io|
@@ -876,6 +879,7 @@ def display_chat_help
     /embedding                      toggle embedding paused or not
     /embed source                   embed the source's content
     /web [n] query                  query web search & return n or 1 results
+    /links( clear)                  display (or clear) links used in the chat
     /save filename                  store conversation messages
     /load filename                  load conversation messages
     /quit                           to quit
@@ -1004,6 +1008,7 @@ puts "Configuration read from #{$ollama_chat_config.filename.inspect} is:", $con
 info
 puts "\nType /help to display the chat help."
 
+$links  = Set.new
 images = []
 loop do
   parse_content = true
@@ -1142,6 +1147,37 @@ loop do
   when %r(^/save\s+(.+)$)
     save_conversation($1, messages)
     puts "Saved conversation to #$1."
+    next
+  when %r(^/links(?:\s+(clear))?$)
+    case $1
+    when 'clear'
+      loop do
+        links = $links.dup.add('[EXIT]').add('[ALL]')
+        link = Utils::Chooser.choose(links, prompt: 'Clear? %s')
+        case link
+        when nil, '[EXIT]'
+          puts "Exiting chooser."
+          break
+        when '[ALL]'
+          if ask?(prompt: 'Are you sure? (y/n) ') =~ /\Ay/i
+            $links.clear
+            puts "Cleared all links in list."
+            break
+          else
+            puts 'Cancelled.'
+            sleep 3
+          end
+        when /./
+          $links.delete(link)
+          puts "Cleared link from links in list."
+          sleep 3
+        end
+      end
+    when nil
+      format  = "% #{Math.log10($links.size).ceil}s. %s"
+      connect = -> link { hyperlink(link) { link } }
+      puts $links.each_with_index.map { |x, i| format % [ i + 1, connect.(x) ] }
+    end
     next
   when %r(^/load\s+(.+)$)
     messages = load_conversation($1)
