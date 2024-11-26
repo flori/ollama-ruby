@@ -1174,9 +1174,14 @@ loop do
         end
       end
     when nil
-      format  = "% #{Math.log10($links.size).ceil}s. %s"
-      connect = -> link { hyperlink(link) { link } }
-      puts $links.each_with_index.map { |x, i| format % [ i + 1, connect.(x) ] }
+      if $links.empty?
+        puts "List is empty."
+      else
+        Math.log10($links.size).ceil
+        format  = "% #{}s. %s"
+        connect = -> link { hyperlink(link) { link } }
+        puts $links.each_with_index.map { |x, i| format % [ i + 1, connect.(x) ] }
+      end
     end
     next
   when %r(^/load\s+(.+)$)
