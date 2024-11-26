@@ -1,5 +1,43 @@
 # Changes
 
+## 2024-11-26 v0.12.0
+
+* **Upgrade display/clear links used in chat**:
+  * Created `$links` set to store used links.
+  * Added `/links` command to display used links as a enumerated list.
+  * Implemented `/links (clear)` feature to remove all or specific used links.
+* **Update semantic splitter to handle embeddings size < 2**:
+  + Added condition to return sentences directly when embeddings size is less
+    than 2.
+* **Removed collection list from chat info output**
+* **Add SQLiteCache spec for convert_to_vector method**:
+  - Test creates a vector with two elements and checks if
+    `cache.convert_to_vector(vector)` returns the same vector (which for this
+    cache is just a Ruby array).
+* **Add tests for retrieving tags from cache**:
+  * Test if tags are returned as an instance of `Ollama::Utils::Tags`
+  * Test also checks if the order of the tags is correct
+* **Added test case for clearing tags from `Ollama::Documents::SQLiteCache`**
+  - Updated spec for new `clear_for_tags` method
+* **Migrate SQLite cache to use new clear_for_tags method**:
+  + Added `clear_for_tags` method to SQLiteCache class in `sqlite_cache.rb`
+  + Modified `clear` method in `records.rb` to call `clear_for_tags` if
+    available
+  + Created `find_records_for_tags` method in `sqlite_cache.rb` to find records
+    by tags
+  + Updated `find_records` method in `sqlite_cache.rb` to use new
+    `find_records_for_tags` method
+* **Use Ollama::Utils::Tags for consistently handling tags**
+* **Upgrade SQLite cache to use correct prefix for full_each**:
+  * Use `?%` as the default prefix in `SQLiteCache#full_each`
+  * Add specs for setting keys with different prefixes in `SQLiteCache`
+  * Add specs for setting keys with different prefixes in `MemoryCache`
+* **Refactor SQLite cache query explanation**
+  + Use new variable `e` to store sanitized query for debugging purposes
+  + Pass sanitized query `e` to `@database.execute` for `EXPLAIN` instead of
+    original query `a[0]`
+* **Add test for unique tags with leading # characters**
+
 ## 2024-11-20 v0.11.0
 
 * Added `voice` and `interactive` reader attributes to the Say handler class.
@@ -25,7 +63,7 @@
   + Added support for `file://` protocol to content scans.
   + Updated regex pattern to match local files starting with `~`, `.`, or `/`.
   + Remove # anchors for file URLs (and files)
-* Improved parsing of content in ollama_chat:
+* Improved parsing of content in `ollama_chat`:
   + Use `content.scan(%r((https?://\S+)|(#\S+)|(\S+\/\S+)))` to match URLs, tags and files.
   + For foo/bar file pathes prepend `./`foo/bar, for foo you have to enter ./foo still.
   + Added a check for file existence before fetching its content
