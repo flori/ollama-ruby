@@ -1,5 +1,10 @@
 # Changes
 
+## 2024-11-27 v0.12.1
+
+* Added handling for empty links list:
+  + If the list is empty, print a message indicating that the list is empty.
+
 ## 2024-11-26 v0.12.0
 
 * **Upgrade display/clear links used in chat**:
