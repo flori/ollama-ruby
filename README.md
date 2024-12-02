@@ -31,7 +31,7 @@ to your Gemfile and run `bundle install` in your terminal.
 In your own software the library can be used as shown in this example:
 
 ```ruby
-require "ollama"
+require 'ollama'
 include Ollama
 
 ollama = Client.new(base_url: 'http://localhost:11434')
