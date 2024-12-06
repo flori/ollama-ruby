@@ -16,9 +16,6 @@ end
 
 module Ollama::Utils
 end
-require 'ollama/utils/tags'
-require 'ollama/utils/math'
-require 'ollama/utils/colorize_texts'
 require 'ollama/utils/fetcher'
 require 'ollama/utils/chooser'
 require 'ollama/utils/file_argument'
@@ -34,7 +31,6 @@ require 'ollama/tool/function/parameters'
 require 'ollama/tool/function/parameters/property'
 require 'ollama/response'
 require 'ollama/options'
-require 'ollama/documents'
 
 class Ollama::Commands
 end

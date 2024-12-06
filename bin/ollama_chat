@@ -15,6 +15,7 @@ require 'rss'
 require 'pdf/reader'
 require 'csv'
 require 'xdg'
+require 'documentrix'
 
 class OllamaChatConfig
   include ComplexConfig
@@ -323,7 +324,7 @@ def search_web(query, n = nil)
   n < 1 and n = 1
   query = URI.encode_uri_component(query)
   url = "https://www.duckduckgo.com/html/?q=#{query}"
-  Utils::Fetcher.get(url, debug: $config.debug) do |tmp|
+  Ollama::Utils::Fetcher.get(url, debug: $config.debug) do |tmp|
     result = []
     doc = Nokogiri::HTML(tmp)
     doc.css('.results_links').each do |link|
@@ -520,7 +521,7 @@ def fetch_source(source, &block)
   case source
   when %r(\A!(.*))
     command = $1
-    Utils::Fetcher.execute(command) do |tmp|
+    Ollama::Utils::Fetcher.execute(command) do |tmp|
       block.(tmp)
     end
   when %r(\Ahttps?://\S+)
@@ -598,17 +599,17 @@ def embed_source(source_io, source, count: nil)
   inputs = nil
   case splitter_config.name
   when 'Character'
-    splitter = Documents::Splitters::Character.new(
+    splitter = Documentrix::Documents::Splitters::Character.new(
       chunk_size: splitter_config.chunk_size,
     )
     inputs = splitter.split(text)
   when 'RecursiveCharacter'
-    splitter = Documents::Splitters::RecursiveCharacter.new(
+    splitter = Documentrix::Documents::Splitters::RecursiveCharacter.new(
       chunk_size: splitter_config.chunk_size,
     )
     inputs = splitter.split(text)
   when 'Semantic'
-    splitter = Documents::Splitters::Semantic.new(
+    splitter = Documentrix::Documents::Splitters::Semantic.new(
       ollama:, model: $config.embedding.model.name,
       chunk_size: splitter_config.chunk_size,
     )
@@ -648,7 +649,7 @@ end
 
 def parse_content(content, images)
   images.clear
-  tags = Utils::Tags.new
+  tags = Documentrix::Utils::Tags.new
 
   contents = [ content ]
   content.scan(%r((https?://\S+)|(#\S+)|(?:file://)?(\S*\/\S+))).each do |url, tag, file|
@@ -695,7 +696,7 @@ end
 def choose_model(cli_model, current_model)
   models = ollama.tags.models.map(&:name).sort
   model = if cli_model == ''
-            Utils::Chooser.choose(models) || current_model
+            Ollama::Utils::Chooser.choose(models) || current_model
           else
             cli_model || current_model
           end
@@ -712,7 +713,7 @@ def choose_collection(current_collection)
   collections = [ current_collection ] + $documents.collections
   collections = collections.compact.map(&:to_s).uniq.sort
   collections.unshift('[EXIT]').unshift('[NEW]')
-  collection = Utils::Chooser.choose(collections) || current_collection
+  collection = Ollama::Utils::Chooser.choose(collections) || current_collection
   case collection
   when '[NEW]'
     $documents.collection = ask?(prompt: "Enter name of the new collection: ")
@@ -736,7 +737,7 @@ def choose_document_policy
                policies.first
              end
   policies.unshift('[EXIT]')
-  policy = Utils::Chooser.choose(policies)
+  policy = Ollama::Utils::Chooser.choose(policies)
   case policy
   when nil, '[EXIT]'
     puts "Exiting chooser."
@@ -760,13 +761,13 @@ end
 
 def configure_cache
   if $opts[?M]
-    Documents::MemoryCache
+    Documentrix::Documents::MemoryCache
   else
     Object.const_get($config.cache)
   end
 rescue => e
   STDERR.puts "Caught #{e.class}: #{e} => Falling back to MemoryCache."
-  Documents::MemoryCache
+  Documentrix::Documents::MemoryCache
 end
 
 def show_system_prompt
@@ -797,7 +798,7 @@ end
 def change_system_prompt(messages, default, system: nil)
   selector = Regexp.new(system.to_s[1..-1].to_s)
   prompts  = $config.system_prompts.attribute_names.compact.grep(selector)
-  chosen   = Utils::Chooser.choose(prompts, return_immediately: true)
+  chosen   = Ollama::Utils::Chooser.choose(prompts, return_immediately: true)
   system   = if chosen
               $config.system_prompts.send(chosen)
             else
@@ -807,7 +808,7 @@ def change_system_prompt(messages, default, system: nil)
 end
 
 def change_voice
-  chosen  = Utils::Chooser.choose($config.voice.list)
+  chosen  = Ollama::Utils::Chooser.choose($config.voice.list)
   $current_voice = chosen.full? || $config.voice.default
 end
 
@@ -944,7 +945,7 @@ else
   if $opts[?s] =~ /\A\?/
     change_system_prompt(messages, default, system: $opts[?s])
   else
-    system = Utils::FileArgument.get_file_argument($opts[?s], default:)
+    system = Ollama::Utils::FileArgument.get_file_argument($opts[?s], default:)
     system.present? and set_system_prompt(messages, system)
   end
 end
@@ -954,7 +955,7 @@ if $embedding.on?
   $embedding_model_options = Options[$config.embedding.model.options]
   pull_model_unless_present($embedding_model, $embedding_model_options)
   collection = $opts[?C] || $config.embedding.collection
-  $documents = Documents.new(
+  $documents = Documentrix::Documents.new(
     ollama:,
     model:             $embedding_model,
     model_options:     $config.embedding.model.options,
@@ -995,7 +996,7 @@ else
 end
 
 if redis_expiring_url = $config.redis.expiring.url?
-  $cache = Documents::RedisCache.new(
+  $cache = Documentrix::Documents::RedisCache.new(
     prefix: 'Expiring-',
     url:    redis_expiring_url,
     ex:     $config.redis.expiring.ex,
@@ -1205,7 +1206,7 @@ loop do
   content, tags = if parse_content
                     parse_content(content, images)
                   else
-                    [ content, Utils::Tags.new ]
+                    [ content, Documentrix::Utils::Tags.new ]
                   end
 
   if $embedding.on? && content

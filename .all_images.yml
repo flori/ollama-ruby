@@ -6,8 +6,8 @@ dockerfile: |-
 script: &script |-
   echo -e "\e[1m"
   ruby -v
-  bundle install --full-index
-  bundle update
+  rm -f Gemfile.lock
+  bundle install --jobs=$(getconf _NPROCESSORS_ONLN) --full-index
   echo -e "\e[0m"
   rake test
 

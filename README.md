@@ -474,7 +474,7 @@ The homepage of this library is located at
 
 ## Author
 
-<b>Ollama Ruby</b> was written by Florian Frank [Florian Frank](mailto:flori@ping.de)
+<b>Ollama Ruby</b> was written by [Florian Frank](mailto:flori@ping.de)
 
 ## License
 
