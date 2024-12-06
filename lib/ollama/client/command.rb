@@ -2,8 +2,8 @@ module Ollama::Client::Command
   extend Tins::Concern
 
   module ClassMethods
-    # Create Command +name+, if +stream+ was true, set stream_handler as
-    # default, otherwise default_handler.
+    # Create Command `name`, if `stream` was true, set `stream_handler` as
+    # default, otherwise `default_handler`.
     def command(name, default_handler:, stream_handler: nil)
       klass = Ollama::Commands.const_get(name.to_s.camelize)
       doc Ollama::Client::Doc.new(name)

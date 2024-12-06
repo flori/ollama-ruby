@@ -46,6 +46,7 @@ GemHadar do
   dependency             'sqlite3',               '~> 2.0', '>= 2.0.1'
   development_dependency 'all_images',            '~> 0.6'
   development_dependency 'rspec',                 '~> 3.2'
+  development_dependency 'kramdown',              '~> 2.0'
   development_dependency 'webmock'
   development_dependency 'debug'
   development_dependency 'simplecov'

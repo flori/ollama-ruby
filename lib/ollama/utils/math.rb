@@ -1,5 +1,5 @@
 module Ollama::Utils::Math
-  # Returns the cosine similarity between two vectors +a+ and +b+, 1.0 is
+  # Returns the cosine similarity between two vectors `a` and `b`, 1.0 is
   # exactly the same, 0.0 means decorrelated.
   #
   # @param [Vector] a The first vector
