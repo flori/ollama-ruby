@@ -44,6 +44,7 @@ GemHadar do
   dependency             'ostruct',               '~> 0.0'
   dependency             'sqlite-vec',            '~> 0.0'
   dependency             'sqlite3',               '~> 2.0', '>= 2.0.1'
+  dependency             'rss',                   '~> 0.3'
   development_dependency 'all_images',            '~> 0.6'
   development_dependency 'rspec',                 '~> 3.2'
   development_dependency 'kramdown',              '~> 2.0'
