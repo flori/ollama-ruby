@@ -1,5 +1,11 @@
 # Changes
 
+## 2024-12-07 v0.13.0
+
+* Refactor: Extract documents database logic into separate gem `documentrix`.
+* Updated dependencies in Rakefile
+* Added `--markup markdown` to `.yardopts`
+
 ## 2024-11-27 v0.12.1
 
 * Added handling for empty links list:
