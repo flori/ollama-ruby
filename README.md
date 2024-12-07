@@ -453,6 +453,7 @@ The following commands can be given inside the chat, if prefixed by a `/`:
 /regenerate                     the last answer message
 /collection( clear|change)      change (default) collection or clear
 /info                           show information for current session
+/config                         output current configuration ("/Users/flori/.config/ollama_chat/config.yml")
 /document_policy                pick a scan policy for document references
 /import source                  import the source's content
 /summarize [n] source           summarize the source's content in n words

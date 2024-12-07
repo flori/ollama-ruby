@@ -874,6 +874,7 @@ def display_chat_help
     /regenerate                     the last answer message
     /collection( clear|change)      change (default) collection or clear
     /info                           show information for current session
+    /config                         output current configuration (#{$ollama_chat_config.filename.to_s.inspect})
     /document_policy                pick a scan policy for document references
     /import source                  import the source's content
     /summarize [n] source           summarize the source's content in n words
@@ -1005,7 +1006,6 @@ end
 
 $current_voice = $config.voice.default
 
-puts "Configuration read from #{$ollama_chat_config.filename.inspect} is:", $config
 info
 puts "\nType /help to display the chat help."
 
@@ -1188,6 +1188,17 @@ loop do
   when %r(^/load\s+(.+)$)
     messages = load_conversation($1)
     puts "Loaded conversation from #$1."
+    next
+  when %r(^/config$)
+    default_pager = ENV['PAGER'].full?
+    if fallback_pager = `which less`.chomp.full? || `which more`.chomp.full?
+      fallback_pager << ' -r'
+    end
+    my_pager = default_pager || fallback_pager
+    rendered = $config.to_s
+    Kramdown::ANSI::Pager.pager(lines: rendered.count(?\n), command: my_pager) do |output|
+      output.puts rendered
+    end
     next
   when %r(^/quit$)
     puts "Goodbye."
