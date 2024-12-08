@@ -771,9 +771,13 @@ rescue => e
 end
 
 def show_system_prompt
+  system_prompt = Kramdown::ANSI.parse($system.to_s).gsub(/\n+\z/, '').full?
+  system_prompt or return
   puts <<~EOT
     Configured system prompt is:
-    #{Kramdown::ANSI.parse($system.to_s).gsub(/\n+\z/, '').full? || 'n/a'}
+    #{system_prompt}
+
+    System prompt length: #{bold{system_prompt.size}} characters.
   EOT
 end
 
