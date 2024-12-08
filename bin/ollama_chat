@@ -802,12 +802,26 @@ end
 def change_system_prompt(messages, default, system: nil)
   selector = Regexp.new(system.to_s[1..-1].to_s)
   prompts  = $config.system_prompts.attribute_names.compact.grep(selector)
-  chosen   = Ollama::Utils::Chooser.choose(prompts, return_immediately: true)
-  system   = if chosen
-              $config.system_prompts.send(chosen)
-            else
-              default
-            end
+  if prompts.size == 1
+    system = $config.system_prompts.send(prompts.first)
+  else
+    prompts.unshift('[EXIT]').unshift('[NEW]')
+    chosen = Ollama::Utils::Chooser.choose(prompts)
+    system =
+      case chosen
+      when '[NEW]'
+        ask?(prompt: "Enter new system prompt to use: ")
+      when '[EXIT]'
+        puts "Exiting chooser."
+        return
+      when nil
+        default
+      when *prompts
+        $config.system_prompts.send(chosen)
+      else
+        default
+      end
+  end
   set_system_prompt(messages, system)
 end
 
