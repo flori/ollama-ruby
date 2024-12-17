@@ -31,6 +31,10 @@ module Ollama::DTO
       reject { _2.nil? || _2.ask_and_send(:size) == 0 }
   end
 
+  def ==(other)
+    as_json == other.as_json
+  end
+
   alias to_hash as_json
 
   def empty?

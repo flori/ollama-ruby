@@ -33,4 +33,13 @@ RSpec.describe Ollama::Message do
       {"role":"user","content":"hello world","images":["dGVzdA==\n"]}
     end
   end
+
+  it 'can be eq(ual) to itself' do
+    expect(message).to eq message
+  end
+
+  it 'can be eq(ual) to other message' do
+    expect(message).to eq message.dup
+    expect(message).not_to equal message.dup
+  end
 end
