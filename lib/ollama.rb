@@ -1,5 +1,4 @@
 require 'json'
-require 'logger'
 require 'excon'
 require 'tins'
 require 'tins/xt/full'
@@ -13,12 +12,6 @@ require 'ollama/handlers'
 module Ollama
   include Ollama::Handlers
 end
-
-module Ollama::Utils
-end
-require 'ollama/utils/fetcher'
-require 'ollama/utils/chooser'
-require 'ollama/utils/file_argument'
 
 require 'ollama/version'
 require 'ollama/errors'
