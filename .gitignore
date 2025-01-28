@@ -3,7 +3,6 @@
 .bundle
 .yardoc
 Gemfile.lock
-corpus
 coverage
 cscope.out
 doc
