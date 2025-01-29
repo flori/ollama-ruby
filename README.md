@@ -314,12 +314,16 @@ For more generic errors an `Ollama::Errors::Error` is raised.
 
 ### ollama\_chat
 
-This a chat client, that can be used to connect to an ollama server and enter a
-chat converstation with a LLM. It can be installed using
+This is a chat client that allows you to connect to an Ollama server and engage
+in conversations with Large Language Models (LLMs). It can be installed using
+the following command:
 
 ```
-gem install ollama_chat
+gem install ollama-chat
 ```
+
+Once installed, you can run `ollama_chat` from your terminal or command prompt.
+This will launch a chat interface where you can interact with an LLM.
 
 ## Download
 
