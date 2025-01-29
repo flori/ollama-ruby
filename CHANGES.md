@@ -1,5 +1,38 @@
 # Changes
 
+## 2025-01-29 v0.14.0
+
+* Removed `term-ansicolor`, `redis`, `mime-types`, `reverse_markdown`,
+  `complex_config`, `search_ui`, `amatch`, `pdf-reader`, and `logger`
+  dependencies from gemspec.
+* Added `kramdown-ansi` dependency to gemspec.
+* Moved `ollama_chat` executable to its own gem.
+* Refactored Ollama library by removing no longer used utils files, and specs.
+* Removed test prompt from spec/assets/prompt.txt file.
+* Removed Redis configuration.
+* Removed docker-compose.yml.
+* Removed corpus from .gitignore.
+* Updated Docker setup for Gem installation:
+  + Updated `.all_images.yml` to remove unnecessary `gem update --system` and
+    `gem install bundler` commands.
+* Added new image configuration for **ruby:3.4-alpine** container:
+  + Update `.all_images.yml` to include `ruby:3.4-alpine` environment.
+* Implemented equals method for Ollama::DTO and added tests for it:
+  + Added `==` method to `Ollama::DTO` class.
+  + Added two new specs to `message_spec.rb`:
+    - Test that a message is equal to itself using the `eq` matcher.
+    - Test that a message is not equal to its duplicate using the `equal` matcher.
+* Simplified System Prompt Changer:
+  + Removed redundant variable assignments for `chosen` and `system`.
+  + Introduced a simple prompt selection logic when only one option is available.
+  + Added options to exit or create a new prompt in the chooser interface.
+* Improvements to system prompt display:
+  + Added system prompt length display using **bold** formatting.
+* Added new command to output current configuration:
+  + Added `/config` command to display current chat configuration in `ollama_chat.rb`
+  + Modified `display_chat_help` method to include `/config` option
+  + Implemented pager functionality for displaying large configurations.
+
 ## 2024-12-07 v0.13.0
 
 * Refactor: Extract documents database logic into separate gem `documentrix`.
