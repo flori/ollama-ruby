@@ -38,5 +38,4 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<term-ansicolor>.freeze, ["~> 1.11".freeze])
   s.add_runtime_dependency(%q<kramdown-ansi>.freeze, ["~> 0.0".freeze, ">= 0.0.1".freeze])
   s.add_runtime_dependency(%q<ostruct>.freeze, ["~> 0.0".freeze])
-  s.add_runtime_dependency(%q<documentrix>.freeze, ["~> 0.0".freeze])
 end

@@ -30,7 +30,6 @@ GemHadar do
   dependency             'term-ansicolor',        '~> 1.11'
   dependency             'kramdown-ansi',         '~> 0.0', '>= 0.0.1'
   dependency             'ostruct',               '~> 0.0'
-  dependency             'documentrix',           '~> 0.0'
   development_dependency 'all_images',            '~> 0.6'
   development_dependency 'rspec',                 '~> 3.2'
   development_dependency 'kramdown',              '~> 2.0'
