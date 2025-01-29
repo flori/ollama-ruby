@@ -37,15 +37,16 @@ def get_file_argument(path_or_content, default: nil)
   end
 end
 
+# Outputs usage information for the `ollama_cli`.
 def usage
   puts <<~EOT
     Usage: #{File.basename($0)} [OPTIONS]
 
-      -u URL         the ollama base url, OLLAMA_URL
-      -m MODEL       the ollama model to chat with, OLLAMA_MODEL
-      -M OPTIONS     the ollama model options to use, OLLAMA_MODEL_OPTIONS
-      -s SYSTEM      the system prompt to use as a file, OLLAMA_SYSTEM
-      -p PROMPT      the user prompt to use as a file, OLLAMA_PROMPT
+      -u URL         the ollama base url, $OLLAMA_URL
+      -m MODEL       the ollama model to chat with, $OLLAMA_MODEL
+      -M OPTIONS     the ollama model options to use, $OLLAMA_MODEL_OPTIONS
+      -s SYSTEM      the system prompt to use as a file, $OLLAMA_SYSTEM
+      -p PROMPT      the user prompt to use as a file, $OLLAMA_PROMPT
                      if it contains %{stdin} it is substituted by stdin input
       -P VARIABLE    sets prompt var %{foo} to "bar" if VARIABLE is foo=bar
       -H HANDLER     the handler to use for the response, defaults to Print
