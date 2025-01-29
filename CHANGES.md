@@ -1,5 +1,11 @@
 # Changes
 
+## 2025-01-29 v0.14.1
+
+* Removed dependency on `Documentrix`:
+  * Dependency removed from Rakefile
+  * Dependency removed from `ollama-ruby.gemspec`
+
 ## 2025-01-29 v0.14.0
 
 * Removed `term-ansicolor`, `redis`, `mime-types`, `reverse_markdown`,
