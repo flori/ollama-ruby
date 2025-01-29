@@ -12,7 +12,7 @@ To install Ollama, you can use the following methods:
 
 1. Type
 
-```
+```bash
 gem install ollama-ruby
 ```
 
@@ -20,7 +20,7 @@ in your terminal.
 
 1. Or add the line
 
-```
+```bash
 gem 'ollama-ruby'
 ```
 
@@ -48,8 +48,8 @@ This is an interactive console where you can try out the different commands
 provided by an `Ollama::Client` instance. For example, this command generates a
 response and displays it on the screen using the Markdown handler:
 
-```
-$ ollama_console
+```bash
+ollama_console
 Commands: chat,copy,create,delete,embeddings,generate,help,ps,pull,push,show,tags
 >> generate(model: 'llama3.1', stream: true, prompt: 'tell story w/ emoji and markdown', &Markdown)
 ```
@@ -312,13 +312,80 @@ For more generic errors an `Ollama::Errors::Error` is raised.
 
 ## Other executables
 
+### ollama\_cli
+
+The `ollama_cli` executable is a command-line interface for interacting with
+the Ollama API. It allows users to generate text, and perform other tasks using
+a variety of options.
+
+#### Usage
+
+To use `ollama_cli`, simply run it from the command line and follow the usage
+instructions:
+
+```bash
+ollama_cli [OPTIONS]
+```
+
+The available options are:
+
+* `-u URL`: The Ollama base URL. Can be set as an environment variable
+  `OLLAMA_URL`.
+* `-m MODEL`: The Ollama model to chat with. Defaults to `llama3.1` if not
+  specified.
+* `-M OPTIONS`: The Ollama model options to use. Can be set as an environment
+  variable `OLLAMA_MODEL_OPTIONS`.
+* `-s SYSTEM`: The system prompt to use as a file. Can be set as an environment
+  variable `OLLAMA_SYSTEM`.
+* `-p PROMPT`: The user prompt to use as a file. If it contains `%{stdin}`, it
+  will be substituted with the standard input. If not given, stdin will be used
+  as the prompt.
+* `-P VARIABLE`: Sets a prompt variable, e.g. `foo=bar`. Can be used multiple
+  times.
+* `-H HANDLER`: The handler to use for the response. Defaults to `Print`.
+* `-S`: Use streaming for generation.
+
+#### Environment Variables
+
+The following environment variables can be set to customize the behavior of
+`ollama_cli`:
+
+* `OLLAMA_URL`: The Ollama base URL.
+* `OLLAMA_MODEL`: The Ollama model to chat with.
+* `OLLAMA_MODEL_OPTIONS`: The Ollama model options to use.
+* `OLLAMA_SYSTEM`: The system prompt to use as a file.
+* `OLLAMA_PROMPT`: The user prompt to use as a file.
+
+#### Debug Mode
+
+If the `DEBUG` environment variable is set to `1`, `ollama_cli` will print out
+the values of various variables, including the base URL, model, system prompt,
+and options. This can be useful for debugging purposes.
+
+#### Handler Options
+
+The `-H` option specifies the handler to use for the response. The available
+handlers are:
+
+* `Print`: Prints the response to the console. This is the default.
+* `Markdown`: Prints the response to the console as markdown.
+* `DumpJSON`: Dumps all responses as JSON to the output.
+* `DumpYAML`: Dumps all responses as YAML to the output.
+* `Say`: Outputs the response with a voice.
+
+#### Streaming
+
+The `-S` option enables streaming for generation. This allows the model to
+generate text in chunks, rather than waiting for the entire response to be
+generated.
+
 ### ollama\_chat
 
 This is a chat client that allows you to connect to an Ollama server and engage
 in conversations with Large Language Models (LLMs). It can be installed using
 the following command:
 
-```
+```bash
 gem install ollama-chat
 ```
 
