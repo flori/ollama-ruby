@@ -392,6 +392,9 @@ gem install ollama-chat
 Once installed, you can run `ollama_chat` from your terminal or command prompt.
 This will launch a chat interface where you can interact with an LLM.
 
+See its [github repository](https://github.com/flori/ollama_chat) for more
+information.
+
 ## Download
 
 The homepage of this library is located at
