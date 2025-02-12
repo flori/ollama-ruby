@@ -1,5 +1,22 @@
 # Changes
 
+## 2025-02-12 v0.15.0
+
+* Added "version" command to display version of the ollama server:
+  + Updated `Commands` list in README.md to include new `version` command
+  + Added new section for `Version` information in README.md
+  + Added example usage of `jj version` command
+* Added basic spec for Ollama::Commands::Version class:
+  + Defined a describe block for Ollama::Commands::Version with one let and three it blocks:
+    - It can be instantiated
+    - It cannot be converted to JSON
+    - It can perform, including setting the client and expecting a request to be made
+* Added version command for API endpoint:
+  + Added `ollama/commands/version` class
+  + Updated `ollama/client.rb` to include `version` command
+  + Updated doc links in `ollama/client/doc.rb`
+  + Added support for `/api/version` API endpoint
+
 ## 2025-01-29 v0.14.1
 
 * Removed dependency on `Documentrix`:
