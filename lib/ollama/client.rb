@@ -57,6 +57,8 @@ class Ollama::Client
 
   command(:ps, default_handler: Single)
 
+  command(:version, default_handler: Single)
+
   def commands
     doc_annotations.sort_by(&:first).transpose.last
   end

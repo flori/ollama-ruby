@@ -18,6 +18,7 @@ class Ollama::Client::Doc
       embeddings:       'https://github.com/ollama/ollama/blob/main/docs/api.md#generate-embeddings', # superseded by /api/embed
       embed:            'https://github.com/ollama/ollama/blob/main/docs/api.md#generate-embeddings',
       ps:               'https://github.com/ollama/ollama/blob/main/docs/api.md#list-running-models',
+      version:          'https://github.com/ollama/ollama/blob/main/docs/api.md#version',
     )[name]
   end
 

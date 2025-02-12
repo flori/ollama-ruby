@@ -39,5 +39,6 @@ require 'ollama/commands/push'
 require 'ollama/commands/embed'
 require 'ollama/commands/embeddings'
 require 'ollama/commands/ps'
+require 'ollama/commands/version'
 
 require 'ollama/client'
