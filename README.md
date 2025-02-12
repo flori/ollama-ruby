@@ -50,7 +50,7 @@ response and displays it on the screen using the Markdown handler:
 
 ```bash
 ollama_console
-Commands: chat,copy,create,delete,embeddings,generate,help,ps,pull,push,show,tags
+Commands: chat,copy,create,delete,embeddings,generate,help,ps,pull,push,show,tags,version
 >> generate(model: 'llama3.1', stream: true, prompt: 'tell story w/ emoji and markdown', &Markdown)
 ```
 
@@ -217,6 +217,14 @@ embeddings(model: 'llama3.1', prompt: 'The sky is blue because of rayleigh scatt
 
 ```ruby
 jj ps
+```
+
+### Version
+
+`default_handler` is **Single**, streaming is not possible.
+
+```ruby
+jj version
 ```
 
 ## Auxiliary objects
