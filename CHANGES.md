@@ -1,5 +1,16 @@
 # Changes
 
+## 2025-02-17 v0.16.0
+
+* Updated Ollama CLI with new handler that allows saving of chat and
+  continuation with `ollama_chat`:
+  * Added `require 'tins/xt/secure_write'` and `require 'tmpdir'`.
+  * Created a new `ChatStart` class that handles chat responses.
+  * Updated options parsing to use `ChatStart` as the default handler.
+  * Changed code to handle `ChatStart` instances.
+  * Added secure write functionality for chat conversation in tmpdir.
+* Added `yaml-dev` to `apk add` command in `.all_images.yml`
+
 ## 2025-02-12 v0.15.0
 
 * Added "version" command to display version of the ollama server:
