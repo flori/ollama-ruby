@@ -4,7 +4,30 @@ require 'ollama'
 include Ollama
 require 'tins'
 include Tins::GO
+require 'tins/xt/secure_write'
 require 'json'
+require 'tmpdir'
+
+class ChatStart
+  include Ollama::Handlers::Concern
+
+  def initialize(output: $stdout)
+    super
+    @output.sync = true
+    @content     = ''
+  end
+
+  attr_reader :content
+
+  def call(response)
+    if content = response.response
+      @content << content
+      @output << content
+    end
+    response.done and @output.puts
+    self
+  end
+end
 
 # Returns the contents of a file or string, or a default value if neither is provided.
 #
@@ -49,7 +72,7 @@ def usage
       -p PROMPT      the user prompt to use as a file, $OLLAMA_PROMPT
                      if it contains %{stdin} it is substituted by stdin input
       -P VARIABLE    sets prompt var %{foo} to "bar" if VARIABLE is foo=bar
-      -H HANDLER     the handler to use for the response, defaults to Print
+      -H HANDLER     the handler to use for the response, defaults to ChatStart
       -S             use streaming for generation
       -h             this help
 
@@ -57,7 +80,7 @@ def usage
   exit 0
 end
 
-opts = go 'u:m:M:s:p:P:H:Sh', defaults: { ?H => 'Print', ?M => '{}' }
+opts = go 'u:m:M:s:p:P:H:Sh', defaults: { ?H => 'ChatStart', ?M => '{}' }
 
 opts[?h] and usage
 
@@ -91,11 +114,30 @@ if ENV['DEBUG'].to_i == 1
   EOT
 end
 
+handler = Object.const_get(opts[?H])
+handler == ChatStart and handler = handler.new
+
 Client.new(base_url:, read_timeout: 120).generate(
   model:,
   system:,
   prompt:,
   options:,
   stream: !!opts[?S],
-  &Object.const_get(opts[?H])
+  &handler
 )
+
+if handler.is_a?(ChatStart)
+  filename = File.join(Dir.tmpdir, 'chat_start_%u.json' % $$)
+  File.secure_write(filename) do |out|
+    JSON.dump(
+      [
+        Message.new(role: 'user', content: prompt),
+        Message.new(role: 'assistant', content: handler.content),
+      ],
+      out
+    )
+  end
+  if STDERR.tty?
+    STDERR.puts "\nContinue the chat with: ollama_chat -c '%s'" % filename
+  end
+end
