@@ -138,6 +138,6 @@ if handler.is_a?(ChatStart)
     )
   end
   if STDERR.tty?
-    STDERR.puts "\nContinue the chat with: ollama_chat -c '%s'" % filename
+    STDERR.puts "\nContinue the chat with:\n  ollama_chat -c '%s'" % filename
   end
 end
