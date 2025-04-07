@@ -5,11 +5,11 @@ class Ollama::Commands::Delete
     '/api/delete'
   end
 
-  def initialize(name:)
-    @name, @stream = name, false
+  def initialize(model:)
+    @model, @stream = model, false
   end
 
-  attr_reader :name, :stream
+  attr_reader :model, :stream
 
   attr_writer :client
 

@@ -170,7 +170,7 @@ copy(source: 'llama3.1', destination: 'user/llama3.1')
 `default_handler` is **Single**, streaming is not possible.
 
 ```ruby
-delete(name: 'user/llama3.1')
+delete(model: 'user/llama3.1')
 ```
 
 ### Pull
