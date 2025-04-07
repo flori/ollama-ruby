@@ -13,7 +13,7 @@ ollama.tags.models.each do |model|
   infobar.puts(
     "Updating model #{bold {name}} (last modified at #{modified_at.iso8601}):"
   )
-  ollama.pull(name:)
+  ollama.pull(model: name)
 rescue Ollama::Errors::Error => e
   infobar.puts "Caught #{e.class} for model #{bold { model.name }}: #{e} => Continuing."
 end

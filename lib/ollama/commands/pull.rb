@@ -5,11 +5,11 @@ class Ollama::Commands::Pull
     '/api/pull'
   end
 
-  def initialize(name:, insecure: nil, stream: true)
-    @name, @insecure, @stream = name, insecure, stream
+  def initialize(model:, insecure: nil, stream: true)
+    @model, @insecure, @stream = model, insecure, stream
   end
 
-  attr_reader :name, :insecure, :stream
+  attr_reader :model, :insecure, :stream
 
   attr_writer :client
 

@@ -179,7 +179,7 @@ delete(name: 'user/llama3.1')
 `stream` is true by default.
 
 ```ruby
-pull(name: 'llama3.1')
+pull(model: 'llama3.1')
 ```
 
 ### Push
