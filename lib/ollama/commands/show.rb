@@ -5,12 +5,12 @@ class Ollama::Commands::Show
     '/api/show'
   end
 
-  def initialize(name:, verbose: nil)
-    @name, @verbose = name, verbose
+  def initialize(model:, verbose: nil)
+    @model, @verbose = model, verbose
     @stream = false
   end
 
-  attr_reader :name, :verbose, :stream
+  attr_reader :model, :verbose, :stream
 
   attr_writer :client
 

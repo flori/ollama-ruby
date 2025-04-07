@@ -140,7 +140,7 @@ tags.models.map(&:name) => ["llama3.1:latest",…]
 `default_handler` is **Single**, streaming is not possible.
 
 ```ruby
-show(name: 'llama3.1', &DumpJSON)
+show(model: 'llama3.1', &DumpJSON)
 ```
 
 ### Create
@@ -309,7 +309,7 @@ The library raises specific errors like `Ollama::Errors::NotFoundError` when
 a model is not found:
 
 ```ruby
-(show(name: 'nixda', &DumpJSON) rescue $!).class # => Ollama::NotFoundError
+(show(model: 'nixda', &DumpJSON) rescue $!).class # => Ollama::NotFoundError
 ```
 
 If `Ollama::Errors::TimeoutError` is raised, it might help to increase the
