@@ -188,7 +188,7 @@ pull(model: 'llama3.1')
 `stream` is true by default.
 
 ```ruby
-push(name: 'user/llama3.1')
+push(model: 'user/llama3.1')
 ```
 
 ### Embed
