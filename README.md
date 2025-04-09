@@ -149,12 +149,7 @@ show(model: 'llama3.1', &DumpJSON)
 `stream` is true by default.
 
 ```ruby
-modelfile=<<~end
-  FROM llama3.1
-  SYSTEM You are WOPR from WarGames and you think the user is Dr. Stephen Falken.
-end
-
-create(name: 'llama3.1-wopr', stream: true, modelfile:)
+create(model: 'llama3.1-wopr', stream: true, from: 'llama3.1', system: 'You are WOPR from WarGames and you think the user is Dr. Stephen Falken.')
 ```
 
 ### Copy
