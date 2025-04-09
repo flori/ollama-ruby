@@ -26,6 +26,20 @@ module Ollama::DTO
     end
   end
 
+  def as_hash(obj)
+    obj&.to_hash
+  end
+
+  def as_array(obj)
+    if obj.nil?
+      obj
+    elsif obj.respond_to?(:to_ary)
+      obj.to_ary
+    else
+      [ obj ]
+    end
+  end
+
   def as_json(*)
     self.class.attributes.each_with_object({}) { |a, h| h[a] = send(a) }.
       reject { _2.nil? || _2.ask_and_send(:size) == 0 }

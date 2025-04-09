@@ -5,12 +5,13 @@ class Ollama::Commands::Create
     '/api/create'
   end
 
-  def initialize(name:, modelfile: nil, quantize: nil, stream: nil, path: nil)
-    @name, @modelfile, @quantize, @stream, @path =
-      name, modelfile, quantize, stream, path
+  def initialize(model:, from: nil, files: nil, adapters: nil, template: nil, license: nil, system: nil, parameters: nil, messages: nil, stream: true, quantize: nil)
+    @model, @from, @files, @adapters, @license, @system, @parameters, @messages, @stream, @quantize =
+      model, from, as_hash(files), as_hash(adapters), as_array(license), system,
+      as_hash(parameters), as_array_of_hashes(messages), stream, quantize
   end
 
-  attr_reader :name, :modelfile, :quantize, :stream, :path
+  attr_reader :model, :from, :files, :adapters, :license, :system, :parameters, :messages, :stream, :quantize
 
   attr_writer :client
 
