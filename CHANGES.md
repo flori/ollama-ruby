@@ -1,5 +1,30 @@
 # Changes
 
+## 2025-04-15 v1.0.0
+
+**Use model parameter and support new create parameters**
+  * Update parameter names in Ollama::Commands::Create specs:
+    + Renamed `name` to `model` and `modelfile` to `system` in `described_class.new` calls.
+    + Updated corresponding JSON serialization and deserialization tests.
+  * Adjust parameters in Create class and add helper methods:
+    + Changed parameter names in `Ollama::Commands::Create` class.
+    + Added methods: `as_hash(obj)` and `as_array(obj)` in `Ollama::DTO`.
+  * Update parameter names in README to match new method arguments:
+    + Updated `name` to `model` in `README.md`.
+    + Updated `push` method in `lib/ollama/commands/push.rb` to use `model` instead of `name`.
+    + Updated tests in `spec/ollama/commands/push_spec.rb` to use `model` instead of `name`.
+  * Refactor delete command and model attribute name:
+    + Renamed `delete` method parameter from `name` to `model`.
+    + Updated code in README.md, lib/ollama/commands/delete.rb, and spec/ollama/commands/delete_spec.rb.
+  * Rename parameter name in Ollama::Commands::Show class:
+    + Renamed `name` parameters to `model`.
+    + Updated method initializers, attribute readers and writers accordingly.
+    + Updated spec tests for new parameter name.
+  * Renamed `name` parameters to `model` in the following places:
+    + `ollama_update` script
+    + `Ollama::Commands::Pull` class
+    + `pull_spec.rb` spec file
+
 ## 2025-02-17 v0.16.0
 
 * Updated Ollama CLI with new handler that allows saving of chat and
