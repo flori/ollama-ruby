@@ -6,7 +6,7 @@ script: &script |-
   echo -e "\e[1m"
   ruby -v
   rm -f Gemfile.lock
-  bundle install --jobs=$(getconf _NPROCESSORS_ONLN) --full-index
+  bundle install --jobs=$(getconf _NPROCESSORS_ONLN)
   echo -e "\e[0m"
   rake test
 
