@@ -1,5 +1,16 @@
 # Changes
 
+## 2025-06-01 v1.2.0
+
+* Added `tool_calls` parameter to the `initialize` method of the `Message` class:
+  * `def initialize(tool_calls: nil)`
+  * Updated instance variable assignment in the `initialize` method.
+* Added `:thinking` reader attribute to the `Ollama::Message` class:
+  * `attr_reader :thinking`
+* Updated `initialize` method in `Ollama::Message` to accept `thinking` option:
+  * `def initialize(thinking: false)`
+* Updated spec tests for `Ollama::Message` with new attributes.
+
 ## 2025-06-01 v1.1.0
 
 * Added the `think` option to chat and generate commands:
