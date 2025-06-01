@@ -7,9 +7,10 @@ RSpec.describe Ollama::Message do
 
   let :message do
     described_class.new(
-      role: 'user',
+      role:    'user',
       content: 'hello world',
-      images: image
+      thinking: 'which world?',
+      images:  image
     )
   end
 
@@ -21,16 +22,17 @@ RSpec.describe Ollama::Message do
     expect(message.as_json).to eq(
       role: 'user',
       content: 'hello world',
+      thinking: 'which world?',
       images: [ image ],
     )
     expect(message.to_json).to eq(
-      '{"role":"user","content":"hello world","images":["dGVzdA==\n"]}'
+      '{"role":"user","content":"hello world","thinking":"which world?","images":["dGVzdA==\n"]}'
     )
   end
 
   it 'can be restored from JSON' do
     expect(described_class.from_hash(JSON(<<~'end'))).to be_a described_class
-      {"role":"user","content":"hello world","images":["dGVzdA==\n"]}
+      {"role":"user","content":"hello world","thinking":"which world?","images":["dGVzdA==\n"]}
     end
   end
 
