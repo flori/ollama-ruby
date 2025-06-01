@@ -5,13 +5,13 @@ class Ollama::Commands::Generate
     '/api/generate'
   end
 
-  def initialize(model:, prompt:, suffix: nil, images: nil, format: nil, options: nil, system: nil, template: nil, context: nil, stream: nil, raw: nil, keep_alive: nil)
-    @model, @prompt, @suffix, @images, @format, @options, @system, @template, @context, @stream, @raw, @keep_alive =
-      model, prompt, suffix, (Array(images) if images), format, options, system, template, context, stream, raw, keep_alive
+  def initialize(model:, prompt:, suffix: nil, images: nil, format: nil, options: nil, system: nil, template: nil, context: nil, stream: nil, raw: nil, keep_alive: nil, think: nil)
+    @model, @prompt, @suffix, @images, @format, @options, @system, @template, @context, @stream, @raw, @keep_alive, @think =
+      model, prompt, suffix, (Array(images) if images), format, options, system, template, context, stream, raw, keep_alive, think
   end
 
   attr_reader :model, :prompt, :suffix, :images, :format, :options, :system,
-    :template, :context, :stream, :raw, :keep_alive
+    :template, :context, :stream, :raw, :keep_alive, :think
 
   attr_writer :client
 

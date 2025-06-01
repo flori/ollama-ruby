@@ -5,13 +5,13 @@ class Ollama::Commands::Chat
     '/api/chat'
   end
 
-  def initialize(model:, messages:, tools: nil, format: nil, options: nil, stream: nil, keep_alive: nil)
-    @model, @messages, @tools, @format, @options, @stream, @keep_alive =
+  def initialize(model:, messages:, tools: nil, format: nil, options: nil, stream: nil, keep_alive: nil, think: nil)
+    @model, @messages, @tools, @format, @options, @stream, @keep_alive, @think =
       model, as_array_of_hashes(messages), as_array_of_hashes(tools),
-      format, options, stream, keep_alive
+      format, options, stream, keep_alive, think
   end
 
-  attr_reader :model, :messages, :tools, :format, :options, :stream, :keep_alive
+  attr_reader :model, :messages, :tools, :format, :options, :stream, :keep_alive, :think
 
   attr_writer :client
 
