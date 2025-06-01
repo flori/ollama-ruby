@@ -1,5 +1,13 @@
 # Changes
 
+## 2025-06-01 v1.1.0
+
+* Added the `think` option to chat and generate commands:
+  * Added `think` parameter to `initialize` method in `lib/ollama/commands/chat.rb`
+  * Added `think` attribute reader and writer to `lib/ollama/commands/chat.rb`
+  * Added `think` parameter to `initialize` method in `lib/ollama/commands/generate.rb`
+  * Added `think` attribute reader to `lib/ollama/commands/generate.rb`
+
 ## 2025-04-15 v1.0.0
 
 **Use model parameter and support new create parameters**
