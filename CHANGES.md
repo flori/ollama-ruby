@@ -1,5 +1,10 @@
 # Changes
 
+## 2025-06-02 v1.2.1
+
+* Added thinking mode option to CLI:
+  + `bin/ollama_cli` now includes `-T` flag for thinking mode generation
+
 ## 2025-06-01 v1.2.0
 
 * Added `tool_calls` parameter to the `initialize` method of the `Message` class:
