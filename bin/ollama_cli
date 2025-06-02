@@ -74,13 +74,14 @@ def usage
       -P VARIABLE    sets prompt var %{foo} to "bar" if VARIABLE is foo=bar
       -H HANDLER     the handler to use for the response, defaults to ChatStart
       -S             use streaming for generation
+      -T             use thinking for generation
       -h             this help
 
   EOT
   exit 0
 end
 
-opts = go 'u:m:M:s:p:P:H:Sh', defaults: { ?H => 'ChatStart', ?M => '{}' }
+opts = go 'u:m:M:s:p:P:H:STh', defaults: { ?H => 'ChatStart', ?M => '{}' }
 
 opts[?h] and usage
 
@@ -123,6 +124,7 @@ Client.new(base_url:, read_timeout: 120).generate(
   prompt:,
   options:,
   stream: !!opts[?S],
+  think: !!opts[?T],
   &handler
 )
 
