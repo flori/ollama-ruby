@@ -8,24 +8,26 @@ require 'tins/xt/secure_write'
 require 'json'
 require 'tmpdir'
 
-class ChatStart
-  include Ollama::Handlers::Concern
+module Ollama::Handlers
+  class ChatStart
+    include Ollama::Handlers::Concern
 
-  def initialize(output: $stdout)
-    super
-    @output.sync = true
-    @content     = ''
-  end
-
-  attr_reader :content
-
-  def call(response)
-    if content = response.response
-      @content << content
-      @output << content
+    def initialize(output: $stdout)
+      super
+      @output.sync = true
+      @content     = ''
     end
-    response.done and @output.puts
-    self
+
+    attr_reader :content
+
+    def call(response)
+      if content = response.response
+        @content << content
+        @output << content
+      end
+      response.done and @output.puts
+      self
+    end
   end
 end
 
@@ -115,8 +117,15 @@ if ENV['DEBUG'].to_i == 1
   EOT
 end
 
-handler = Object.const_get(opts[?H])
-handler == ChatStart and handler = handler.new
+handler = Ollama::Handlers.const_get(opts[?H])
+handler = case
+          when handler == Ollama::Handlers::ChatStart
+            handler.new
+          when handler == Ollama::Handlers::Markdown
+            handler.new(stream: !!opts[?S])
+          else
+            handler
+          end
 
 Client.new(base_url:, read_timeout: 120).generate(
   model:,
@@ -128,7 +137,7 @@ Client.new(base_url:, read_timeout: 120).generate(
   &handler
 )
 
-if handler.is_a?(ChatStart)
+if handler.is_a?(Ollama::Handlers::ChatStart)
   filename = File.join(Dir.tmpdir, 'chat_start_%u.json' % $$)
   File.secure_write(filename) do |out|
     JSON.dump(

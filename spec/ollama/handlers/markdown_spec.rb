@@ -41,4 +41,14 @@ RSpec.describe Ollama::Handlers::Markdown do
     response = double('response', response: nil, message: nil, done: true)
     markdown.call(response)
   end
+
+  it 'displays markdown response in one go when stream is false' do
+    output = double('output', :sync= => false)
+    expect(output).to receive(:print).with(ansi).once
+    markdown = described_class.new(output:, stream: false)
+    response = double('response', response: md, done: true)
+    markdown.call(response)
+    response = double('response', response: nil, message: nil, done: true)
+    markdown.call(response)
+  end
 end
