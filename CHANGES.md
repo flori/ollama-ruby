@@ -1,5 +1,12 @@
 # Changes
 
+## 2025-07-06 v1.3.0
+
+* Added toggleable streaming in Markdown handler:
+  * Added conditional handler initialization
+  * Implemented toggleable streaming in Markdown handler
+  * Tested non-streaming (`stream: false`) behavior
+
 ## 2025-06-02 v1.2.1
 
 * Added thinking mode option to CLI:
