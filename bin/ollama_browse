@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+
+require 'term/ansicolor'
+include Term::ANSIColor
+require 'ollama'
+include Ollama
+require 'excon'
+require 'nokogiri'
+
+model      = ARGV.shift or fail 'model name as first argument is required'
+url_prefix = 'https://ollama.com/library'
+tags_url   = '%s/%s/tags' % [ url_prefix, model ]
+result       = Excon.get(tags_url)
+if result.status >= 400
+  STDERR.puts 'Model %s cannot be browsed, HTTP result code %u' % [ model, result.status ]
+  exit 1
+end
+body = result.body
+doc  = Nokogiri::HTML(body)
+
+# They are never permitted to change the structure of this HTML…
+css        = 'section div div .group.px-4.py-3'
+tags = (doc / css).map do |element|
+  tagged_name = (element / 'a div div div span').text
+  hash        = (element / 'a .text-neutral-500 span .font-mono').text
+  [ tagged_name, hash ]
+end.group_by(&:last)
+
+puts bold('Model: ') + hyperlink(tags_url) { model }
+tags.each do |hash, tagged_blobs|
+  puts bold(hash)
+  tagged_blobs.each do |(tag,_),|
+    puts ' · ' + hyperlink('%s/%s' % [ url_prefix, tag ]) { blue(tag) }
+  end
+end
