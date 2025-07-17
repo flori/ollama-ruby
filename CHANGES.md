@@ -1,5 +1,23 @@
 # Changes
 
+## 2025-07-17 v1.4.0
+
+* **New CLI Tool**: Added `bin/ollama_browse` for exploring model tags and
+  metadata.
+* **JSON Configuration Support**:
+  - Introduced `lib/ollama/json_loader.rb` to load configurations from JSON
+    files.
+  - Enhanced `Config` and `Options` classes with JSON parsing capabilities.
+* **Client Customization**:
+  - Added `configure_with` method in `Ollama::Client` for initializing clients
+    using `Config` objects.
+* **Documentation Updates**: Included detailed usage examples for basic setups
+  and configurations.
+* **Testing Improvements**: Expanded test coverage for JSON file parsing and
+  configuration handling.
+* **Output Enhancements**: Refined formatting in `ollama_browse` to display
+  file size and context size.
+
 ## 2025-07-06 v1.3.0
 
 * Added toggleable streaming in Markdown handler:
