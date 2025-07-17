@@ -2,10 +2,12 @@ class Ollama::Client
 end
 require 'ollama/client/doc'
 require 'ollama/client/command'
+require 'ollama/client/configuration/config'
 
 class Ollama::Client
   include Tins::Annotate
   include Ollama::Handlers
+  include Ollama::Client::Configuration
   include Ollama::Client::Command
 
   annotate :doc

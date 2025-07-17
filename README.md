@@ -28,18 +28,40 @@ to your Gemfile and run `bundle install` in your terminal.
 
 ## Usage
 
-In your own software the library can be used as shown in this example:
+In your own software the library can be used as shown in these examples:
+
+### Basic Usage
 
 ```ruby
 require 'ollama'
 include Ollama
 
+# Call directly with settings as keywords
 ollama = Client.new(base_url: 'http://localhost:11434')
+
 messages = Message.new(role: 'user', content: 'Why is the sky blue?')
-ollama.chat(model: 'llama3.1', stream: true, messages:, &Print) # or
-print ollama.chat(model: 'llama3.1', stream: true, messages:).lazy.map { |response|
-  response.message.content
-}
+ollama.chat(model: 'llama3.1', stream: true, messages:, &Print)
+```
+
+### Using Configuration Object
+
+```ruby
+require 'ollama'
+include Ollama
+
+# Create a configuration object with desired settings
+config = Client::Config[
+  base_url: 'http://localhost:11434',
+  output: $stdout,
+  connect_timeout: 15,
+  read_timeout: 300
+]
+
+# Initialize client using the configuration
+ollama = Client.configure_with(config)
+
+messages = Message.new(role: 'user', content: 'Why is the sky blue?')
+ollama.chat(model: 'llama3.1', stream: true, messages:, &Print)
 ```
 
 ## Try out things in ollama\_console
