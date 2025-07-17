@@ -1,0 +1,8 @@
+{
+  "num_ctx": 16384,
+  "seed": -1,
+  "num_predict": 1024,
+  "temperature": 0.666,
+  "top_p": 0.95,
+  "min_p": 0.1
+}

@@ -13,6 +13,17 @@ RSpec.describe Ollama::Options do
     expect(options).to be_a described_class
   end
 
+  it 'can be configured by loading from JSON' do
+    options = described_class.load_from_json(asset('options.json'))
+    expect(options).to be_a described_class
+    expect(options.num_ctx).to eq(16384)
+    expect(options.seed).to eq(-1)
+    expect(options.num_predict).to eq(1024)
+    expect(options.temperature).to be_within(1E-6).of(0.666)
+    expect(options.top_p).to be_within(0.001).of(0.95)
+    expect(options.min_p).to be_within(0.001).of(0.1)
+  end
+
   it 'can be empty' do
     expect(described_class.new).to be_empty
   end

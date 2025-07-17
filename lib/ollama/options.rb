@@ -1,7 +1,10 @@
+require 'ollama/json_loader'
+
 # Options are explained in the parameters for the modelfile:
 # https://github.com/ollama/ollama/blob/main/docs/modelfile.md#parameter
 class Ollama::Options
   include Ollama::DTO
+  extend Ollama::JSONLoader
 
   @@types = {
     numa:              [ false, true ],

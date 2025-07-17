@@ -56,6 +56,7 @@ config = Client::Config[
   connect_timeout: 15,
   read_timeout: 300
 ]
+# Or config = Client::Config.load_from_json('path/to/client.json')
 
 # Initialize client using the configuration
 ollama = Client.configure_with(config)

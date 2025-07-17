@@ -1,5 +1,9 @@
+require 'ollama/json_loader'
+
 module Ollama::Client::Configuration
   class Config
+    extend Ollama::JSONLoader
+
     def initialize(**attributes)
       attributes.each { |k, v| send("#{k}=", v) }
       self.output ||= $stdout

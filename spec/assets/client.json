@@ -1,0 +1,4 @@
+{
+  "connect_timeout": 60,
+  "read_timeout": 3600
+}

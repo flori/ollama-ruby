@@ -21,6 +21,19 @@ RSpec.describe Ollama::Client do
     expect(client.output).to be $stdout
   end
 
+  it 'can be instantiated with config loaded from JSON' do
+    config = Ollama::Client::Config.load_from_json(asset('client.json'))
+    config.base_url = base_url
+    expect(config.read_timeout).to eq 3_600
+    expect(config.connect_timeout).to eq 60
+    client = described_class.configure_with(config)
+    expect(client).to be_a described_class
+    expect(client.base_url.to_s).to eq base_url
+    expect(client.output).to be $stdout
+    expect(client.instance_variable_get(:@connect_timeout)).to eq 60
+    expect(client.instance_variable_get(:@read_timeout)).to eq 3_600
+  end
+
   it 'can be configured via environment variable' do
     expect { described_class.new }.to raise_error(ArgumentError)
     ENV['OLLAMA_URL'] = base_url
