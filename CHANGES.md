@@ -15,6 +15,7 @@
     - `-M OPTIONS`: model options in JSON format
     - `-s SYSTEM` and `-p PROMPT`: plain text inputs
   * Improved formatting for better readability
+* Add `ollama_browse` to Rakefile executable tasks
 
 ## 2025-07-17 v1.4.0
 
