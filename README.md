@@ -350,26 +350,22 @@ To use `ollama_cli`, simply run it from the command line and follow the usage
 instructions:
 
 ```bash
-ollama_cli [OPTIONS]
+Usage: ollama_cli [OPTIONS]
+
+  -u URL         the ollama base url, $OLLAMA_URL
+  -c CLIENT      the ollama client config (JSON), $OLLAMA_CLIENT
+  -m MODEL       the ollama model to chat with, $OLLAMA_MODEL
+  -M OPTIONS     the ollama model options (JSON), $OLLAMA_MODEL_OPTIONS
+  -s SYSTEM      the system prompt as plain text, $OLLAMA_SYSTEM
+  -p PROMPT      the user prompt as plain text, $OLLAMA_PROMPT
+                 if it contains %{stdin} it is substituted by stdin input
+  -P VARIABLE    sets prompt var %{foo} to "bar" if VARIABLE is foo=bar
+  -H HANDLER     the handler to use for the response, defaults to ChatStart
+  -S             use streaming for generation
+  -T             use thinking for generation
+  -h             this help
+
 ```
-
-The available options are:
-
-* `-u URL`: The Ollama base URL. Can be set as an environment variable
-  `OLLAMA_URL`.
-* `-m MODEL`: The Ollama model to chat with. Defaults to `llama3.1` if not
-  specified.
-* `-M OPTIONS`: The Ollama model options to use. Can be set as an environment
-  variable `OLLAMA_MODEL_OPTIONS`.
-* `-s SYSTEM`: The system prompt to use as a file. Can be set as an environment
-  variable `OLLAMA_SYSTEM`.
-* `-p PROMPT`: The user prompt to use as a file. If it contains `%{stdin}`, it
-  will be substituted with the standard input. If not given, stdin will be used
-  as the prompt.
-* `-P VARIABLE`: Sets a prompt variable, e.g. `foo=bar`. Can be used multiple
-  times.
-* `-H HANDLER`: The handler to use for the response. Defaults to `Print`.
-* `-S`: Use streaming for generation.
 
 #### Environment Variables
 
@@ -377,10 +373,11 @@ The following environment variables can be set to customize the behavior of
 `ollama_cli`:
 
 * `OLLAMA_URL`: The Ollama base URL.
+* `OLLAMA_CLIENT`: The client config (JSON).
 * `OLLAMA_MODEL`: The Ollama model to chat with.
-* `OLLAMA_MODEL_OPTIONS`: The Ollama model options to use.
-* `OLLAMA_SYSTEM`: The system prompt to use as a file.
-* `OLLAMA_PROMPT`: The user prompt to use as a file.
+* `OLLAMA_MODEL_OPTIONS`: The Ollama model options (JSON).
+* `OLLAMA_SYSTEM`: The system prompt to use as plain text.
+* `OLLAMA_PROMPT`: The user prompt to use as plain text.
 
 #### Debug Mode
 
