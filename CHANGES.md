@@ -1,5 +1,21 @@
 # Changes
 
+## 2025-07-21 v1.5.0
+
+* Update `ollama_cli` script to handle client configuration via JSON and
+  clarify argument types:
+  * Added support for `-c ` option to specify client configuration as JSON
+  * Updated documentation to clarify which arguments expect JSON input
+  * Replaced direct client initialization with `configure_with` method for
+    better maintainability
+* Update documentation for `ollama_cli` script:
+  * Reorganized usage instructions for clarity
+  * Added descriptions for new options: `-c ` and `-H `
+  * Clarified which arguments expect JSON input:
+    - `-M OPTIONS`: model options in JSON format
+    - `-s SYSTEM` and `-p PROMPT`: plain text inputs
+  * Improved formatting for better readability
+
 ## 2025-07-17 v1.4.0
 
 * **New CLI Tool**: Added `bin/ollama_browse` for exploring model tags and
