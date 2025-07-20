@@ -68,10 +68,11 @@ def usage
     Usage: #{File.basename($0)} [OPTIONS]
 
       -u URL         the ollama base url, $OLLAMA_URL
+      -c CLIENT      the ollama client config (JSON), $OLLAMA_CLIENT
       -m MODEL       the ollama model to chat with, $OLLAMA_MODEL
-      -M OPTIONS     the ollama model options to use, $OLLAMA_MODEL_OPTIONS
-      -s SYSTEM      the system prompt to use as a file, $OLLAMA_SYSTEM
-      -p PROMPT      the user prompt to use as a file, $OLLAMA_PROMPT
+      -M OPTIONS     the ollama model options (JSON), $OLLAMA_MODEL_OPTIONS
+      -s SYSTEM      the system prompt as plain text, $OLLAMA_SYSTEM
+      -p PROMPT      the user prompt as plain text, $OLLAMA_PROMPT
                      if it contains %{stdin} it is substituted by stdin input
       -P VARIABLE    sets prompt var %{foo} to "bar" if VARIABLE is foo=bar
       -H HANDLER     the handler to use for the response, defaults to ChatStart
@@ -83,11 +84,15 @@ def usage
   exit 0
 end
 
-opts = go 'u:m:M:s:p:P:H:STh', defaults: { ?H => 'ChatStart', ?M => '{}' }
+opts = go 'u:m:M:s:p:P:H:c:STh', defaults: { ?H => 'ChatStart', ?M => '{}' }
 
 opts[?h] and usage
 
-base_url = opts[?u] || ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
+base_url  = opts[?u] || ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
+client_config = Client::Config[
+  { base_url: } |
+  JSON(get_file_argument(opts[?c], default: ENV['OLLAMA_CLIENT']).full? || '{}')
+]
 model    = opts[?m] || ENV.fetch('OLLAMA_MODEL', 'llama3.1')
 options  = Ollama::Options.from_hash(JSON(
   get_file_argument(opts[?M], default: ENV['OLLAMA_MODEL_OPTIONS'])
@@ -127,7 +132,7 @@ handler = case
             handler
           end
 
-Client.new(base_url:, read_timeout: 120).generate(
+Client.configure_with(client_config).generate(
   model:,
   system:,
   prompt:,
