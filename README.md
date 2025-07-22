@@ -402,6 +402,60 @@ The `-S` option enables streaming for generation. This allows the model to
 generate text in chunks, rather than waiting for the entire response to be
 generated.
 
+### `ollama_browse`
+
+The `ollama_browse` executable is a utility for exploring model tags and their
+associated metadata directly from your command line. It allows you to quickly
+view details such as file sizes, context windows, and digests for different
+versions of a model hosted on the Ollama platform.
+
+#### Usage
+
+```bash
+Usage: ollama_browse MODEL
+
+MODEL is the Ollama model name (e.g., 'deepseek-v3')
+```
+
+To use `ollama_browse`, specify the model you wish to explore:
+
+```bash
+ollama_browse deepseek-v3
+```
+
+#### Output
+
+The script will display information about different versions of the specified
+model, including:
+
+- **Digest**: A unique identifier for the model version.
+- **File Size**: The size of the model file.
+- **Context Window**: The maximum context length supported by the model.
+- **Tags**: Different tags associated with the model version.
+
+Example output for `deepseek-v3`:
+
+```bash
+Model: https://ollama.com/library/deepseek-v3
+5da0e2d4a9e0 404GB 4K
+ · deepseek-v3:latest
+ · deepseek-v3:671blatest
+ · deepseek-v3:671b-q4_K_M
+96061c74c1a5 713GB 4K
+ · deepseek-v3:671b-q8_0
+7770bf5a5ed8 1.3TB 4K
+ · deepseek-v3:671b-fp16
+```
+
+This output shows:
+- Different versions of the `deepseek-v3` model.
+- Each version's digest, file size, and context window.
+- Associated tags for each version, which you can click to view more details on
+  the Ollama website.
+
+**Note:** Tags are grouped by their corresponding digests, allowing users to
+easily identify equivalent versions of a model.
+
 ### ollama\_chat
 
 This is a chat client that allows you to connect to an Ollama server and engage
