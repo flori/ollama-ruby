@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Options do
+describe Ollama::Options do
   let :options do
     described_class.new(
       penalize_newline: true,

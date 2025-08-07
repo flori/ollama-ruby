@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Handlers::Say do
+describe Ollama::Handlers::Say do
   let :say do
     described_class.new
   end

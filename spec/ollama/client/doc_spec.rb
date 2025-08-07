@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Client::Doc do
+describe Ollama::Client::Doc do
   it 'can document commands' do
     expect(Ollama::Client::Doc.new(:generate).to_s).to match(/generate-a-completion/)
   end

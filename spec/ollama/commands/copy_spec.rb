@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Commands::Copy do
+describe Ollama::Commands::Copy do
   it 'can be instantiated' do
     copy = described_class.new(source: 'llama3.1', destination: 'camell3')
     expect(copy).to be_a described_class

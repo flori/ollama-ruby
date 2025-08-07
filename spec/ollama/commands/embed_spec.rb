@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Commands::Embed do
+describe Ollama::Commands::Embed do
   it 'can be instantiated' do
     embed = described_class.new(
       model: 'all-minilm',

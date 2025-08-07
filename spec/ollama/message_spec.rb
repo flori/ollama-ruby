@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Message do
+describe Ollama::Message do
   let :image do
     Ollama::Image.for_string("test")
   end

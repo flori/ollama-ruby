@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Tool do
+describe Ollama::Tool do
   let :location do
     Ollama::Tool::Function::Parameters::Property.new(
       type: 'string',

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Client do
+describe Ollama::Client do
   let :base_url do
     'https://ai.foo.bar'
   end

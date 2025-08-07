@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Image do
+describe Ollama::Image do
   let :image do
     described_class.for_filename(asset('kitten.jpg'))
   end

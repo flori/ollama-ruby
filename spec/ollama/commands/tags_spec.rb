@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Commands::Tags do
+describe Ollama::Commands::Tags do
   let :tags do
     described_class.new
   end

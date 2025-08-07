@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Commands::Embeddings do
+describe Ollama::Commands::Embeddings do
   it 'can be instantiated' do
     embeddings = described_class.new(
       model: 'mxbai-embed-large',

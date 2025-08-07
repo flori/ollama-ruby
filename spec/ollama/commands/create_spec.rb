@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Commands::Create do
+describe Ollama::Commands::Create do
   it 'can be instantiated' do
     create = described_class.new(model: 'llama3.1', stream: true)
     expect(create).to be_a described_class

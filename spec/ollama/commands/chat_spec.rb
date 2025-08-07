@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Commands::Chat do
+describe Ollama::Commands::Chat do
   it 'can be instantiated' do
     messages = [
       Ollama::Message.new(role: 'user', content: "Let's play Global Thermonuclear War.")

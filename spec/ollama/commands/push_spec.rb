@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Commands::Push do
+describe Ollama::Commands::Push do
   it 'can be instantiated' do
     push = described_class.new(model: 'llama3.1')
     expect(push).to be_a described_class

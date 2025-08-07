@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Commands::Show do
+describe Ollama::Commands::Show do
   it 'can be instantiated' do
     show = described_class.new(model: 'llama3.1')
     expect(show).to be_a described_class

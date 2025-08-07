@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Commands::Generate do
+describe Ollama::Commands::Generate do
   it 'can be instantiated' do
     generate = described_class.new(model: 'llama3.1', prompt: 'Hello World')
     expect(generate).to be_a described_class

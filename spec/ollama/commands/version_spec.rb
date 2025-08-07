@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Commands::Version do
+describe Ollama::Commands::Version do
   let :version do
     described_class.new
   end

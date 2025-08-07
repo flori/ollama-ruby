@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ollama::Commands::Pull do
+describe Ollama::Commands::Pull do
   it 'can be instantiated' do
     pull = described_class.new(model: 'llama3.1')
     expect(pull).to be_a described_class
