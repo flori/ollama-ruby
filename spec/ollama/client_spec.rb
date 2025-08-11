@@ -145,6 +145,20 @@ describe Ollama::Client do
       ollama.generate(model: 'llama3.1', prompt: 'Hello World')
     end
 
+    it 'can soldier on with parse errors and output warning' do
+      expect(excon).to receive(:send).with(
+        :post,
+        body:  '{"model":"llama3.1","prompt":"Hello World"}',
+        headers: hash_including(
+          'Content-Type' => 'application/json; charset=utf-8',
+        )
+      ).and_return(double(status: 200, body: '{i am so broken}'))
+      expect(ollama).to receive(:warn).with(
+        "Caught JSON::ParserError: expected object key, got 'i' at line 1 column 2"
+      )
+      expect(ollama.generate(model: 'llama3.1', prompt: 'Hello World')).to be_nil
+    end
+
     it 'can generate with stream' do
       expect(excon).to receive(:send).with(
         :post,

@@ -137,7 +137,8 @@ class Ollama::Client
 
   def parse_json(string)
     JSON.parse(string, object_class: Ollama::Response)
-  rescue JSON::ParserError
+  rescue JSON::ParserError => e
+    warn "Caught #{e.class}: #{e}"
     return
   end
 end
