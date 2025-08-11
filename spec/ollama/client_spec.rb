@@ -156,7 +156,7 @@ describe Ollama::Client do
       expect(ollama).to receive(:warn).with(
         "Caught JSON::ParserError: expected object key, got 'i' at line 1 column 2"
       )
-      expect(ollama.generate(model: 'llama3.1', prompt: 'Hello World')).to be_nil
+      expect(ollama.generate(model: 'llama3.1', prompt: 'Hello World')).to be nil
     end
 
     it 'can generate with stream' do

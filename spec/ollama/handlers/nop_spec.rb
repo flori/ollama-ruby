@@ -10,6 +10,6 @@ describe Ollama::Handlers::NOP do
     nop = described_class.new(output:)
     response = Ollama::Response[foo: 'testing']
     nop.call(response)
-    expect(nop.result).to be_nil
+    expect(nop.result).to be nil
   end
 end
