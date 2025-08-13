@@ -5,10 +5,24 @@ include Ollama
 require 'irb'
 require 'irb/history'
 
+# The base_url method returns the Ollama API base URL.
+#
+# It first checks for the OLLAMA_URL environment variable.
+# If not set, it defaults to 'http://' followed by the OLLAMA_HOST environment variable.
+#
+# @return [ String ] the base URL for the Ollama API
 def base_url
   ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
 end
 
+# The ollama method provides access to a configured Ollama client instance.
+#
+# This method initializes and returns a singleton instance of the Ollama client,
+# using the base URL specified in the base_url parameter. If an instance already
+# exists, it returns the cached version instead of creating a new one.
+#
+# @param base_url [ String ] the base URL for the Ollama API endpoint
+# @return [ Ollama::Client ] a configured Ollama client instance
 def ollama
   $ollama ||= Client.new(base_url:)
 end

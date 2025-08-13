@@ -9,17 +9,35 @@ require 'json'
 require 'tmpdir'
 
 module Ollama::Handlers
+  # A handler that starts a chat session and prints the initial response.
+  #
+  # @example
+  #   chat(model: 'llama3.1', messages: message, &ChatStart)
   class ChatStart
     include Ollama::Handlers::Concern
 
+    # The initialize method sets up a new Markdown handler instance with the
+    # specified output.
+    #
+    # @param output [IO] the output stream to write markdown content to,
+    # defaults to $stdout
     def initialize(output: $stdout)
       super
       @output.sync = true
       @content     = ''
     end
 
+    # The content attribute reader returns the textual content of the message.
+    #
+    # @return [ String ] the content of the message
     attr_reader :content
 
+    # The call method processes a response by appending its content to an
+    # internal buffer and output stream. It also appends a newline and flushes
+    # the output when the response indicates completion.
+    #
+    # @param response [Object] the response object to process
+    # @return [self] returns itself to allow for method chaining
     def call(response)
       if content = response.response
         @content << content
@@ -62,7 +80,11 @@ def get_file_argument(path_or_content, default: nil)
   end
 end
 
-# Outputs usage information for the `ollama_cli`.
+# The usage method displays the command-line usage information for the
+# ollama_cli executable.
+#
+# This method prints out a formatted help message that describes all available
+# options and their expected arguments for using the ollama_cli tool.
 def usage
   puts <<~EOT
     Usage: #{File.basename($0)} [OPTIONS]

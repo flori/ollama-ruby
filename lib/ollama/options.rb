@@ -1,7 +1,21 @@
 require 'ollama/json_loader'
 
-# Options are explained in the parameters for the modelfile:
-# https://github.com/ollama/ollama/blob/main/docs/modelfile.md#parameter
+# A class that encapsulates configuration options for Ollama models.
+#
+# This class provides a structured way to define and manage various parameters
+# that can be passed to Ollama models during generation or chat operations. It
+# includes type validation to ensure that option values conform to expected
+# data types, making it easier to work with model configurations
+# programmatically.
+#
+# @example Creating an Options object with specific settings
+#   options = Ollama::Options.new(
+#     temperature: 0.7,
+#     num_ctx: 8192,
+#     top_p: 0.9
+#   )
+#
+# [Options are explained in the parameters for the modelfile.](https://github.com/ollama/ollama/blob/main/docs/modelfile.md#parameter)
 class Ollama::Options
   include Ollama::DTO
   extend Ollama::JSONLoader
@@ -69,6 +83,17 @@ class Ollama::Options
     end
   }
 
+  # The [] method creates a new instance of the class using a hash of attributes.
+  #
+  # This class method provides a convenient way to instantiate an object by
+  # passing a hash containing the desired attribute values. It converts the
+  # hash keys to symbols and forwards them as keyword arguments to the
+  # constructor.
+  #
+  # @param value [ Hash ] a hash containing the attribute names and their values
+  #
+  # @return [ self ] a new instance of the class initialized with the provided
+  # attributes
   def self.[](value)
     new(**value.to_h)
   end
