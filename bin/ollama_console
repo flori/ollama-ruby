@@ -21,5 +21,9 @@ if io = IRB.conf[:MAIN_CONTEXT].io and io.support_history_saving?
   io.load_history
   at_exit { io.save_history }
 end
+puts "Now connected to ollama server, version %s, at %s" % [
+  Term::ANSIColor.bold { ollama.version.version },
+  Term::ANSIColor.hyperlink(ollama.base_url) { ollama.base_url },
+]
 ollama.help
 IRB.irb nil, ollama
