@@ -35,9 +35,13 @@ describe Ollama::Client do
   end
 
   it 'can be configured via environment variable' do
+    old_base_url = ENV['OLLAMA_URL']
+    ENV.delete('OLLAMA_URL')
     expect { described_class.new }.to raise_error(ArgumentError)
     ENV['OLLAMA_URL'] = base_url
     expect(described_class.new).to be_a described_class
+  ensure
+    ENV['OLLAMA_URL'] = old_base_url
   end
 
   it 'can disable ssl peer verification' do
