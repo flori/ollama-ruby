@@ -106,7 +106,7 @@ def usage
   exit 0
 end
 
-opts = go 'u:m:M:s:p:P:H:c:STh', defaults: { ?H => 'ChatStart', ?M => '{}' }
+opts = go 'u:m:M:s:p:P:H:c:STh', defaults: { ?H => 'ChatStart' }
 
 opts[?h] and usage
 
