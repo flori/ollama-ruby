@@ -1,5 +1,27 @@
 # Changes
 
+## 2025-08-18 v1.6.0
+
+- Added **context_spook** gem as development dependency for documentation management
+and introduced new context files for project structure documentation in
+`.contexts/` directory
+- Modified `bin/ollama_cli` to use `named_placeholders` and
+  `named_placeholders_interpolate` methods for prompt variable interpolation
+- Added default value handling for missing prompt variables in `bin/ollama_cli`
+- Removed default value `{ ?M => '{}' }` for the `?M` option in command line parser
+- Displayed Ollama server version in bold and base URL with hyperlink formatting
+- Used `Term::ANSIColor` for styled output in connection status message
+- Updated `gem_hadar` development dependency to **2.0**
+- Replaced manual SimpleCov configuration with `GemHadar::SimpleCov.start`
+- Enhanced `parse_json` method in `Ollama::Client` to handle
+  `JSON::ParserError` exceptions gracefully with warnings
+- Updated `Ollama::Client` spec to test error handling behavior for invalid
+  JSON input
+- Replaced `RSpec.describe` with `describe` for cleaner test syntax
+- Added `ollama_browse` utility documentation to README.md
+- Improved nil comparison syntax in tests
+- Reset `OLLAMA_URL` environment variable after client spec tests
+
 ## 2025-07-21 v1.5.0
 
 * Update `ollama_cli` script to handle client configuration via JSON and
