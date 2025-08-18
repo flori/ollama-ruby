@@ -16,7 +16,7 @@ GemHadar do
     '.yardoc', 'doc', 'tags', 'errors.lst', 'cscope.out', 'coverage', 'tmp',
     'yard'
   package_ignore '.all_images.yml', '.tool-versions', '.gitignore', 'VERSION',
-     '.rspec', *Dir.glob('.github/**/*', File::FNM_DOTMATCH)
+    '.rspec', '.github', '.contexts'
   readme      'README.md'
 
   executables << 'ollama_console' << 'ollama_update' << 'ollama_cli' << 'ollama_browse'
@@ -36,6 +36,7 @@ GemHadar do
   development_dependency 'webmock'
   development_dependency 'debug'
   development_dependency 'simplecov'
+  development_dependency 'context_spook'
 
   licenses << 'MIT'
 
