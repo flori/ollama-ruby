@@ -125,13 +125,18 @@ prompt   = get_file_argument(opts[?p], default: ENV['OLLAMA_PROMPT'])
 if prompt.nil?
   prompt = STDIN.read
 else
-  vars = prompt.scan(/%\{([^}]+)\}/).inject([], &:concat).uniq.map(&:to_sym)
+  vars = prompt.named_placeholders
   stdin = (STDIN.read if vars.include?(:stdin)).to_s
   values = opts[?P].to_a.inject({ stdin: }) { |h, pair|
     n, v = pair.split(?=, 2)
     h.merge(n.to_sym => v)
   }
-  prompt = prompt % values
+  default = -> v {
+    msg = "prompt var #{v.inspect} not set"
+    STDERR.puts msg
+    "[#{msg}]"
+  }
+  prompt = prompt.named_placeholders_interpolate(values, default:)
 end
 
 if ENV['DEBUG'].to_i == 1
