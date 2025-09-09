@@ -1,5 +1,14 @@
 # Changes
 
+## 2025-09-09 v1.7.0
+
+- Updated `required_ruby_version` from ~> **3.0** to ~> **3.1** in `Rakefile`
+  and `ollama-ruby.gemspec`
+- Added `context_spook` as a development dependency in `ollama-ruby.gemspec`
+- Removed `ruby:3.0-alpine` image configuration from `.all_images.yml`
+- Updated gem system and bundle in Dockerfile build steps
+- Ran `bundle update` in script section of `.all_images.yml`
+
 ## 2025-09-09 v1.6.1
 
 - Updated required Ruby version from **3.1** to **3.0** in `Rakefile` and
