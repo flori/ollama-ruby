@@ -1,5 +1,17 @@
 # Changes
 
+## 2025-09-09 v1.6.1
+
+- Updated required Ruby version from **3.1** to **3.0** in `Rakefile` and
+  `ollama-ruby.gemspec`
+- Added `bundler` to the gems installed in `.all_images.yml`
+- Added support for Ruby **3.1** and **3.0** Alpine images in `.all_images.yml`
+- Updated `gem_hadar` version requirement from **2.0** to **2.2** in
+  `ollama-ruby.gemspec`
+- Modified `as_json` and `to_json` methods in `lib/ollama/dto.rb` and
+  `lib/ollama/response.rb` to accept ignored arguments
+- Added documentation comments for ignored arguments in `as_json` methods
+
 ## 2025-08-18 v1.6.0
 
 - Added **context_spook** gem as development dependency for documentation management
