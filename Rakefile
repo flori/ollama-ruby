@@ -21,7 +21,7 @@ GemHadar do
 
   executables << 'ollama_console' << 'ollama_update' << 'ollama_cli' << 'ollama_browse'
 
-  required_ruby_version  '~> 3.1'
+  required_ruby_version  '~> 3.0'
 
   dependency             'excon',                 '~> 1.0'
   dependency             'infobar',               '~> 0.8'
@@ -36,7 +36,7 @@ GemHadar do
   development_dependency 'webmock'
   development_dependency 'debug'
   development_dependency 'simplecov'
-  development_dependency 'context_spook'
+  #development_dependency 'context_spook'
 
   licenses << 'MIT'
 

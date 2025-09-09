@@ -111,8 +111,9 @@ module Ollama::DTO
   # This method gathers all defined attributes of the object and constructs a
   # hash representation, excluding any nil values or empty collections.
   #
+  # @param ignored [ Array ] ignored arguments
   # @return [ Hash ] a hash containing the object's non-nil and non-empty attributes
-  def as_json(*)
+  def as_json(*ignored)
     self.class.attributes.each_with_object({}) { |a, h| h[a] = send(a) }.
       reject { _2.nil? || _2.ask_and_send(:size) == 0 }
   end
@@ -151,8 +152,9 @@ module Ollama::DTO
   # applies the standard JSON serialization to produce a formatted JSON string
   # output.
   #
+  # @param args [ Array ] pass-through args
   # @return [ String ] a JSON string representation of the object
-  def to_json(*)
-    as_json.to_json(*)
+  def to_json(*args)
+    as_json.to_json(*args)
   end
 end

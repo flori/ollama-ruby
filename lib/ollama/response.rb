@@ -15,8 +15,10 @@ class Ollama::Response < JSON::GenericObject
   # hash representation, excluding any nil values or empty collections.
   #
   # @note This removes "json_class" attribute from hash for responses.
+  #
+  # @param ignored [ Array ] ignored arguments
   # @return [ Hash ] a hash containing the object's non-nil and non-empty attributes
-  def as_json(*)
+  def as_json(*ignored)
     to_hash
   end
 end
