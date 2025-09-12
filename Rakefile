@@ -16,7 +16,7 @@ GemHadar do
     '.yardoc', 'doc', 'tags', 'errors.lst', 'cscope.out', 'coverage', 'tmp',
     'yard'
   package_ignore '.all_images.yml', '.tool-versions', '.gitignore', 'VERSION',
-    '.rspec', '.github', '.contexts'
+    '.rspec', '.github', '.contexts', '.yardopts'
   readme      'README.md'
 
   executables << 'ollama_console' << 'ollama_update' << 'ollama_cli' << 'ollama_browse'
