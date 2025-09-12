@@ -1,5 +1,11 @@
 # Changes
 
+## 2025-09-13 v1.8.1
+
+- Added `.yardopts` and `tmp` to `package_ignore` in `Rakefile`
+- Updated `gem_hadar` development dependency from "~> 2.4" to "~> 2.6" in
+  gemspec
+
 ## 2025-09-12 v1.8.0
 
 - Changed `tins` dependency from `~> 1.41` to `~> 1` in both `Rakefile` and
