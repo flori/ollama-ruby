@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
 
   s.specification_version = 4
 
-  s.add_development_dependency(%q<gem_hadar>.freeze, ["~> 2.2".freeze])
+  s.add_development_dependency(%q<gem_hadar>.freeze, ["~> 2.4".freeze])
   s.add_development_dependency(%q<all_images>.freeze, ["~> 0.6".freeze])
   s.add_development_dependency(%q<rspec>.freeze, ["~> 3.2".freeze])
   s.add_development_dependency(%q<kramdown>.freeze, ["~> 2.0".freeze])
@@ -35,7 +35,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<excon>.freeze, ["~> 1.0".freeze])
   s.add_runtime_dependency(%q<infobar>.freeze, ["~> 0.8".freeze])
   s.add_runtime_dependency(%q<json>.freeze, ["~> 2.0".freeze])
-  s.add_runtime_dependency(%q<tins>.freeze, ["~> 1.41".freeze])
+  s.add_runtime_dependency(%q<tins>.freeze, ["~> 1".freeze])
   s.add_runtime_dependency(%q<term-ansicolor>.freeze, ["~> 1.11".freeze])
   s.add_runtime_dependency(%q<kramdown-ansi>.freeze, ["~> 0.0".freeze, ">= 0.0.1".freeze])
   s.add_runtime_dependency(%q<ostruct>.freeze, ["~> 0.0".freeze])
