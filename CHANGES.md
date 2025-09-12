@@ -1,5 +1,12 @@
 # Changes
 
+## 2025-09-12 v1.8.0
+
+- Changed `tins` dependency from `~> 1.41` to `~> 1` in both `Rakefile` and
+  `ollama-ruby.gemspec`
+- Updated `gem_hadar` development dependency from `~> 2.2` to `~> 2.4` in
+  `ollama-ruby.gemspec`
+
 ## 2025-09-09 v1.7.0
 
 - Updated `required_ruby_version` from ~> **3.0** to ~> **3.1** in `Rakefile`
