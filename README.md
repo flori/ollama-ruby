@@ -6,6 +6,10 @@ Ollama is a Ruby library gem that provides a client interface to interact with
 an ollama server via the
 [Ollama API](https://github.com/ollama/ollama/blob/main/docs/api.md).
 
+## Documentation
+
+Complete API documentation is available at: [GitHub.io](https://flori.github.io/ollama-ruby/)
+
 ## Installation (gem &amp; bundler)
 
 To install Ollama, you can use the following methods:
