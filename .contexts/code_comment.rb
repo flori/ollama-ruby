@@ -20,6 +20,6 @@ context do
 
     - Look into the file, with tags yard and cheatsheet for how comment ruby
       constructs.
-    - In comments above initialize methods never omit @return
+    - In comments above initialize methods **ALWAYS** omit @return
   EOT
 end
