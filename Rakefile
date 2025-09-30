@@ -21,6 +21,10 @@ GemHadar do
 
   executables << 'ollama_console' << 'ollama_update' << 'ollama_cli' << 'ollama_browse'
 
+  github_workflows(
+    'static.yml' => {}
+  )
+
   required_ruby_version  '~> 3.1'
 
   dependency             'excon',                 '~> 1.0'
