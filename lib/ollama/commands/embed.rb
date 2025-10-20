@@ -36,9 +36,10 @@ class Ollama::Commands::Embed
   # @param options [ Ollama::Options, nil ] optional configuration parameters for the model
   # @param truncate [ Boolean, nil ] whether to truncate the input if it exceeds context length
   # @param keep_alive [ String, nil ] duration to keep the model loaded in memory
-  def initialize(model:, input:, options: nil, truncate: nil, keep_alive: nil)
-    @model, @input, @options, @truncate, @keep_alive =
-      model, input, options, truncate, keep_alive
+  # @param dimensions [ Integer, nil ] truncates the output embedding to the specified dimension.
+  def initialize(model:, input:, options: nil, truncate: nil, keep_alive: nil, dimensions: nil)
+    @model, @input, @options, @truncate, @keep_alive, @dimensions =
+      model, input, options, truncate, keep_alive, dimensions
     @stream = false
   end
 
@@ -67,13 +68,18 @@ class Ollama::Commands::Embed
   # @return [ String, nil ] duration to keep the model loaded in memory
   attr_reader :keep_alive
 
+  # The dimensions attribute reader returns the dimensions associated with the
+  # object.
+  #
+  # @return [ Integer, nil ] the dimensions value stored in the instance variable
+  attr_reader :dimensions
+
   # The stream attribute reader returns the streaming behavior setting
   # associated with the object.
   #
   # @return [ FalseClass ] the streaming behavior flag, indicating whether
   #         streaming is enabled for the command execution (always false for embed commands)
   attr_reader :stream
-
 
   # The client attribute writer allows setting the client instance associated
   # with the object.

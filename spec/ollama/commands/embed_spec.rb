@@ -36,6 +36,31 @@ describe Ollama::Commands::Embed do
     )
   end
 
+  it 'can be instantiated with dimensions' do
+    embed = described_class.new(
+      model: 'all-minilm',
+      input: 'Why is the sky blue?',
+      dimensions: 128
+    )
+    expect(embed).to be_a described_class
+    expect(embed.dimensions).to eq(128)
+  end
+
+  it 'can be converted to JSON with dimensions' do
+    embed = described_class.new(
+      model: 'all-minilm',
+      input: 'Why is the sky blue?',
+      dimensions: 128
+    )
+    expect(embed.as_json).to include(
+      model: 'all-minilm',
+      input: 'Why is the sky blue?',
+      dimensions: 128
+    )
+    expect(embed.to_json).to eq(
+      '{"model":"all-minilm","input":"Why is the sky blue?","dimensions":128,"stream":false}'
+    )
+  end
 
   it 'can perform' do
     embed = described_class.new(
