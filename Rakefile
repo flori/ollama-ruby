@@ -13,8 +13,7 @@ GemHadar do
   description 'Library that allows interacting with the Ollama API'
   test_dir    'spec'
   ignore      '.*.sw[pon]', 'pkg', 'Gemfile.lock', '.AppleDouble', '.bundle',
-    '.yardoc', 'doc', 'tags', 'errors.lst', 'cscope.out', 'coverage', 'tmp',
-    'yard'
+    '.yardoc', 'doc', 'tags', 'errors.lst', 'cscope.out', 'coverage', 'tmp'
   package_ignore '.all_images.yml', '.tool-versions', '.gitignore', 'VERSION',
     '.rspec', '.github', '.contexts', '.yardopts'
   readme      'README.md'
