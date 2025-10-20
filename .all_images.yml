@@ -1,16 +1,17 @@
 dockerfile: |-
-  RUN apk add --no-cache build-base git yaml-dev
+  RUN apk add --no-cache build-base yaml-dev openssl-dev git ghostscript
   RUN gem update --system
   RUN gem install bundler gem_hadar
 
 script: &script |-
   echo -e "\e[1m"
   ruby -v
-  rm -f Gemfile.lock
+  echo -e "\e[0m"
   bundle update
   bundle install --jobs=$(getconf _NPROCESSORS_ONLN)
-  echo -e "\e[0m"
-  rake test
+  rake spec
+
+fail_fast: true
 
 images:
   ruby:3.4-alpine: *script
