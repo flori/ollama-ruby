@@ -14,8 +14,19 @@
   - Configured workflow to deploy static content to GitHub Pages
   - Set up Ruby environment with version **3.4** for documentation generation
   - Added steps to install `gem_hadar`, run `bundle install`, and execute `rake doc`
-  - Updated `README.md` to include documentation link at https://flori.github.io/ollama-ruby/
+  - Updated `README.md` to include documentation link at
+    https://flori.github.io/ollama-ruby/
 - Updated comment style guideline for `initialize` methods
+- Skip `say` handler tests on non-macOS systems
+  - Add conditional check for `say` command availability using `File.executable?`
+  - Skip `Ollama::Handlers::Say` tests when `say` command is not found
+  - Use `skip: skip_reason` metadata to control test execution
+- Update CI configuration
+  - Add `openssl-dev` and `ghostscript` dependencies to Dockerfile
+  - Change test command from `rake test` to `rake spec`
+  - Enable `fail_fast: true` in CI configuration
+  - Remove `rm -f Gemfile.lock` step from CI script
+  - Update `build-base` and `yaml-dev` apk packages in Dockerfile
 
 ## 2025-09-13 v1.8.1
 
