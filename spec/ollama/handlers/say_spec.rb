@@ -1,6 +1,11 @@
 require 'spec_helper'
 
-describe Ollama::Handlers::Say do
+skip_reason = nil
+unless File.executable?(`which say`.chomp)
+  skip_reason = 'Command say not in path'
+end
+
+describe Ollama::Handlers::Say, skip: skip_reason do
   let :say do
     described_class.new
   end
