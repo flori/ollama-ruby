@@ -1,5 +1,22 @@
 # Changes
 
+## 2025-10-20 v1.9.0
+
+- Added `dimensions` parameter to `Ollama::Commands::Embed#initialize`
+  - Added `attr_reader :dimensions` for accessing the `dimensions` parameter
+  - Updated JSON serialization to include `dimensions` field
+  - Added specs for `dimensions` parameter instantiation and JSON conversion
+  - Parameter defaults to `nil` following same pattern as other optional params
+  - Supports truncating output embeddings to specified dimensions as per Ollama API
+  - Maintains backward compatibility with existing code
+  - Parameter type documented as `Integer, nil` in YARD comments
+- Added new GitHub Actions workflow file `.github/workflows/static.yml`
+  - Configured workflow to deploy static content to GitHub Pages
+  - Set up Ruby environment with version **3.4** for documentation generation
+  - Added steps to install `gem_hadar`, run `bundle install`, and execute `rake doc`
+  - Updated `README.md` to include documentation link at https://flori.github.io/ollama-ruby/
+- Updated comment style guideline for `initialize` methods
+
 ## 2025-09-13 v1.8.1
 
 - Added `.yardopts` and `tmp` to `package_ignore` in `Rakefile`
