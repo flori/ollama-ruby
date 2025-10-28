@@ -1,4 +1,11 @@
 #!/usr/bin/env ruby
+#
+# Browse Ollama model tags and their metadata from the official registry.
+#
+# This script fetches and displays information about available tags for a
+# specified Ollama model from the official Ollama library. It shows file sizes,
+# context sizes, and hash information for each tag, making it easy to compare
+# different model variants.
 
 require 'term/ansicolor'
 include Term::ANSIColor
