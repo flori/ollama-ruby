@@ -1,4 +1,14 @@
 #!/usr/bin/env ruby
+#
+# Updates all Ollama models to their latest versions.
+#
+# This script fetches all available models from the configured Ollama instance
+# and pulls the latest version of each model. It handles errors gracefully,
+# continuing to update remaining models even if one fails.
+#
+# Environment Variables:
+#   - OLLAMA_HOST: Hostname for the Ollama server (default: 'localhost')
+#   - OLLAMA_URL: Full URL for the Ollama server (overrides OLLAMA_HOST)
 
 require 'time'
 require 'term/ansicolor'
