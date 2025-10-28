@@ -18,7 +18,8 @@ GemHadar do
     '.rspec', '.github', '.contexts', '.yardopts'
   readme      'README.md'
 
-  executables << 'ollama_console' << 'ollama_update' << 'ollama_cli' << 'ollama_browse'
+  executables << 'ollama_console' << 'ollama_update' << 'ollama_cli' <<
+    'ollama_browse' << 'ollama_ps'
 
   github_workflows(
     'static.yml' => {}
