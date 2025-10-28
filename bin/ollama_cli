@@ -1,4 +1,28 @@
 #!/usr/bin/env ruby
+#
+# Ollama CLI tool for interacting with Ollama models via command line.
+#
+# This script provides a command-line interface to communicate with Ollama
+# models, supporting chat sessions, prompt templating, and various
+# configuration options. It can be used for both interactive and automated
+# model interactions.
+#
+# Features:
+#   - Chat sessions with model responses
+#   - Prompt templating with variable substitution
+#   - Streaming and thinking modes
+#   - Configuration via environment variables or command-line options
+#   - JSON-based chat history persistence
+#
+# Environment Variables:
+#   - OLLAMA_URL: Base URL for Ollama server (default: 'http://localhost')
+#   - OLLAMA_HOST: Hostname for Ollama server (used when OLLAMA_URL not set)
+#   - OLLAMA_CLIENT: JSON configuration for client
+#   - OLLAMA_MODEL: Default model to use (default: 'llama3.1')
+#   - OLLAMA_MODEL_OPTIONS: JSON model options
+#   - OLLAMA_SYSTEM: Default system prompt
+#   - OLLAMA_PROMPT: Default user prompt
+#   - DEBUG: Set to 1 for verbose output
 
 require 'ollama'
 include Ollama
