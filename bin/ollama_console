@@ -1,4 +1,21 @@
 #!/usr/bin/env ruby
+#
+# A console interface for interacting with the Ollama API.
+#
+# This script provides an interactive Ruby console (IRB) pre-configured with an
+# Ollama client instance, enabling direct experimentation with the Ollama API.
+# It automatically loads the Ollama client with the appropriate base URL, which
+# can be configured via environment variables.
+#
+# Environment Variables:
+#   - OLLAMA_URL: The base URL of the Ollama API server (e.g., 'http://localhost:11434').
+#   - OLLAMA_HOST: Fallback host for constructing the base URL if OLLAMA_URL is not set.
+#
+# The script will:
+# - Initialize an Ollama client with the configured base URL
+# - Start an IRB session with the client available as the `ollama` variable
+# - Display version and connection information
+# - Show available API methods via `ollama.help`
 
 require 'ollama'
 include Ollama
