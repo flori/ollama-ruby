@@ -1,0 +1,127 @@
+#!/usr/bin/env ruby
+#
+# A utility script that displays information about running Ollama models in a
+# formatted table.
+#
+# This script queries the Ollama API's /api/ps endpoint and presents running
+# models with detailed information including:
+#
+# * Model name and ID
+# * Memory usage (size and processor allocation)
+# * Context window length
+# * Parameter count and quantization level
+# * Time until expiration
+#
+# == Usage
+#
+#   ollama_ps
+#
+# The script uses the OLLAMA_URL environment variable for the API endpoint,
+# defaulting to 'http://' + OLLAMA_HOST if not set.
+#
+# == Output
+#
+# Displays a formatted table with columns:
+# * NAME - Model name
+# * ID - Truncated model digest
+# * SIZE - Human-readable model size
+# * PROCESSOR - CPU/GPU allocation percentage
+# * CONTEXT - Context window size
+# * PARAMS - Parameter count (e.g., 30.5B, 23M)
+# * QUANT - Quantization level (e.g., Q4_K_M, F16)
+# * UNTIL - Time until model expiration
+
+require 'ollama'
+include Ollama
+require 'tabulo'
+
+# The base_url method returns the Ollama API base URL.
+#
+# It first checks for the OLLAMA_URL environment variable.
+# If not set, it defaults to 'http://' followed by the OLLAMA_HOST environment
+# variable.
+#
+# @return [ String ] the base URL for the Ollama API
+def base_url
+  ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
+end
+
+# The format_bytes method formats a number of bytes into a human-readable
+# string with units.
+#
+# @param bytes [ Integer ] the number of bytes to format
+#
+# @return [ String ] a formatted string representing the byte value with
+#   appropriate units
+def format_bytes(bytes)
+  Tins::Unit.format(bytes, format: '%.2f %U', unit: ?B)
+end
+
+# The format_expiry method converts an expiration time into a formatted
+# duration string.
+#
+# This method takes an expiration timestamp, calculates the time difference
+# from the current time, and formats it into a human-readable duration string
+# showing days, hours, minutes, and seconds.
+#
+# @param expires_at [ String ] the expiration timestamp to be formatted
+#
+# @return [ String ] a formatted duration string representing the time until
+#   expiration
+def format_expiry(expires_at)
+  Tins::Duration.new(Time.parse(expires_at) - Time.now).format('%S%d+%h:%m:%s')
+end
+
+# The format_processor method computes a CPU/GPU usage string based on memory
+# sizes.
+#
+# This method takes two memory size parameters and calculates the percentage of
+# GPU and CPU usage, returning a formatted string that indicates the
+# distribution of resources. It handles special cases where all memory is on
+# GPU or CPU, and calculates the percentage for mixed scenarios.
+#
+# @param size_vram [ Integer ] the amount of VRAM allocated
+# @param size_total [ Integer ] the total amount of memory available
+#
+# @return [ String ] a formatted string indicating CPU/GPU usage percentage
+#                     or special cases like "100% GPU" or "100% CPU"
+def format_processor(size_vram, size_total)
+  if size_vram == size_total
+    "100% GPU"
+  elsif size_vram == 0
+    "100% CPU"
+  else
+    cpu_percent = ((size_total - size_vram) * 100.0 / size_total).round(0)
+    gpu_percent = 100 - cpu_percent
+    "#{cpu_percent}%/#{gpu_percent}% CPU/GPU"
+  end
+end
+
+# The ps method retrieves and displays information about running models in a
+# formatted table.
+#
+# This method creates a new Ollama client instance, fetches the list of running
+# models, and presents the information in a structured table format showing
+# model details such as name, ID, size, processor information, context length,
+# parameters, quantization level, and expiration time.
+#
+# @param base_url [ String, nil ] the base URL of the Ollama API endpoint, defaults to nil
+def ps
+  ollama = Client.new(base_url:)
+  result = ollama.ps
+  models = result.models
+
+  table = Tabulo::Table.new(models, border: :modern) do |t|
+    t.add_column("NAME", &:name)
+    t.add_column("ID") { |model| model.digest[0, 12] }
+    t.add_column("SIZE", align_body: :right) { |model| format_bytes(model.size) }
+    t.add_column("PROCESSOR") { |model| format_processor(model.size_vram, model.size) }
+    t.add_column("CONTEXT") { |model| format_bytes(model.context_length) }
+    t.add_column("PARAMS", align_body: :right) { |model| model.details&.parameter_size || 'n/a' }
+    t.add_column("QUANT", align_body: :right) { |model| model.details&.quantization_level || 'n/a' }
+    t.add_column("UNTIL") { |model| format_expiry(model.expires_at) }
+  end
+  puts table.pack
+end
+
+ps
