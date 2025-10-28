@@ -21,7 +21,7 @@ doc  = Nokogiri::HTML(body)
 # They are never permitted to change the structure of this HTML…
 css        = 'section div div .group.px-4.py-3'
 tags = (doc / css).map do |element|
-  tagged_name             = (element / 'a div div div span').text
+  tagged_name             = (element / 'a div div div span').first&.text
   file_size, context_size = (element / 'p').map(&:text)
   hash                    = (element / 'a .text-neutral-500 span .font-mono').text
   [ tagged_name, file_size, context_size, hash ]
@@ -29,6 +29,7 @@ end.group_by(&:last)
 
 puts bold('Model: ') + hyperlink(tags_url) { model }
 tags.each do |hash, tagged_blobs|
+  hash = hash.strip
   print bold(hash)
   first_blob = true
   tagged_blobs.each do |(tag, _), file_size, context_size|
