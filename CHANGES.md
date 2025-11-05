@@ -1,5 +1,56 @@
 # Changes
 
+## 2025-11-05 v1.11.0
+
+- Replaced `tabulo` gem with `terminal-table` **version 3.0** for table
+  rendering
+    - Updated `Rakefile` and `ollama-ruby.gemspec` to reflect new
+      `terminal-table` dependency
+    - Migrated table rendering logic from `Tabulo::Table` to `Terminal::Table`
+    - Added early return handling for empty model list case
+- Updated YARD documentation guidelines for attribute accessors
+    - Changed meta key from `guidelins` to `guidelines`
+    - Added specific guidelines for documenting `attr_accessor`, `attr_reader`,
+      and `attr_writer` using `@attr`, `@attr_reader`, and `@attr_writer` tags
+    - Replaced `@return` tags with `@attr`, `@attr_reader`, and `@attr_writer`
+      for attribute accessors
+    - Maintained existing YARD documentation practices
+
+## 2025-10-28 v1.10.1
+
+- Added new `ollama_ps` executable to the gem
+- Added `bin/ollama_ps` to `s.files` list
+- Added `lib/ollama/commands/ps.rb` to `s.extra_rdoc_files` list
+- Added `ollama_ps` to `s.executables` list in Rakefile
+- Maintained compatibility with existing executables
+
+## 2025-10-28 v1.10.0
+
+- Enhanced `ollama_console` script with detailed documentation including
+  environment variables `OLLAMA_URL` and `OLLAMA_HOST`, client initialization,
+  and IRB session usage
+- Added documentation comments to `ollama_browse` script explaining its purpose
+  of fetching and displaying model tag information with file sizes, context
+  sizes, and hash information
+- Improved documentation for `ollama_cli` script with feature list covering
+  chat sessions, prompt templating, streaming modes, and detailed environment
+  variable descriptions including default values and `DEBUG` variable
+  explanation
+- Updated `ollama_update` script with comprehensive header documentation
+  describing its purpose of updating all Ollama models to latest versions
+- Added `nokogiri` dependency with version **1.0** to both `Rakefile` and
+  `ollama-ruby.gemspec`
+- Introduced new `ollama_ps` utility script that displays running Ollama models
+  with enhanced information including parameter size, quantization level,
+  CPU/GPU allocation, and support for `OLLAMA_URL` or `OLLAMA_HOST` environment
+  variables
+- Added `tabulo` **3.0** as runtime dependency to `ollama-ruby.gemspec` and
+  included `bin/ollama_ps` and `lib/ollama/commands/ps.rb` in `s.files` array
+- Implemented safe text extraction using `&.text` when processing HTML elements
+  and added `hash.strip` for cleaning hash values before printing
+- Updated `Rakefile` to include `tabulo` gem as dependency for the new
+  `ollama_ps` script functionality
+
 ## 2025-10-20 v1.9.0
 
 - Added `dimensions` parameter to `Ollama::Commands::Embed#initialize`
