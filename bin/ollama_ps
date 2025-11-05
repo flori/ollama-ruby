@@ -33,7 +33,7 @@
 
 require 'ollama'
 include Ollama
-require 'tabulo'
+require 'terminal-table'
 
 # The base_url method returns the Ollama API base URL.
 #
@@ -110,18 +110,31 @@ def ps
   ollama = Client.new(base_url:)
   result = ollama.ps
   models = result.models
+  models.empty? and return
 
-  table = Tabulo::Table.new(models, border: :modern) do |t|
-    t.add_column("NAME", &:name)
-    t.add_column("ID") { |model| model.digest[0, 12] }
-    t.add_column("SIZE", align_body: :right) { |model| format_bytes(model.size) }
-    t.add_column("PROCESSOR") { |model| format_processor(model.size_vram, model.size) }
-    t.add_column("CONTEXT") { |model| format_bytes(model.context_length) }
-    t.add_column("PARAMS", align_body: :right) { |model| model.details&.parameter_size || 'n/a' }
-    t.add_column("QUANT", align_body: :right) { |model| model.details&.quantization_level || 'n/a' }
-    t.add_column("UNTIL") { |model| format_expiry(model.expires_at) }
+  table = Terminal::Table.new
+  table.style = {
+    all_separators: true,
+    border:         :unicode_round,
+  }
+  headings = %w[ NAME ID SIZE PROCESSOR CONTEXT PARAMS QUANT UNTIL ]
+  table.headings = headings
+  models.each do |model|
+    table << [
+      model.name,
+      model.digest[0, 12],
+      format_bytes(model.size),
+      format_processor(model.size_vram, model.size),
+      format_bytes(model.context_length),
+      model.details&.parameter_size || 'n/a',
+      model.details&.quantization_level || 'n/a',
+      format_expiry(model.expires_at),
+    ]
   end
-  puts table.pack
+  table.align_column(headings.index("SIZE"), :right)
+  table.align_column(headings.index("PARAMS"), :right)
+  table.align_column(headings.index("QUANT"), :right)
+  puts table
 end
 
 ps
