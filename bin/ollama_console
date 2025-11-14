@@ -32,17 +32,52 @@ def base_url
   ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
 end
 
+# The client_config method retrieves and merges client configuration settings.
+#
+# This method fetches the base URL from the instance variable and combines it
+# with configuration data parsed from the OLLAMA_CLIENT environment variable.
+# If the environment variable is not set, it defaults to an empty JSON object.
+#
+# @return [ Hash ] a hash containing the merged configuration settings
+def client_config
+  Client::Config[ { base_url: } | JSON(ENV.fetch('OLLAMA_CLIENT', '{}')) ]
+end
+
 # The ollama method provides access to a configured Ollama client instance.
 #
 # This method initializes and returns a singleton instance of the Ollama client,
 # using the base URL specified in the base_url parameter. If an instance already
 # exists, it returns the cached version instead of creating a new one.
 #
-# @param base_url [ String ] the base URL for the Ollama API endpoint
 # @return [ Ollama::Client ] a configured Ollama client instance
 def ollama
-  $ollama ||= Client.new(base_url:)
+  $ollama ||= Client.configure_with(client_config)
 end
+
+# The model method retrieves the Ollama model name from the environment
+#
+# This method returns the name of the Ollama model to be used for API requests,
+# falling back to a default value of 'llama3.1' if the OLLAMA_MODEL environment
+# variable is not set.
+#
+# @return [ String ] the name of the Ollama model to use, either from the
+#         OLLAMA_MODEL environment variable or the default 'llama3.1'
+def model
+  ENV.fetch('OLLAMA_MODEL', 'llama3.1')
+end
+
+# The options method retrieves and parses model options from the environment.
+#
+# This method fetches the OLLAMA_MODEL_OPTIONS environment variable, parses it
+# as JSON, and converts it into an Ollama::Options object for use with model
+# commands.
+#
+# @return [ Ollama::Options ] an options object initialized with values from
+#   the environment
+def options
+  Ollama::Options.from_hash(JSON(ENV.fetch('OLLAMA_MODEL_OPTIONS', '{}')))
+end
+
 IRB.setup nil
 IRB.conf[:MAIN_CONTEXT] = IRB::Irb.new.context
 IRB.conf[:HISTORY_FILE] = File.join(ENV.fetch('HOME'), '.ollama_console-history')
