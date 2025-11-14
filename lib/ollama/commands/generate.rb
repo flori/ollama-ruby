@@ -42,7 +42,8 @@ class Ollama::Commands::Generate
   # @param stream [ Boolean, nil ] whether to stream responses (default: false)
   # @param raw [ Boolean, nil ] whether to return raw output without formatting
   # @param keep_alive [ String, nil ] duration to keep the model loaded in memory
-  # @param think [ Boolean, nil ] whether to enable thinking mode for generation
+  # @param think [ Boolean, String, nil ] whether to enable thinking mode for
+  #   generation. Can be "high", "medium", "low" instead of true
   def initialize(model:, prompt:, suffix: nil, images: nil, format: nil, options: nil, system: nil, template: nil, context: nil, stream: nil, raw: nil, keep_alive: nil, think: nil)
     @model, @prompt, @suffix, @images, @format, @options, @system, @template, @context, @stream, @raw, @keep_alive, @think =
       model, prompt, suffix, (Array(images) if images), format, options, system, template, context, stream, raw, keep_alive, think
@@ -110,7 +111,7 @@ class Ollama::Commands::Generate
 
   # The think attribute reader returns whether thinking mode is enabled for generation.
   #
-  # @return [ Boolean, nil ] whether to enable thinking mode for generation
+  # @return [ Boolean, String, nil ] whether to enable thinking mode for generation
   attr_reader :think
 
   # The client attribute writer allows setting the client instance associated
@@ -130,7 +131,6 @@ class Ollama::Commands::Generate
   # method for actual HTTP communication.
   #
   # @param handler [ Ollama::Handler ] the handler to process responses from the API
-  # @return [ void ]
   def perform(handler)
     @client.request(method: :post, path: self.class.path, body: to_json, stream:, handler:)
   end

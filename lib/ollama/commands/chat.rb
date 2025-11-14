@@ -39,7 +39,8 @@ class Ollama::Commands::Chat
   # @param options [ Ollama::Options, nil ] configuration parameters for the model
   # @param stream [ TrueClass, FalseClass, nil ] whether to enable streaming for the operation
   # @param keep_alive [ String, nil ] duration to keep the model loaded in memory
-  # @param think [ Boolean, nil ] whether to enable thinking mode for reasoning
+  # @param think [ Boolean, String, nil ] whether to enable thinking mode for
+  #   generation. Can be "high", "medium", "low" instead of true
   def initialize(model:, messages:, tools: nil, format: nil, options: nil, stream: nil, keep_alive: nil, think: nil)
     @model, @messages, @tools, @format, @options, @stream, @keep_alive, @think =
       model, as_array_of_hashes(messages), as_array_of_hashes(tools),
@@ -85,7 +86,7 @@ class Ollama::Commands::Chat
 
   # The think attribute reader returns the thinking mode setting associated with the object.
   #
-  # @return [ Boolean, nil ] whether thinking mode is enabled for reasoning
+  # @return [ Boolean, String, nil ] whether thinking mode is enabled for reasoning
   attr_reader :think
 
   # The client attribute writer allows setting the client instance associated
@@ -97,7 +98,6 @@ class Ollama::Commands::Chat
   #
   # @attr_writer [ Ollama::Client ] the assigned client instance
   attr_writer :client
-
 
   # The perform method executes a command request using the specified handler.
   #
