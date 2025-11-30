@@ -28,6 +28,7 @@ include Ollama
 require 'tins'
 include Tins::GO
 require 'tins/xt/secure_write'
+require 'tins/xt/full'
 require 'json'
 require 'tmpdir'
 
@@ -124,13 +125,14 @@ def usage
       -S             use streaming for generation
       -T             use thinking for generation
       -d             enable debug mode
+      -i             display ollama server version information
       -h             this help
 
   EOT
   exit 0
 end
 
-opts = go 'u:m:M:s:p:P:H:c:STdh', defaults: { ?H => 'ChatStart' }
+opts = go 'u:m:M:s:p:P:H:c:STdih', defaults: { ?H => 'ChatStart' }
 
 opts[?h] and usage
 
@@ -139,14 +141,23 @@ client_config = Client::Config[
   { base_url:, debug: !!opts[?d] } |
   JSON(get_file_argument(opts[?c], default: ENV['OLLAMA_CLIENT']).full? || '{}')
 ]
-model    = opts[?m] || ENV.fetch('OLLAMA_MODEL', 'llama3.1')
-options  = Ollama::Options.from_hash(JSON(
-  get_file_argument(opts[?M], default: ENV['OLLAMA_MODEL_OPTIONS'])
-))
-system   = get_file_argument(opts[?s], default: ENV['OLLAMA_SYSTEM'])
-prompt   = get_file_argument(opts[?p], default: ENV['OLLAMA_PROMPT'])
+model         = (opts[?m] || ENV['OLLAMA_MODEL']).full? || 'llama3.1'
+model_options = JSON(get_file_argument(opts[?M], default: ENV['OLLAMA_MODEL_OPTIONS']))
+options = if model_options.is_a?(Hash)
+            Ollama::Options.from_hash(model_options)
+          else
+            Ollama::Options.new
+          end
+system = get_file_argument(opts[?s], default: ENV['OLLAMA_SYSTEM'])
+prompt = get_file_argument(opts[?p], default: ENV['OLLAMA_PROMPT'])
 
-if prompt.nil?
+ollama = Client.configure_with(client_config)
+
+case
+when opts[?i]
+  puts ollama.version.version
+  exit
+when prompt.nil?
   prompt = STDIN.read
 else
   vars = prompt.named_placeholders
@@ -184,7 +195,7 @@ handler = case
             handler
           end
 
-Client.configure_with(client_config).generate(
+ollama.generate(
   model:,
   system:,
   prompt:,
