@@ -1,5 +1,16 @@
 # Changes
 
+## 2025-11-30 v1.12.0
+
+- `ollama_cli`
+    - Added `-i` flag to display Ollama server version using `ollama.version.version`
+    - Refactored model options handling to use `Ollama::Options.from_hash` or `Ollama::Options.new`
+    - Stored client configuration in `ollama` variable for reuse
+    - Added `-d` flag for debug mode in `ollama_cli` instead of using environment variable
+- Included `Ollama::DTO` in `Client::Config` class for consistent behavior
+- Improved documentation formatting in `dto.rb` file
+- Added documentation that `think` can be "high", "medium", "low" instead of just `true`
+
 ## 2025-11-05 v1.11.0
 
 - Replaced `tabulo` gem with `terminal-table` **version 3.0** for table
