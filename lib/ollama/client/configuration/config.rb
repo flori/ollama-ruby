@@ -17,8 +17,6 @@ require 'ollama/json_loader'
 #   config = Ollama::Client::Config.load_from_json('path/to/config.json')
 #   client = Ollama::Client.configure_with(config)
 module Ollama::Client::Configuration
-
-
   # A class that encapsulates configuration settings for Ollama clients.
   #
   # This class provides a structured way to define and manage various
@@ -37,6 +35,7 @@ module Ollama::Client::Configuration
   # @example Loading configuration from a JSON file
   #   config = Ollama::Client::Config.load_from_json('path/to/config.json')
   class Config
+    include Ollama::DTO
     extend Ollama::JSONLoader
 
     # The initialize method sets up a new configuration instance with the

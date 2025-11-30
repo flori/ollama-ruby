@@ -47,8 +47,19 @@ module Ollama::DTO
     # attributes set.
     #
     # @param names [ Array<Symbol> ] one or more attribute names to be declared
-    # as readable and registered
+    #   as readable and registered
     def attr_reader(*names)
+      super
+      attributes.merge(names.map(&:to_sym))
+    end
+
+    # The attr_accessor method extends the functionality of the standard
+    # attr_accessor by also registering the declared attributes in the class's
+    # attributes set.
+    #
+    # @param names [ Array<Symbol> ] one or more attribute names to be declared
+    #   as readable and registered
+    def attr_accessor(*names)
       super
       attributes.merge(names.map(&:to_sym))
     end
@@ -63,7 +74,7 @@ module Ollama::DTO
   # @param obj [ Object ] the object to be converted
   #
   # @return [ Array<Hash>, nil ] an array of hashes if the conversion was
-  # possible, or nil otherwise
+  #   possible, or nil otherwise
   def as_array_of_hashes(obj)
     if obj.respond_to?(:to_hash)
       [ obj.to_hash ]
@@ -80,7 +91,7 @@ module Ollama::DTO
   # @param obj [ Object ] the object to be converted to a hash
   #
   # @return [ Hash, nil ] the hash representation of the object or nil if the
-  # object does not respond to to_hash
+  #   object does not respond to to_hash
   def as_hash(obj)
     obj&.to_hash
   end
@@ -94,7 +105,7 @@ module Ollama::DTO
   # @param obj [ Object ] the object to be converted to an array
   #
   # @return [ Array, nil ] an array containing the object or its elements, or
-  # nil if the input is nil
+  #   nil if the input is nil
   def as_array(obj)
     if obj.nil?
       obj
@@ -126,7 +137,7 @@ module Ollama::DTO
   # @param other [ Object ] the object to compare against
   #
   # @return [ TrueClass, FalseClass ] true if both objects have identical JSON
-  # representations, false otherwise
+  #   representations, false otherwise
   def ==(other)
     as_json == other.as_json
   end
@@ -140,7 +151,7 @@ module Ollama::DTO
   # if an object, such as a DTO, has been initialized with any values.
   #
   # @return [ TrueClass, FalseClass ] true if the object has no attributes,
-  # false otherwise
+  #   false otherwise
   def empty?
     to_hash.empty?
   end

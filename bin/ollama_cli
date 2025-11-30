@@ -22,7 +22,6 @@
 #   - OLLAMA_MODEL_OPTIONS: JSON model options
 #   - OLLAMA_SYSTEM: Default system prompt
 #   - OLLAMA_PROMPT: Default user prompt
-#   - DEBUG: Set to 1 for verbose output
 
 require 'ollama'
 include Ollama
@@ -124,19 +123,20 @@ def usage
       -H HANDLER     the handler to use for the response, defaults to ChatStart
       -S             use streaming for generation
       -T             use thinking for generation
+      -d             enable debug mode
       -h             this help
 
   EOT
   exit 0
 end
 
-opts = go 'u:m:M:s:p:P:H:c:STh', defaults: { ?H => 'ChatStart' }
+opts = go 'u:m:M:s:p:P:H:c:STdh', defaults: { ?H => 'ChatStart' }
 
 opts[?h] and usage
 
 base_url  = opts[?u] || ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
 client_config = Client::Config[
-  { base_url: } |
+  { base_url:, debug: !!opts[?d] } |
   JSON(get_file_argument(opts[?c], default: ENV['OLLAMA_CLIENT']).full? || '{}')
 ]
 model    = opts[?m] || ENV.fetch('OLLAMA_MODEL', 'llama3.1')
@@ -163,13 +163,14 @@ else
   prompt = prompt.named_placeholders_interpolate(values, default:)
 end
 
-if ENV['DEBUG'].to_i == 1
+if opts[?d]
   puts <<~EOT
-    base_url = #{base_url.inspect}
-    model    = #{model.inspect}
-    system   = #{system.inspect}
-    prompt   = #{prompt.inspect}
-    options  = #{options.to_json}
+    base_url      = #{base_url.inspect}
+    model         = #{model.inspect}
+    system        = #{system.inspect}
+    prompt        = #{prompt.inspect}
+    options       = #{options.to_json}
+    client_config = #{client_config.to_json}
   EOT
 end
 
