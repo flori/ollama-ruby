@@ -29,4 +29,8 @@ describe Ollama::Image do
   it 'tracks path of file' do
     expect(image.path).to eq asset('kitten.jpg')
   end
+
+  it 'can be converted into JSON as a quoted base64 string' do
+    expect(image.to_json).to eq '"%s"' % image.to_s
+  end
 end

@@ -106,4 +106,14 @@ class Ollama::Image
   def to_s
     @data
   end
+
+  # Returns the base64-encoded string representation of the image data.
+  # When this object is serialized to JSON, it will produce a quoted base64
+  # string as required by the Ollama API.
+  #
+  # @param _args [Array] ignored arguments (for compatibility with JSON serialization)
+  # @return [String] the base64-encoded image data
+  def as_json(*_args)
+    to_s
+  end
 end
