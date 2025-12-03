@@ -1,5 +1,14 @@
 # Changes
 
+## 2025-12-03 v1.14.0
+
+- Added `as_json` method to `Ollama::Image` class that returns base64 string
+  for Ollama API compatibility
+- Added test case verifying `image.to_json` produces quoted base64 string
+- Method signature uses `*_args` to accept ignored parameters for JSON
+  compatibility
+- Documented method behavior for JSON serialization compatibility
+
 ## 2025-12-03 v1.13.0
 
 - Updated `Ollama::Image#for_string` method to use `Base64.strict_encode64` for
