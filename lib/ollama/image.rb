@@ -59,7 +59,7 @@ class Ollama::Image
     # @return [ Ollama::Image ] a new Image instance initialized with the
     # encoded string data and optional path
     def for_string(string, path: nil)
-      for_base64(Base64.encode64(string), path:)
+      for_base64(Base64.strict_encode64(string), path:)
     end
 
     # Creates a new Image object from an IO object by reading its contents and

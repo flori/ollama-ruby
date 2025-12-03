@@ -21,8 +21,8 @@ describe Ollama::Image do
   end
 
   it 'can be converted to base64 string' do
-    expect(image.to_s.size).to eq 134400
-    expect(image.to_s.sum).to eq 42460
+    expect(image.to_s.size).to eq 132196
+    expect(image.to_s.sum).to eq 20420
     expect(image.to_s[0, 40]).to eq '/9j/4AAQSkZJRgABAQAASABIAAD/4QBYRXhpZgAA'
   end
 

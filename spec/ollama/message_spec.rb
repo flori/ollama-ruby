@@ -26,7 +26,7 @@ describe Ollama::Message do
       images: [ image ],
     )
     expect(message.to_json).to eq(
-      '{"role":"user","content":"hello world","thinking":"which world?","images":["dGVzdA==\n"]}'
+      '{"role":"user","content":"hello world","thinking":"which world?","images":["dGVzdA=="]}'
     )
   end
 
