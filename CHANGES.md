@@ -1,5 +1,15 @@
 # Changes
 
+## 2025-12-03 v1.13.0
+
+- Updated `Ollama::Image#for_string` method to use `Base64.strict_encode64` for
+  image encoding
+- Modified test expectations in `image_spec.rb` with new size **132196** and
+  checksum **20420**
+- Updated `message_spec.rb` JSON payload to remove trailing newline from image
+  data
+- Enhanced base64 encoding strictness for image handling in Ollama library
+
 ## 2025-11-30 v1.12.0
 
 - `ollama_cli`
