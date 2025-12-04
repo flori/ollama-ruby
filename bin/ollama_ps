@@ -34,6 +34,8 @@
 require 'ollama'
 include Ollama
 require 'terminal-table'
+require 'tins'
+include Tins::GO
 
 # The base_url method returns the Ollama API base URL.
 #
@@ -97,44 +99,86 @@ def format_processor(size_vram, size_total)
   end
 end
 
-# The ps method retrieves and displays information about running models in a
-# formatted table.
+# The fetch_ps_models method retrieves information about running models from an
+# Ollama server.
 #
-# This method creates a new Ollama client instance, fetches the list of running
-# models, and presents the information in a structured table format showing
-# model details such as name, ID, size, processor information, context length,
-# parameters, quantization level, and expiration time.
+# This method creates a new Ollama client instance using the provided base URL,
+# executes a ps command to fetch details about currently running models, and
+# returns the array of model information if any models are running.
 #
-# @param base_url [ String, nil ] the base URL of the Ollama API endpoint, defaults to nil
-def ps
+# @return [ Array<Hash>, nil ] an array of model information hashes if models
+#   are running, or nil if no models are currently running
+def fetch_ps_models
   ollama = Client.new(base_url:)
   result = ollama.ps
   models = result.models
   models.empty? and return
+  models
+end
 
+# The interpret_models method processes an array of model objects into a
+# standardized hash format.
+#
+# This method transforms model data into a consistent structure with specific
+# keys including name, id, size, processor, context, params, quant, and until.
+#
+# @param models [ Array ] an array of model objects to be processed
+#
+# @return [ Array<Hash> ] an array of hashes containing standardized model information
+def interpret_models(models)
+  names = %w[ name id size processor context params quant until ]
+  models.map do |model|
+    hash = {}
+    names.zip(
+      [
+        model.name,
+        model.digest[0, 12],
+        format_bytes(model.size),
+        format_processor(model.size_vram, model.size),
+        format_bytes(model.context_length),
+        model.details&.parameter_size || 'n/a',
+        model.details&.quantization_level || 'n/a',
+        format_expiry(model.expires_at),
+      ]
+    ) do |n, v|
+      hash[n] = v
+    end
+    hash
+  end
+end
+
+# The ps_table method displays a formatted table of model information.
+#
+# This method takes an array of model hashes and presents them in a formatted
+# table with aligned columns, using Unicode box-drawing characters for borders.
+# It formats the size, parameters, and quantization columns to be right-aligned
+# for better readability.
+#
+# @param models [ Array<Hash> ] an array of hashes containing model information
+def ps_table(models)
   table = Terminal::Table.new
   table.style = {
     all_separators: true,
     border:         :unicode_round,
   }
-  headings = %w[ NAME ID SIZE PROCESSOR CONTEXT PARAMS QUANT UNTIL ]
+  headings = models.first.keys.map(&:upcase)
   table.headings = headings
-  models.each do |model|
-    table << [
-      model.name,
-      model.digest[0, 12],
-      format_bytes(model.size),
-      format_processor(model.size_vram, model.size),
-      format_bytes(model.context_length),
-      model.details&.parameter_size || 'n/a',
-      model.details&.quantization_level || 'n/a',
-      format_expiry(model.expires_at),
-    ]
-  end
+  models.each { |model| table << model.values }
   table.align_column(headings.index("SIZE"), :right)
   table.align_column(headings.index("PARAMS"), :right)
   table.align_column(headings.index("QUANT"), :right)
   puts table
 end
 
-ps
+opts = go 'f:'
+
+models = fetch_ps_models or exit
+
+case opts[?f]
+when 'json'
+  puts JSON.pretty_generate(interpret_models(models))
+when 'yaml'
+  YAML.dump(interpret_models(models), STDOUT)
+else
+  ps_table(interpret_models(models))
+end
