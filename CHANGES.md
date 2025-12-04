@@ -1,5 +1,24 @@
 # Changes
 
+## 2025-12-04 v1.15.0
+
+- Added documentation for `ollama_ps` executable utility in README
+- Implemented `usage` method in `ollama_ps` script with `-h` flag support
+- Enhanced `ollama_ps` script with improved CLI using `Tins::GO`
+- Added support for `-f json` and `-f yaml` output formats in `ollama_ps`
+- Refactored `ollama_ps` into `fetch_ps_models`, `interpret_models`, and
+  `ps_table` functions
+- Implemented dynamic table headings and safe navigation (`&.`) for optional
+  model fields
+- Added `-I IMAGE` flag to `ollama_cli` for sending images to visual models
+- Enabled multiple image file support with repeated `-I` flag usage
+- Integrated image handling with `Ollama::Image` infrastructure
+- Added debug mode (-d) and version info (-i) options to `ollama_cli`
+  documentation
+- Updated README.md with image support documentation and usage examples
+- Updated command-line usage help text to document new `-I` option
+- Maintained backward compatibility with existing `ollama_cli` functionality
+
 ## 2025-12-03 v1.14.0
 
 - Added `as_json` method to `Ollama::Image` class that returns base64 string
