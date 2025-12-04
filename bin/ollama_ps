@@ -37,6 +37,24 @@ require 'terminal-table'
 require 'tins'
 include Tins::GO
 
+# The usage method displays the command-line usage information for the
+# application.
+#
+# This method prints a formatted help message to the standard output, showing
+# the available command-line options and their descriptions, and then exits the
+# program. It is typically called when the user requests help or when invalid
+# arguments are provided.
+def usage
+  puts <<~EOT
+    Usage: #{File.basename($0)} [OPTIONS]
+
+      -f FORMAT      output format: json, yaml, or table (default)
+      -h             this help
+
+  EOT
+  exit 0
+end
+
 # The base_url method returns the Ollama API base URL.
 #
 # It first checks for the OLLAMA_URL environment variable.
@@ -170,7 +188,9 @@ def ps_table(models)
   puts table
 end
 
-opts = go 'f:'
+opts = go 'f:h'
+
+opts[?h] and usage
 
 models = fetch_ps_models or exit
 
