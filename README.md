@@ -483,7 +483,76 @@ This output shows:
 **Note:** Tags are grouped by their corresponding digests, allowing users to
 easily identify equivalent versions of a model.
 
-### ollama\_chat
+### `ollama_ps`
+
+The `ollama_ps` executable is a utility script that displays information about
+running Ollama models in a formatted table. It queries the Ollama API's
+`/api/ps` endpoint and presents running models with detailed information
+including:
+
+* Model name and ID
+* Memory usage (size and processor allocation)
+* Context window length
+* Parameter count and quantization level
+* Time until expiration
+
+#### Usage
+
+```bash
+Usage: ollama_ps [OPTIONS]
+
+  -f FORMAT      output format: json, yaml, or table (default)
+  -h             this help
+```
+
+#### Environment Variables
+
+The following environment variables can be set to customize the behavior of `ollama_ps`:
+
+* `OLLAMA_URL`: The Ollama base URL.
+* `OLLAMA_HOST`: The Ollama host (used if `OLLAMA_URL` is not set).
+
+#### Output
+
+The script displays a formatted table with columns:
+
+* **NAME** - Model name
+* **ID** - Truncated model digest
+* **SIZE** - Human-readable model size
+* **PROCESSOR** - CPU/GPU allocation percentage
+* **CONTEXT** - Context window size
+* **PARAMS** - Parameter count (e.g., 30.5B, 23M)
+* **QUANT** - Quantization level (e.g., Q4_K_M, F16)
+* **UNTIL** - Time until model expiration
+
+Example output:
+```
+╭────────────────────┬──────────────┬──────────┬───────────┬───────────┬────────┬────────┬────────────╮
+│ NAME               │ ID           │ SIZE     │ PROCESSOR │ CONTEXT   │ PARAMS │ QUANT  │ UNTIL      │
+╞════════════════════╪══════════════╪══════════╪═══════════╪═══════════╪════════╪════════╪════════════╡
+│ qwen3-coder:latest │ 06c1097efce0 │ 28.08 GB │ 100% GPU  │ 195.31 KB │  30.5B │ Q4_K_M │ 0+23:38:37 │
+├────────────────────┼──────────────┼──────────┼───────────┼───────────┼────────┼────────┼────────────┤
+│ all-minilm:latest  │ 1b226e2802db │ 43.28 MB │ 100% GPU  │ 256.00 B  │    23M │    F16 │ 0+23:38:31 │
+╰────────────────────┴──────────────┴──────────┴───────────┴───────────┴────────┴────────┴────────────╯
+```
+
+The script supports different output formats:
+* **table** (default): Formatted table output (when no `-f` flag is provided)
+* **json**: JSON formatted output
+* **yaml**: YAML formatted output
+
+Example usage:
+```bash
+ollama_ps -f json
+ollama_ps -f yaml
+OLLAMA_URL=http://localhost:11434 ollama_ps
+```
+
+The `ollama_ps` utility is particularly useful for monitoring running models,
+checking resource usage, and managing model lifecycles in development and
+production environments.
+
+### `ollama_chat`
 
 This is a chat client that allows you to connect to an Ollama server and engage
 in conversations with Large Language Models (LLMs). It can be installed using
@@ -492,6 +561,7 @@ the following command:
 ```bash
 gem install ollama-chat
 ```
+- Set default format to **table** when no `-f` flag is provided
 
 Once installed, you can run `ollama_chat` from your terminal or command prompt.
 This will launch a chat interface where you can interact with an LLM.
