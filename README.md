@@ -365,8 +365,11 @@ Usage: ollama_cli [OPTIONS]
                  if it contains %{stdin} it is substituted by stdin input
   -P VARIABLE    sets prompt var %{foo} to "bar" if VARIABLE is foo=bar
   -H HANDLER     the handler to use for the response, defaults to ChatStart
+  -I IMAGE       image is sent to the (visual) model (can be used many times)
   -S             use streaming for generation
   -T             use thinking for generation
+  -d             enable debug mode
+  -i             display ollama server version information
   -h             this help
 
 ```
@@ -385,8 +388,8 @@ The following environment variables can be set to customize the behavior of
 
 #### Debug Mode
 
-If the `DEBUG` environment variable is set to `1`, `ollama_cli` will print out
-the values of various variables, including the base URL, model, system prompt,
+If the `ollama_cli` is given the `-d` option it will print out the values of
+various variables, including the base URL, model, system prompt,
 and options. This can be useful for debugging purposes.
 
 #### Handler Options
@@ -405,6 +408,26 @@ handlers are:
 The `-S` option enables streaming for generation. This allows the model to
 generate text in chunks, rather than waiting for the entire response to be
 generated.
+
+#### Image Support
+
+The `ollama_cli` tool supports sending images to visual models. This enables
+multimodal interactions where you can provide visual context to language
+models.
+
+**Basic Usage:**
+```bash
+ollama_cli -m llava -I image.jpg -p "Describe what you see in this image"
+```
+
+**Multiple Images:**
+```bash
+ollama_cli -m qwen3-vl -I image1.jpg -I image2.png -p "Compare these images"
+```
+
+This feature works with visual language models such as `llava`, `llava-llama3`,
+and `bakllava`. The image support integrates seamlessly with existing
+functionality and follows the same patterns as other features in the library.
 
 ### `ollama_browse`
 

@@ -122,6 +122,7 @@ def usage
                      if it contains %{stdin} it is substituted by stdin input
       -P VARIABLE    sets prompt var %{foo} to "bar" if VARIABLE is foo=bar
       -H HANDLER     the handler to use for the response, defaults to ChatStart
+      -I IMAGE       image is sent to the (visual) model (can be used many times)
       -S             use streaming for generation
       -T             use thinking for generation
       -d             enable debug mode
@@ -132,7 +133,7 @@ def usage
   exit 0
 end
 
-opts = go 'u:m:M:s:p:P:H:c:STdih', defaults: { ?H => 'ChatStart' }
+opts = go 'u:m:M:s:p:P:H:c:I:STdih', defaults: { ?H => 'ChatStart' }
 
 opts[?h] and usage
 
@@ -150,6 +151,7 @@ options = if model_options.is_a?(Hash)
           end
 system = get_file_argument(opts[?s], default: ENV['OLLAMA_SYSTEM'])
 prompt = get_file_argument(opts[?p], default: ENV['OLLAMA_PROMPT'])
+images = opts[?I].to_a.map { Ollama::Image.for_filename(_1) }
 
 ollama = Client.configure_with(client_config)
 
@@ -200,6 +202,7 @@ ollama.generate(
   system:,
   prompt:,
   options:,
+  images: images,
   stream: !!opts[?S],
   think: !!opts[?T],
   &handler
