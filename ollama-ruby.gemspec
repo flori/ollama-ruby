@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
-# stub: ollama-ruby 1.14.0 ruby lib
+# stub: ollama-ruby 1.15.0 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "ollama-ruby".freeze
-  s.version = "1.14.0".freeze
+  s.version = "1.15.0".freeze
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
