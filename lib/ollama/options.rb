@@ -15,41 +15,102 @@ require 'ollama/json_loader'
 #     top_p: 0.9
 #   )
 #
-# [Options are explained in the parameters for the modelfile.](https://github.com/ollama/ollama/blob/main/docs/modelfile.md#parameter)
+# [Options are explained in the parameters for the modelfile.](https://github.com/ollama/ollama/blob/main/docs/modelfile.mdx)
 class Ollama::Options
   include Ollama::DTO
   extend Ollama::JSONLoader
 
+  # Hash defining the valid types for each configuration parameter
+  # This is used for type validation in the setter methods
   @@types = {
+    # NUMA (Non-Uniform Memory Access) support - enables NUMA awareness
     numa:              [ false, true ],
+
+    # Context window size - maximum context length for the model
     num_ctx:           Integer,
+
+    # Batch size for processing - number of tokens to process together
     num_batch:         Integer,
+
+    # Number of GPUs to use - specifies how many GPU devices to utilize
     num_gpu:           Integer,
+
+    # Main GPU index - specifies which GPU to use as the primary device
     main_gpu:          Integer,
+
+    # Low VRAM mode - reduces memory usage at the cost of performance
     low_vram:          [ false, true ],
+
+    # Use FP16 for KV cache - enables half-precision floating point for key-value cache
     f16_kv:            [ false, true ],
+
+    # Output all logits - includes all token logits in the output (for debugging)
     logits_all:        [ false, true ],
+
+    # Vocabulary only mode - only loads vocabulary without weights
     vocab_only:        [ false, true ],
+
+    # Use memory mapping - enables memory mapping for model loading
     use_mmap:          [ false, true ],
+
+    # Use memory locking - locks model in memory to prevent swapping
     use_mlock:         [ false, true ],
+
+    # Number of threads to use - specifies CPU thread count for computation
     num_thread:        Integer,
+
+    # Number of tokens to keep - keeps the first N tokens from the context
     num_keep:          Integer,
+
+    # Random seed for reproducible results - sets the random seed for generation
     seed:              Integer,
+
+    # Maximum number of tokens to predict - limits generation length
     num_predict:       Integer,
+
+    # Top-K sampling - limits sampling to top K tokens
     top_k:             Integer,
+
+    # Top-P (nucleus) sampling - limits sampling to tokens that sum to P probability
     top_p:             Float,
+
+    # Minimum probability for token sampling - sets minimum token probability threshold
     min_p:             Float,
+
+    # Tail Free Sampling - controls the tail free sampling parameter
     tfs_z:             Float,
+
+    # Typical P sampling - controls the typical P sampling parameter
     typical_p:         Float,
+
+    # Repeat last N tokens - prevents repetition of last N tokens
     repeat_last_n:     Integer,
+
+    # Temperature - controls randomness in generation (0.0 = deterministic, 1.0 = default)
     temperature:       Float,
+
+    # Repeat penalty - penalizes repeated tokens (higher values = more diversity)
     repeat_penalty:    Float,
+
+    # Presence penalty - penalizes tokens that appear in the context
     presence_penalty:  Float,
+
+    # Frequency penalty - penalizes tokens based on their frequency in the context
     frequency_penalty: Float,
+
+    # Mirostat sampling - controls the Mirostat sampling algorithm (0 = disabled)
     mirostat:          Integer,
+
+    # Mirostat tau parameter - controls the target entropy for Mirostat
     mirostat_tau:      Float,
+
+    # Mirostat eta parameter - controls the learning rate for Mirostat
     mirostat_eta:      Float,
+
+    # Penalize newline tokens - whether to penalize newline tokens
     penalize_newline:  [ false, true ],
+
+    # Stop sequences - array of strings that will stop generation
     stop:              Array,
   }
 
