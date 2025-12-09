@@ -1,5 +1,17 @@
 # Changes
 
+## 2025-12-09 v1.16.0
+
+- Added support for handling HTTP 400 Bad Request errors
+- Introduced new error class `Ollama::Errors::BadRequestError` for 400 status
+  codes
+- Updated `Ollama::Client#request` method to raise `BadRequestError` for 400
+  responses
+- Added test case in `spec/ollama/client_spec.rb` to verify 400 status code
+  handling
+- Documented the new error class with example usage for think mode errors
+- Maintained existing error handling for 404 and other status codes
+
 ## 2025-12-04 v1.15.0
 
 - Added documentation for `ollama_ps` executable utility in README
