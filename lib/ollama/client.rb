@@ -173,6 +173,8 @@ class Ollama::Client
           response_line = parse_json(l)
           response_line and yielder.yield response_line
         end
+      when 400
+        raise Ollama::Errors::BadRequestError, "#{response.status} #{response.body.inspect}"
       when 404
         raise Ollama::Errors::NotFoundError, "#{response.status} #{response.body.inspect}"
       else

@@ -71,6 +71,13 @@ describe Ollama::Client do
     }.to raise_error(Ollama::Errors::Error)
   end
 
+  it 'can raise error based on status code 400' do
+    expect(excon).to receive(:send).and_return(double(status: 400, body: '{}'))
+    expect {
+      ollama.generate(model: 'llama3.1', prompt: 'Hello World', think: true)
+    }.to raise_error(Ollama::Errors::BadRequestError)
+  end
+
   it 'can raise error based on status code 404' do
     expect(excon).to receive(:send).and_return(double(status: 404, body: '{}'))
     expect {

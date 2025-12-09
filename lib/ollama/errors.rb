@@ -29,6 +29,22 @@ module Ollama
     class NotFoundError < Error
     end
 
+    # Ollama error class for handling cases where a requested resource is not
+    # found.
+    #
+    # This exception is raised when the Ollama API returns a 400 status code,
+    # indicating that the request was bad, e. g. think mode was requested from
+    # a non-thinking model.
+    #
+    # @example Handling a bad request error
+    #   begin
+    #     ollama.generate(model: 'llama3.1', prompt: 'Hello World', think: true)
+    #   rescue Ollama::Errors::BadRequestError
+    #     puts "Thinking not supported"
+    #   end
+    class BadRequestError < Error
+    end
+
     # Ollama error class for handling timeout errors when communicating with
     # the Ollama API.
     #
