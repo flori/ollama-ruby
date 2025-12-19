@@ -25,7 +25,7 @@ GemHadar do
     'static.yml' => {}
   )
 
-  required_ruby_version  '~> 3.1'
+  required_ruby_version  '>= 3.1'
 
   dependency             'excon',                 '~> 1.0'
   dependency             'infobar',               '~> 0.8'
