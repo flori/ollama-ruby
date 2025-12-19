@@ -1,5 +1,9 @@
 # Changes
 
+## 2025-12-19 v1.18.0
+
+- Updated `gem_hadar` development dependency from version **2.8** to **2.9**
+
 ## 2025-12-19 v1.17.0
 
 - Changed `s.required_ruby_version` in the gemspec from "~> 3.1" to ">= 3.1" to allow usage with **Ruby 3.1** and higher, including **4.0**
