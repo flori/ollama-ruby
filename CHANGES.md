@@ -1,5 +1,20 @@
 # Changes
 
+## 2025-12-19 v1.17.0
+
+- Changed `s.required_ruby_version` in the gemspec from "~> 3.1" to ">= 3.1" to allow usage with **Ruby 3.1** and higher, including **4.0**
+- Updated `s.rubygems_version` from **3.7.2** to **4.0.2**
+- Replaced `bundle update` with `bundle update --all` in the update command
+- Added **4.0-rc** release candidate to the Ruby version matrix (commented out)
+- Enhanced `Ollama::Options` class with detailed inline comments for all
+  configuration parameters including `numa`, `num_ctx`, `num_batch`, `num_gpu`,
+  `main_gpu`, `low_vram`, `f16_kv`, `logits_all`, `vocab_only`, `use_mmap`,
+  `use_mlock`, `num_thread`, `num_keep`, `seed`, `num_predict`, `top_k`,
+  `top_p`, `min_p`, `tfs_z`, `typical_p`, `repeat_last_n`, `temperature`,
+  `repeat_penalty`, `presence_penalty`, `frequency_penalty`, `mirostat`,
+  `mirostat_tau`, `mirostat_eta`, `penalize_newline`, and `stop`
+- Updated documentation link format from `.md` to `.mdx`
+
 ## 2025-12-09 v1.16.0
 
 - Added support for handling HTTP 400 Bad Request errors
