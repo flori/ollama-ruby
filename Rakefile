@@ -21,6 +21,10 @@ GemHadar do
   executables << 'ollama_console' << 'ollama_update' << 'ollama_cli' <<
     'ollama_browse' << 'ollama_ps'
 
+  changelog do
+    filename 'CHANGES.md'
+  end
+
   github_workflows(
     'static.yml' => {}
   )
