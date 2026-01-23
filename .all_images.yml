@@ -13,6 +13,9 @@ fail_fast: true
 before: |-
   rm -vf Gemfile.lock
 
+after: |-
+  rm -vf Gemfile.lock
+
 images:
   ruby:4.0-alpine: *script
   ruby:3.4-alpine: *script
