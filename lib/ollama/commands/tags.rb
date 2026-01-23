@@ -40,7 +40,7 @@ class Ollama::Commands::Tags
   # associated with the object.
   #
   # @return [ TrueClass, FalseClass ] the streaming behavior flag, indicating
-  # whether streaming is enabled for the command execution
+  #   whether streaming is enabled for the command execution
   attr_reader :stream
 
   # The client attribute writer allows setting the client instance associated

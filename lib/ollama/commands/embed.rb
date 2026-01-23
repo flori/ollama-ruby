@@ -99,7 +99,7 @@ class Ollama::Commands::Embed
   # embedding commands do not support streaming.
   #
   # @param handler [ Ollama::Handler ] the handler object responsible for processing API
-  # responses
+  #   responses
   #
   # @return [ self ] returns the current instance after initiating the request
   def perform(handler)

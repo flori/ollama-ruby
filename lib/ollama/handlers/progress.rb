@@ -35,10 +35,10 @@ class Ollama::Handlers::Progress
   # ensures proper formatting of output.
   #
   # @param response [ Ollama::Response ] the response object containing
-  # progress information
+  #   progress information
   #
   # @return [ self ] returns the handler instance itself after processing the
-  # response
+  #   response
   def call(response)
     infobar.display.output = @output
     if status = response.status

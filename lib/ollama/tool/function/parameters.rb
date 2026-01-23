@@ -33,7 +33,7 @@ class Ollama::Tool::Function::Parameters
   # associated with the object.
   #
   # @return [ Array<String>, nil ] an array of required parameter names, or nil
-  # if not set
+  #   if not set
   attr_reader :required
 
   # The initialize method sets up a new Parameters instance with the specified

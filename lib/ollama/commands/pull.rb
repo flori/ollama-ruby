@@ -10,7 +10,7 @@
 # @param stream_handler [ Class, nil ] the handler class to use for streaming responses, if applicable
 #
 # @note Create Command `name`, if `stream` was true, set `stream_handler`
-# as default, otherwise `default_handler`.
+#   as default, otherwise `default_handler`.
 #
 # @return [ self ] returns the receiver after defining the command method
 class Ollama::Commands::Pull
@@ -81,7 +81,7 @@ class Ollama::Commands::Pull
   # non-streaming scenarios based on the command's configuration.
   #
   # @param handler [ Ollama::Handler ] the handler object responsible for processing API
-  # responses
+  #   responses
   #
   # @return [ self ] returns the current instance after initiating the request
   def perform(handler)

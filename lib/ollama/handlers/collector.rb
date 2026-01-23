@@ -15,7 +15,7 @@ class Ollama::Handlers::Collector
   # output destination and initializes an empty array for collecting responses.
   #
   # @param output [ IO ] the output stream to be used for handling responses,
-  # defaults to $stdout
+  #   defaults to $stdout
   def initialize(output: $stdout)
     super
     @array = []

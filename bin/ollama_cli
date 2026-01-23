@@ -44,7 +44,7 @@ module Ollama::Handlers
     # specified output.
     #
     # @param output [IO] the output stream to write markdown content to,
-    # defaults to $stdout
+    #   defaults to $stdout
     def initialize(output: $stdout)
       super
       @output.sync = true

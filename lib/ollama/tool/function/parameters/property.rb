@@ -34,7 +34,7 @@ class Ollama::Tool::Function::Parameters::Property
   # The enum attribute reader returns the enumeration values associated with the object.
   #
   # @return [ Array<String>, nil ] an array of valid string values that the
-  # property can take, or nil if not set
+  #   property can take, or nil if not set
   attr_reader :enum
 
   # The initialize method sets up a new Property instance with the specified

@@ -27,7 +27,7 @@ module Ollama::Client::Command
     # @param stream_handler [ Class, nil ] the handler class to use for streaming responses, if applicable
     #
     # @note Create Command `name`, if `stream` was true, set `stream_handler`
-    # as default, otherwise `default_handler`.
+    #   as default, otherwise `default_handler`.
     #
     # @return [ self ] returns the receiver after defining the command method
     def command(name, default_handler:, stream_handler: nil)

@@ -36,10 +36,10 @@ class Ollama::Handlers::Markdown
   # single-message display.
   #
   # @param response [ Ollama::Response ] the response object containing content
-  # to be rendered
+  #   to be rendered
   #
   # @return [ self ] returns the handler instance itself after processing the
-  # response
+  #   response
   def call(response)
     if content = response.response || response.message&.content
       if @stream

@@ -18,7 +18,7 @@ class Ollama::Commands::Version
   # operations.
   #
   # @return [ String ] the API endpoint path '/api/version' for version
-  # requests
+  #   requests
   def self.path
     '/api/version'
   end
@@ -37,7 +37,7 @@ class Ollama::Commands::Version
   # associated with the object.
   #
   # @return [ TrueClass, FalseClass ] the streaming behavior flag, indicating
-  # whether streaming is enabled for the command execution
+  #   whether streaming is enabled for the command execution
   attr_reader :stream
 
   # The client attribute writer allows setting the client instance associated

@@ -19,10 +19,10 @@ class Ollama::Handlers::DumpYAML
   # YAML format for debugging or inspection purposes.
   #
   # @param response [ Ollama::Response ] the response object to be serialized
-  # and output
+  #   and output
   #
   # @return [ self ] returns the handler instance itself after processing the
-  # response
+  #   response
   def call(response)
     @output.puts Psych.dump(response)
     self

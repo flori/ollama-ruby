@@ -66,7 +66,7 @@ module Ollama::Client::Configuration
     # @param value [ Hash ] a hash containing the attribute names and their values
     #
     # @return [ self ] a new instance of the class initialized with the provided
-    # attributes
+    #   attributes
     def self.[](value)
       new(**value.to_h)
     end
@@ -126,10 +126,10 @@ module Ollama::Client::Configuration
     # settings.
 
     # @param config [ Ollama::Client::Configuration::Config ] the configuration
-    # object containing client settings
+    #   object containing client settings
     #
     # @return [ Ollama::Client ] a new client instance configured with the
-    # provided settings
+    #   provided settings
     def configure_with(config)
       new(
         base_url:        config.base_url,

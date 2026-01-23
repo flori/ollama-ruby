@@ -23,7 +23,7 @@ class Ollama::Handlers::Say
   # @param output [ IO, nil ] the output stream to be used for handling responses, defaults to nil
   # @param voice [ String ] the voice to be used for speech synthesis, defaults to 'Samantha'
   # @param interactive [ TrueClass, FalseClass, String, nil ] the interactive
-  # mode setting for speech synthesis, defaults to nil
+  #   mode setting for speech synthesis, defaults to nil
   def initialize(output: nil, voice: 'Samantha', interactive: nil)
     @voice       = voice
     @interactive = interactive
@@ -43,7 +43,7 @@ class Ollama::Handlers::Say
   # associated with the object.
   #
   # @return [ TrueClass, FalseClass, String, nil ] the interactive mode value
-  # stored in the instance variable
+  #   stored in the instance variable
   attr_reader :interactive
 
   # The call method processes a response by printing its content to the output stream.
@@ -107,7 +107,7 @@ class Ollama::Handlers::Say
   #
   # @param voice [ String ] the voice to be used for speech synthesis
   # @param interactive [ TrueClass, FalseClass, String, nil ] the interactive
-  # mode setting for speech synthesis
+  #   mode setting for speech synthesis
   #
   # @return [ Array<String> ] an array containing the command and its arguments
   def command(voice:, interactive:)

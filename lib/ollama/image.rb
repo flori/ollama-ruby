@@ -44,7 +44,7 @@ class Ollama::Image
     # @param path [ String, nil ] the optional file path associated with the image
     #
     # @return [ Ollama::Image ] a new Image instance initialized with the
-    # provided data and path
+    #   provided data and path
     def for_base64(data, path: nil)
       obj = new(data)
       obj.path = path
@@ -57,7 +57,7 @@ class Ollama::Image
     # @param path [ String, nil ] the optional file path associated with the image
     #
     # @return [ Ollama::Image ] a new Image instance initialized with the
-    # encoded string data and optional path
+    #   encoded string data and optional path
     def for_string(string, path: nil)
       for_base64(Base64.strict_encode64(string), path:)
     end
@@ -69,7 +69,7 @@ class Ollama::Image
     # @param path [ String, nil ] the optional file path associated with the image
     #
     # @return [ Ollama::Image ] a new Image instance initialized with the IO
-    # object's data and optional path
+    #   object's data and optional path
     def for_io(io, path: nil)
       path ||= io.path
       for_string(io.read, path:)
@@ -81,7 +81,7 @@ class Ollama::Image
     # @param path [ String ] the file system path to the image file
     #
     # @return [ Ollama::Image ] a new Image instance initialized with the
-    # contents of the file at the specified path
+    #   contents of the file at the specified path
     def for_filename(path)
       File.open(path, 'rb') { |io| for_io(io, path:) }
     end
@@ -95,7 +95,7 @@ class Ollama::Image
   # @param other [ Ollama::Image ] the other Image object to compare against
   #
   # @return [ TrueClass, FalseClass ] true if both Image objects have identical
-  # data, false otherwise
+  #   data, false otherwise
   def ==(other)
     @data == other.data
   end

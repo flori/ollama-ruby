@@ -154,7 +154,7 @@ class Ollama::Options
   # @param value [ Hash ] a hash containing the attribute names and their values
   #
   # @return [ self ] a new instance of the class initialized with the provided
-  # attributes
+  #   attributes
   def self.[](value)
     new(**value.to_h)
   end

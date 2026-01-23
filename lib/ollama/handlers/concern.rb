@@ -57,7 +57,7 @@ module Ollama::Handlers::Concern
   # in contexts where a proc is expected.
   #
   # @return [ Proc ] a proc that wraps the handler's call method for response
-  # processing
+  #   processing
   def to_proc
     -> response { call(response) }
   end
@@ -67,10 +67,10 @@ module Ollama::Handlers::Concern
     # response.
     #
     # @param response [ Ollama::Response ] the response object to be processed by the
-    # handler
+    #   handler
     #
     # @return [ self ] returns the handler instance itself after processing the
-    # response
+    #   response
     def call(response)
       new.call(response)
     end

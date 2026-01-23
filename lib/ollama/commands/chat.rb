@@ -107,7 +107,7 @@ class Ollama::Commands::Chat
   # scenarios based on the command's configuration.
   #
   # @param handler [ Ollama::Handler ] the handler object responsible for processing API
-  # responses
+  #   responses
   #
   # @return [ self ] returns the current instance after initiating the request
   def perform(handler)

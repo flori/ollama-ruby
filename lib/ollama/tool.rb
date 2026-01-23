@@ -23,14 +23,14 @@ class Ollama::Tool
   # The type attribute reader returns the type associated with the tool.
   #
   # @return [ String ] the type of tool, typically 'function' for function
-  # calling capabilities
+  #   calling capabilities
   attr_reader :type
 
   # The function attribute reader returns the function definition associated
   # with the tool.
   #
   # @return [ Hash ] the function definition as a hash, containing details such
-  # as the function's name, description, parameters, and required fields
+  #   as the function's name, description, parameters, and required fields
   attr_reader :function
 
   # The initialize method sets up a new Tool instance with the specified type
@@ -38,7 +38,7 @@ class Ollama::Tool
   #
   # @param type [ String ] the type of tool being created
   # @param function [ Ollama::Tool::Function ] the function definition
-  # associated with the tool
+  #   associated with the tool
   def initialize(type:, function:)
     @type, @function = type, function.to_hash
   end
