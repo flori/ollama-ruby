@@ -35,25 +35,35 @@ class Ollama::Client
   # configuration options, making them available for use in subsequent client operations.
   #
   # @param base_url [ String, nil ] the base URL of the Ollama API endpoint, defaults to nil
+  # @param headers [ Hash, nil ] custom HTTP headers to include in all requests, defaults to nil
+  # @param api_key [ String, nil ] API key for authentication, sets Authorization: Bearer header, defaults to nil
   # @param output [ IO ] the output stream to be used for handling responses, defaults to $stdout
   # @param connect_timeout [ Integer, nil ] the connection timeout value in seconds, defaults to nil
   # @param read_timeout [ Integer, nil ] the read timeout value in seconds, defaults to nil
   # @param write_timeout [ Integer, nil ] the write timeout value in seconds, defaults to nil
   # @param debug [ Boolean, nil ] the debug flag indicating whether debug output is enabled, defaults to nil
   # @param user_agent [ String, nil ] the user agent string to be used for API requests, defaults to nil
-  def initialize(base_url: nil, output: $stdout, connect_timeout: nil, read_timeout: nil, write_timeout: nil, debug: nil, user_agent: nil)
+  def initialize(base_url: nil, headers: nil, api_key: nil, output: $stdout, connect_timeout: nil, read_timeout: nil,
+                 write_timeout: nil, debug: nil, user_agent: nil)
     base_url.nil? and base_url = ENV.fetch('OLLAMA_URL') do
       raise ArgumentError,
-        'missing :base_url parameter or OLLAMA_URL environment variable'
+            'missing :base_url parameter or OLLAMA_URL environment variable'
     end
     base_url.is_a? URI or base_url = URI.parse(base_url)
     base_url.is_a?(URI::HTTP) || base_url.is_a?(URI::HTTPS) or
       raise ArgumentError, "require #{base_url.inspect} to be http/https-URI"
-    @ssl_verify_peer = base_url.query.to_s.split(?&).inject({}) { |h, l|
-      h.merge Hash[*l.split(?=)]
-    }['ssl_verify_peer'] != 'false'
-    @base_url, @output, @connect_timeout, @read_timeout, @write_timeout, @debug, @user_agent =
-      base_url, output, connect_timeout, read_timeout, write_timeout, debug, user_agent
+    @ssl_verify_peer = base_url.query.to_s.split('&').inject({}) do |h, l|
+      h.merge Hash[*l.split('=')]
+    end['ssl_verify_peer'] != 'false'
+    @base_url = base_url
+    @headers = headers
+    @api_key = api_key
+    @output = output
+    @connect_timeout = connect_timeout
+    @read_timeout = read_timeout
+    @write_timeout = write_timeout
+    @debug = debug
+    @user_agent = user_agent
   end
 
   # The output attribute accessor allows reading and setting the output stream
@@ -135,7 +145,7 @@ class Ollama::Client
   # It is typically used to provide users with information about which commands
   # are available for execution through the client interface.
   def help
-    @output.puts "Commands: %s" % commands.join(?,)
+    @output.puts 'Commands: %s' % commands.join(',')
   end
 
   # The request method sends an HTTP request to the Ollama API and processes
@@ -158,7 +168,7 @@ class Ollama::Client
     url = @base_url + path
     responses = Enumerator.new do |yielder|
       if stream
-        response_block = -> chunk, remaining_bytes, total_bytes do
+        response_block = lambda do |chunk, _remaining_bytes, _total_bytes|
           response_line = parse_json(chunk)
           response_line and yielder.yield response_line
         end
@@ -210,14 +220,18 @@ class Ollama::Client
   # This method generates a set of standard HTTP headers required for making
   # requests to the Ollama API, including the User-Agent and Content-Type. It
   # uses the instance's configured user agent or falls back to the class-level
-  # user agent if none is set.
+  # user agent if none is set. Custom headers and api_key authorization are
+  # merged into the result.
   #
   # @return [ Hash ] a hash containing the HTTP headers with keys 'User-Agent' and 'Content-Type'
   def headers
-    {
-      'User-Agent'   => @user_agent || self.class.user_agent,
-      'Content-Type' => 'application/json; charset=utf-8',
+    result = {
+      'User-Agent' => @user_agent || self.class.user_agent,
+      'Content-Type' => 'application/json; charset=utf-8'
     }
+    result['Authorization'] = "Bearer #{@api_key}" if @api_key && !@api_key.empty?
+    result.merge!(@headers) if @headers
+    result
   end
 
   # The user_agent method generates a formatted user agent string for API requests.
@@ -228,7 +242,7 @@ class Ollama::Client
   #
   # @return [ String ] a formatted user agent string in the format "Ollama::Client/1.2.3"
   def self.user_agent
-    '%s/%s' % [ self, Ollama::VERSION ]
+    format('%s/%s', self, Ollama::VERSION)
   end
 
   # The excon method creates and returns a new Excon client instance configured
@@ -246,10 +260,10 @@ class Ollama::Client
   def excon(url)
     params = {
       connect_timeout: @connect_timeout,
-      read_timeout:    @read_timeout,
-      write_timeout:   @write_timeout,
+      read_timeout: @read_timeout,
+      write_timeout: @write_timeout,
       ssl_verify_peer: @ssl_verify_peer,
-      debug:           @debug,
+      debug: @debug
     }.compact
     Excon.new(url, params)
   end
@@ -269,6 +283,6 @@ class Ollama::Client
     JSON.parse(string, object_class: Ollama::Response)
   rescue JSON::ParserError => e
     warn "Caught #{e.class}: #{e}"
-    return
+    nil
   end
 end

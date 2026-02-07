@@ -77,6 +77,18 @@ module Ollama::Client::Configuration
     # @attr [ URI ] the new base URL to be set for API requests
     attr_accessor :base_url
 
+    # The headers attribute accessor allows reading and setting custom HTTP
+    # headers to be included in all requests.
+    #
+    # @attr [ Hash, nil ] the custom HTTP headers to be set
+    attr_accessor :headers
+
+    # The api_key attribute accessor allows reading and setting the API key
+    # for authentication. When set, an Authorization: Bearer header is added.
+    #
+    # @attr [ String, nil ] the API key to be used for authentication
+    attr_accessor :api_key
+
     # The output attribute accessor allows reading and setting the output stream
     # used for handling responses and messages.
     #
@@ -132,13 +144,15 @@ module Ollama::Client::Configuration
     #   provided settings
     def configure_with(config)
       new(
-        base_url:        config.base_url,
-        output:          config.output,
+        base_url: config.base_url,
+        headers: config.headers,
+        api_key: config.api_key,
+        output: config.output,
         connect_timeout: config.connect_timeout,
-        read_timeout:    config.read_timeout,
-        write_timeout:   config.write_timeout,
-        debug:           config.debug,
-        user_agent:      config.user_agent
+        read_timeout: config.read_timeout,
+        write_timeout: config.write_timeout,
+        debug: config.debug,
+        user_agent: config.user_agent
       )
     end
   end

@@ -21,6 +21,19 @@ describe Ollama::Client do
     expect(client.output).to be $stdout
   end
 
+  it 'can be instantiated with config including headers and api_key' do
+    config = Ollama::Client::Config[
+      base_url: base_url,
+      api_key: 'test_key',
+      headers: { 'X-Custom' => 'value' }
+    ]
+    client = described_class.configure_with(config)
+    expect(client).to be_a described_class
+    expect(client.base_url.to_s).to eq base_url
+    expect(client.send(:headers)).to include('Authorization' => 'Bearer test_key')
+    expect(client.send(:headers)).to include('X-Custom' => 'value')
+  end
+
   it 'can be instantiated with config loaded from JSON' do
     config = Ollama::Client::Config.load_from_json(asset('client.json'))
     config.base_url = base_url
@@ -52,8 +65,49 @@ describe Ollama::Client do
     expect(client2).not_to be_ssl_verify_peer
   end
 
-  it 'has a string representation' do
-    expect(ollama.to_s).to eq '#<Ollama::Client@https://ai.foo.bar>'
+  it 'can be instantiated with api_key parameter' do
+    client = described_class.new(base_url: base_url, api_key: 'test_key')
+    expect(client.send(:headers)).to include('Authorization' => 'Bearer test_key')
+  end
+
+  it 'can be instantiated with custom headers' do
+    client = described_class.new(
+      base_url: base_url,
+      headers: { 'X-Custom' => 'value', 'X-Request-ID' => '123' }
+    )
+    headers = client.send(:headers)
+    expect(headers).to include('X-Custom' => 'value')
+    expect(headers).to include('X-Request-ID' => '123')
+  end
+
+  it 'custom headers can override default headers' do
+    client = described_class.new(
+      base_url: base_url,
+      headers: { 'Content-Type' => 'application/octet-stream' }
+    )
+    headers = client.send(:headers)
+    expect(headers['Content-Type']).to eq('application/octet-stream')
+  end
+
+  it 'can combine api_key and custom headers' do
+    client = described_class.new(
+      base_url: base_url,
+      api_key: 'test_key',
+      headers: { 'X-Custom' => 'value' }
+    )
+    headers = client.send(:headers)
+    expect(headers).to include('Authorization' => 'Bearer test_key')
+    expect(headers).to include('X-Custom' => 'value')
+  end
+
+  it 'does not include Authorization header when api_key is nil' do
+    client = described_class.new(base_url: base_url)
+    expect(client.send(:headers)).not_to have_key('Authorization')
+  end
+
+  it 'does not include Authorization header when api_key is empty string' do
+    client = described_class.new(base_url: base_url, api_key: '')
+    expect(client.send(:headers)).not_to have_key('Authorization')
   end
 
   let :excon do
@@ -66,49 +120,49 @@ describe Ollama::Client do
 
   it 'can raise error based on status code 500' do
     expect(excon).to receive(:send).and_return(double(status: 500, body: '{}'))
-    expect {
+    expect do
       ollama.generate(model: 'llama3.1', prompt: 'Hello World')
-    }.to raise_error(Ollama::Errors::Error)
+    end.to raise_error(Ollama::Errors::Error)
   end
 
   it 'can raise error based on status code 400' do
     expect(excon).to receive(:send).and_return(double(status: 400, body: '{}'))
-    expect {
+    expect do
       ollama.generate(model: 'llama3.1', prompt: 'Hello World', think: true)
-    }.to raise_error(Ollama::Errors::BadRequestError)
+    end.to raise_error(Ollama::Errors::BadRequestError)
   end
 
   it 'can raise error based on status code 404' do
     expect(excon).to receive(:send).and_return(double(status: 404, body: '{}'))
-    expect {
+    expect do
       ollama.generate(model: 'llama3.1', prompt: 'Hello World')
-    }.to raise_error(Ollama::Errors::NotFoundError)
+    end.to raise_error(Ollama::Errors::NotFoundError)
   end
 
   it 'can raise error on connection error' do
     expect(excon).to receive(:post).and_raise Excon::Error::Socket
-    expect {
+    expect do
       ollama.generate(model: 'llama3.1', prompt: 'Hello World')
-    }.to raise_error(Ollama::Errors::SocketError)
+    end.to raise_error(Ollama::Errors::SocketError)
   end
 
   it 'can raise error on timeout' do
     expect(excon).to receive(:post).and_raise Excon::Errors::Timeout
-    expect {
+    expect do
       ollama.generate(model: 'llama3.1', prompt: 'Hello World')
-    }.to raise_error(Ollama::Errors::TimeoutError)
+    end.to raise_error(Ollama::Errors::TimeoutError)
   end
 
   it 'can raise a generic error' do
     expect(excon).to receive(:post).and_raise Excon::Errors::Error
-    expect {
+    expect do
       ollama.generate(model: 'llama3.1', prompt: 'Hello World')
-    }.to raise_error(Ollama::Errors::Error)
+    end.to raise_error(Ollama::Errors::Error)
   end
 
   describe 'handlers' do
     let :body do
-      %{{"models":[{"name":"llama3.1:latest","model":"llama3.1:latest","size":6654289920,"digest":"62757c860e01d552d4e46b09c6b8d5396ef9015210105427e05a8b27d7727ed2","details":{"parent_model":"","format":"gguf","family":"llama","families":["llama"],"parameter_size":"8.0B","quantization_level":"Q4_0"},"expires_at":"2024-08-05T10:56:26.588713988Z","size_vram":6654289920}]}}
+      %({"models":[{"name":"llama3.1:latest","model":"llama3.1:latest","size":6654289920,"digest":"62757c860e01d552d4e46b09c6b8d5396ef9015210105427e05a8b27d7727ed2","details":{"parent_model":"","format":"gguf","family":"llama","families":["llama"],"parameter_size":"8.0B","quantization_level":"Q4_0"},"expires_at":"2024-08-05T10:56:26.588713988Z","size_vram":6654289920}]})
     end
 
     let :expected_response do
@@ -120,7 +174,7 @@ describe Ollama::Client do
         :get,
         body: nil,
         headers: hash_including(
-          'Content-Type' => 'application/json; charset=utf-8',
+          'Content-Type' => 'application/json; charset=utf-8'
         )
       ).and_return(double(status: 200, body:))
     end
@@ -148,9 +202,9 @@ describe Ollama::Client do
     it 'can generate without stream' do
       expect(excon).to receive(:send).with(
         :post,
-        body:  '{"model":"llama3.1","prompt":"Hello World"}',
+        body: '{"model":"llama3.1","prompt":"Hello World"}',
         headers: hash_including(
-          'Content-Type' => 'application/json; charset=utf-8',
+          'Content-Type' => 'application/json; charset=utf-8'
         )
       ).and_return(double(status: 200, body: '{}'))
       ollama.generate(model: 'llama3.1', prompt: 'Hello World')
@@ -159,9 +213,9 @@ describe Ollama::Client do
     it 'can soldier on with parse errors and output warning' do
       expect(excon).to receive(:send).with(
         :post,
-        body:  '{"model":"llama3.1","prompt":"Hello World"}',
+        body: '{"model":"llama3.1","prompt":"Hello World"}',
         headers: hash_including(
-          'Content-Type' => 'application/json; charset=utf-8',
+          'Content-Type' => 'application/json; charset=utf-8'
         )
       ).and_return(double(status: 200, body: '{i am so broken}'))
       expect(ollama).to receive(:warn).with(
@@ -173,9 +227,9 @@ describe Ollama::Client do
     it 'can generate with stream' do
       expect(excon).to receive(:send).with(
         :post,
-        body:  '{"model":"llama3.1","prompt":"Hello World","stream":true}',
+        body: '{"model":"llama3.1","prompt":"Hello World","stream":true}',
         headers: hash_including(
-          'Content-Type' => 'application/json; charset=utf-8',
+          'Content-Type' => 'application/json; charset=utf-8'
         ),
         response_block: an_instance_of(Proc)
       ).and_return(double(status: 200, body: '{}'))

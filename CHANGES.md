@@ -1,5 +1,18 @@
 # Changes
 
+## 2026-02-06 v1.19.0
+
+- Added authentication support to `Ollama::Client`:
+  + New `api_key` parameter for simple Bearer token authentication
+  + New `headers` parameter for custom HTTP headers
+  + Authorization header automatically set when `api_key` is provided
+  + Custom headers merged with default headers (can override defaults)
+  + Support added to both direct client initialization and `Client::Config`
+- Updated `Client::Config` with `headers` and `api_key` attributes
+- Updated `configure_with` method to pass new authentication parameters
+- Added comprehensive tests for authentication features
+- Updated README with authentication examples and usage documentation
+
 ## 2025-12-19 v1.18.0
 
 - Updated `gem_hadar` development dependency from version **2.8** to **2.9**

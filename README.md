@@ -69,6 +69,42 @@ messages = Message.new(role: 'user', content: 'Why is the sky blue?')
 ollama.chat(model: 'llama3.1', stream: true, messages:, &Print)
 ```
 
+### Authentication
+
+For Ollama Cloud or authenticated Ollama instances, you can provide an API key:
+
+```ruby
+# Using api_key parameter (sets Authorization: Bearer header automatically)
+ollama = Client.new(
+  base_url: 'https://ollama.com/api',
+  api_key: 'your-api-key-here'
+)
+```
+
+You can also provide custom headers for any authentication scheme:
+
+```ruby
+# Using custom headers for flexibility
+ollama = Client.new(
+  base_url: 'https://ollama.com/api',
+  headers: {
+    'Authorization' => 'Basic abc123',
+    'X-Request-ID' => SecureRandom.uuid
+  }
+)
+```
+
+Both options can be combined and used with configuration objects:
+
+```ruby
+config = Client::Config[
+  base_url: 'https://ollama.com/api',
+  api_key: 'your-api-key',
+  headers: { 'X-Custom' => 'value' }
+]
+ollama = Client.configure_with(config)
+```
+
 ## Try out things in ollama\_console
 
 This is an interactive console where you can try out the different commands
