@@ -80,7 +80,7 @@ class Ollama::Handlers::Progress
   #         time information, and estimated completion details
   def message(current, total)
     progress = '%s/%s' % [ current, total ].map {
-      Tins::Unit.format(_1, format: '%.2f %U')
+      Tins::Unit.format(_1, format: '%.2f %U', unit: ?B, prefix: :iec_uc)
     }
     '%l ' + progress + ' in %te, ETA %e @%E'
   end
