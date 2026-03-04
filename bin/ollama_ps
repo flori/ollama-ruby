@@ -34,6 +34,7 @@
 require 'ollama'
 include Ollama
 require 'terminal-table'
+require 'term/ansicolor'
 require 'tins'
 include Tins::GO
 
@@ -49,6 +50,7 @@ def usage
     Usage: #{File.basename($0)} [OPTIONS]
 
       -f FORMAT      output format: json, yaml, or table (default)
+      -i INTERVAL    output the ps table every INTERVAL seconds
       -h             this help
 
   EOT
@@ -188,7 +190,7 @@ def ps_table(models)
   puts table
 end
 
-opts = go 'f:h'
+opts = go 'f:i:h'
 
 opts[?h] and usage
 
@@ -200,5 +202,11 @@ when 'json'
 when 'yaml'
   YAML.dump(interpret_models(models), STDOUT)
 else
-  ps_table(interpret_models(models))
+  n = opts[?i].to_i
+  begin
+    print Term::ANSIColor.clear_screen, Term::ANSIColor.move_home if n > 0
+    ps_table(interpret_models(models))
+    n == 0 and break
+    sleep n
+  end while n
 end
