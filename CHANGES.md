@@ -1,5 +1,38 @@
 # Changes
 
+## 2026-03-04 v1.19.0
+
+- Added API key handling to the Ollama client: introduced a private `api_key`
+  attribute, interpolated it into request headers as `"Bearer #@api_key"`, and
+  merged the field into the client configuration. Updated `bin/ollama_cli` and
+  `bin/ollama_console` to accept an optional `api_key` from environment
+  variables, and extended `spec/ollama/client_spec.rb` to test this
+  functionality.  
+- Implemented an interval option for `ollama_ps`: added `require
+  'term/ansicolor'`, updated help text to include the flag `-i INTERVAL`,
+  parsed the `?i` option, and added a loop that clears the terminal with
+  `Term::ANSIColor.clear_screen`, prints the model table via
+  `ps_table(models)`, sleeps for the specified interval, and repeats while the
+  interval is greater than zero.  
+- Improved progress output formatting: updated
+  `lib/ollama/handlers/progress.rb` to format progress bytes using
+  `Tins::Unit.format(_1, format: '%.2f %U', unit: ?B, prefix: :iec_uc)` and
+  adjusted the `message` method to include `unit` and `prefix` options.  
+- Updated dependencies and test harness: removed system‑wide gem updates from
+  `.all_images.yml`, replaced `bundle update --all` with `bundle exec rake
+  spec`, added `before:` and `after:` hooks to delete `Gemfile.lock` and echo
+  test results, bumped the `all_images` dev dependency to `~> **0.12**`,
+  updated the `gem_hadar` dev dependency to `>= **2.17.0**`, and set
+  `rubygems_version` to **4.0.3** in `ollama-ruby.gemspec`.  
+- Added changelog configuration to the Rakefile: created a `changelog` block
+  with `filename` set to `'CHANGES.md'` to enable automated changelog
+  generation.  
+- Updated Ruby image build matrix: enabled the `ruby:4.0-rc-alpine` image in
+  the build matrix with the `*script` template, and later switched the Ruby
+  version from **4.0-rc-alpine** to **4.0-alpine**.  
+- Updated the `gem_hadar` development dependency to **2.16.3** or higher to
+  maintain compatibility with newer features and bug fixes.
+
 ## 2025-12-19 v1.18.0
 
 - Updated `gem_hadar` development dependency from version **2.8** to **2.9**
