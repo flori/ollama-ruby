@@ -1,5 +1,9 @@
 # Changes
 
+## 2026-03-04 v1.19.1
+
+- Fix ps command to fetch models inside loop
+
 ## 2026-03-04 v1.19.0
 
 - Added API key handling to the Ollama client: introduced a private `api_key`
