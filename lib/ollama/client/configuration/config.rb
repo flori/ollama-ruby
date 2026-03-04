@@ -77,6 +77,12 @@ module Ollama::Client::Configuration
     # @attr [ URI ] the new base URL to be set for API requests
     attr_accessor :base_url
 
+    # The api_key attribute allows setting and retrieving the API key for
+    # Ollama API authentication.
+    #
+    # @attr [ String, nil ] the API key used for authenticating requests
+    attr_accessor :api_key
+
     # The output attribute accessor allows reading and setting the output stream
     # used for handling responses and messages.
     #
@@ -133,6 +139,7 @@ module Ollama::Client::Configuration
     def configure_with(config)
       new(
         base_url:        config.base_url,
+        api_key:         config.api_key,
         output:          config.output,
         connect_timeout: config.connect_timeout,
         read_timeout:    config.read_timeout,

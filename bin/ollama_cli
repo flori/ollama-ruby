@@ -137,9 +137,10 @@ opts = go 'u:m:M:s:p:P:H:c:I:STdih', defaults: { ?H => 'ChatStart' }
 
 opts[?h] and usage
 
-base_url  = opts[?u] || ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
+base_url = opts[?u] || ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
+api_key  = ENV['OLLAMA_API_KEY']
 client_config = Client::Config[
-  { base_url:, debug: !!opts[?d] } |
+  { base_url:, api_key:, debug: !!opts[?d] } |
   JSON(get_file_argument(opts[?c], default: ENV['OLLAMA_CLIENT']).full? || '{}')
 ]
 model         = (opts[?m] || ENV['OLLAMA_MODEL']).full? || 'llama3.1'

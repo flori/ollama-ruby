@@ -40,7 +40,17 @@ end
 #
 # @return [ Hash ] a hash containing the merged configuration settings
 def client_config
-  Client::Config[ { base_url: } | JSON(ENV.fetch('OLLAMA_CLIENT', '{}')) ]
+  Client::Config[
+    { base_url:, api_key: } | JSON(ENV.fetch('OLLAMA_CLIENT', '{}')).transform_keys(&:to_sym)
+  ]
+end
+
+# Retrieves the Ollama API key from the environment variable OLLAMA_API_KEY.
+#
+# @return [ String, nil ] the API key value or nil if the environment variable
+#   is not set
+def api_key
+  ENV['OLLAMA_API_KEY']
 end
 
 # The ollama method provides access to a configured Ollama client instance.

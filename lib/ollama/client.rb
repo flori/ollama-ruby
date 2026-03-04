@@ -35,13 +35,14 @@ class Ollama::Client
   # configuration options, making them available for use in subsequent client operations.
   #
   # @param base_url [ String, nil ] the base URL of the Ollama API endpoint, defaults to nil
+  # @param api_key  [ String, nil ] the API key for the Ollama API, defaults to nil
   # @param output [ IO ] the output stream to be used for handling responses, defaults to $stdout
   # @param connect_timeout [ Integer, nil ] the connection timeout value in seconds, defaults to nil
   # @param read_timeout [ Integer, nil ] the read timeout value in seconds, defaults to nil
   # @param write_timeout [ Integer, nil ] the write timeout value in seconds, defaults to nil
   # @param debug [ Boolean, nil ] the debug flag indicating whether debug output is enabled, defaults to nil
   # @param user_agent [ String, nil ] the user agent string to be used for API requests, defaults to nil
-  def initialize(base_url: nil, output: $stdout, connect_timeout: nil, read_timeout: nil, write_timeout: nil, debug: nil, user_agent: nil)
+  def initialize(base_url: nil, api_key: nil, output: $stdout, connect_timeout: nil, read_timeout: nil, write_timeout: nil, debug: nil, user_agent: nil)
     base_url.nil? and base_url = ENV.fetch('OLLAMA_URL') do
       raise ArgumentError,
         'missing :base_url parameter or OLLAMA_URL environment variable'
@@ -52,8 +53,8 @@ class Ollama::Client
     @ssl_verify_peer = base_url.query.to_s.split(?&).inject({}) { |h, l|
       h.merge Hash[*l.split(?=)]
     }['ssl_verify_peer'] != 'false'
-    @base_url, @output, @connect_timeout, @read_timeout, @write_timeout, @debug, @user_agent =
-      base_url, output, connect_timeout, read_timeout, write_timeout, debug, user_agent
+    @base_url, @api_key, @output, @connect_timeout, @read_timeout, @write_timeout, @debug, @user_agent =
+      base_url, api_key, output, connect_timeout, read_timeout, write_timeout, debug, user_agent
   end
 
   # The output attribute accessor allows reading and setting the output stream
@@ -67,6 +68,13 @@ class Ollama::Client
   #
   # @return [ URI ] the base URL configured for API requests
   attr_reader :base_url
+
+  # The api_key attribute reader returns the API key used for authenticating
+  # requests.
+  #
+  # @attr_reader :api_key
+  attr_reader :api_key
+  private :api_key
 
   # The ssl_verify_peer? method checks whether SSL peer verification is enabled.
   #
@@ -217,7 +225,7 @@ class Ollama::Client
     {
       'User-Agent'   => @user_agent || self.class.user_agent,
       'Content-Type' => 'application/json; charset=utf-8',
-    }
+    } | @api_key.full? { { 'Authorization' => "Bearer #@api_key" } }
   end
 
   # The user_agent method generates a formatted user agent string for API requests.

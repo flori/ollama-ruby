@@ -21,6 +21,17 @@ describe Ollama::Client do
     expect(client.output).to be $stdout
   end
 
+  it 'can be instantiated with config and api_key' do
+    config = Ollama::Client::Config[base_url: base_url, api_key: 'the-secret']
+    client = described_class.configure_with(config).expose
+    expect(client).to be_a described_class
+    expect(client.base_url.to_s).to eq base_url
+    expect(client.api_key).to eq 'the-secret'
+    expect(client.headers).to include(
+      'Authorization' => 'Bearer the-secret'
+    )
+  end
+
   it 'can be instantiated with config loaded from JSON' do
     config = Ollama::Client::Config.load_from_json(asset('client.json'))
     config.base_url = base_url
@@ -34,14 +45,11 @@ describe Ollama::Client do
     expect(client.instance_variable_get(:@read_timeout)).to eq 3_600
   end
 
-  it 'can be configured via environment variable' do
-    old_base_url = ENV['OLLAMA_URL']
+  it 'can be configured via environment variable', protect_env: true do
     ENV.delete('OLLAMA_URL')
     expect { described_class.new }.to raise_error(ArgumentError)
     ENV['OLLAMA_URL'] = base_url
     expect(described_class.new).to be_a described_class
-  ensure
-    ENV['OLLAMA_URL'] = old_base_url
   end
 
   it 'can disable ssl peer verification' do
