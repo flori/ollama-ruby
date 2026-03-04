@@ -194,18 +194,20 @@ opts = go 'f:i:h'
 
 opts[?h] and usage
 
-models = fetch_ps_models or exit
-
 case opts[?f]
 when 'json'
+  models = fetch_ps_models or exit
   puts JSON.pretty_generate(interpret_models(models))
 when 'yaml'
+  models = fetch_ps_models or exit
   YAML.dump(interpret_models(models), STDOUT)
 else
   n = opts[?i].to_i
   begin
     print Term::ANSIColor.clear_screen, Term::ANSIColor.move_home if n > 0
-    ps_table(interpret_models(models))
+    if models = fetch_ps_models.full?
+      ps_table(interpret_models(models))
+    end
     n == 0 and break
     sleep n
   end while n
