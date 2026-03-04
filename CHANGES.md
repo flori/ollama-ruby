@@ -7,29 +7,29 @@
   merged the field into the client configuration. Updated `bin/ollama_cli` and
   `bin/ollama_console` to accept an optional `api_key` from environment
   variables, and extended `spec/ollama/client_spec.rb` to test this
-  functionality.  
+  functionality.
 - Implemented an interval option for `ollama_ps`: added `require
   'term/ansicolor'`, updated help text to include the flag `-i INTERVAL`,
   parsed the `?i` option, and added a loop that clears the terminal with
   `Term::ANSIColor.clear_screen`, prints the model table via
   `ps_table(models)`, sleeps for the specified interval, and repeats while the
-  interval is greater than zero.  
+  interval is greater than zero.
 - Improved progress output formatting: updated
   `lib/ollama/handlers/progress.rb` to format progress bytes using
   `Tins::Unit.format(_1, format: '%.2f %U', unit: ?B, prefix: :iec_uc)` and
-  adjusted the `message` method to include `unit` and `prefix` options.  
+  adjusted the `message` method to include `unit` and `prefix` options.
 - Updated dependencies and test harness: removed system‑wide gem updates from
   `.all_images.yml`, replaced `bundle update --all` with `bundle exec rake
   spec`, added `before:` and `after:` hooks to delete `Gemfile.lock` and echo
   test results, bumped the `all_images` dev dependency to `~> **0.12**`,
   updated the `gem_hadar` dev dependency to `>= **2.17.0**`, and set
-  `rubygems_version` to **4.0.3** in `ollama-ruby.gemspec`.  
+  `rubygems_version` to **4.0.3** in `ollama-ruby.gemspec`.
 - Added changelog configuration to the Rakefile: created a `changelog` block
   with `filename` set to `'CHANGES.md'` to enable automated changelog
-  generation.  
+  generation.
 - Updated Ruby image build matrix: enabled the `ruby:4.0-rc-alpine` image in
   the build matrix with the `*script` template, and later switched the Ruby
-  version from **4.0-rc-alpine** to **4.0-alpine**.  
+  version from **4.0-rc-alpine** to **4.0-alpine**.
 - Updated the `gem_hadar` development dependency to **2.16.3** or higher to
   maintain compatibility with newer features and bug fixes.
 
@@ -39,7 +39,8 @@
 
 ## 2025-12-19 v1.17.0
 
-- Changed `s.required_ruby_version` in the gemspec from "~> 3.1" to ">= 3.1" to allow usage with **Ruby 3.1** and higher, including **4.0**
+- Changed `s.required_ruby_version` in the gemspec from "~> 3.1" to ">= 3.1" to
+  allow usage with **Ruby 3.1** and higher, including **4.0**
 - Updated `s.rubygems_version` from **3.7.2** to **4.0.2**
 - Replaced `bundle update` with `bundle update --all` in the update command
 - Added **4.0-rc** release candidate to the Ruby version matrix (commented out)
@@ -105,10 +106,13 @@
 ## 2025-11-30 v1.12.0
 
 - `ollama_cli`
-    - Added `-i` flag to display Ollama server version using `ollama.version.version`
-    - Refactored model options handling to use `Ollama::Options.from_hash` or `Ollama::Options.new`
+    - Added `-i` flag to display Ollama server version using
+      `ollama.version.version`
+    - Refactored model options handling to use `Ollama::Options.from_hash` or
+      `Ollama::Options.new`
     - Stored client configuration in `ollama` variable for reuse
-    - Added `-d` flag for debug mode in `ollama_cli` instead of using environment variable
+    - Added `-d` flag for debug mode in `ollama_cli` instead of using
+      environment variable
 - Included `Ollama::DTO` in `Client::Config` class for consistent behavior
 - Improved documentation formatting in `dto.rb` file
 - Added documentation that `think` can be "high", "medium", "low" instead of just `true`
@@ -535,7 +539,7 @@ and introduced new context files for project structure documentation in
   + Normalizes URL by decoding URI components, removing anchors, and escaping special characters
   + `excon` method now calls `normalize_url` on the provided URL
   + Added specs for `normalize_url` in `fetcher_spec.rb`
-* Remove Ollama top level Namespace b/c we include it from `ollama_chat`: 
+* Remove Ollama top level Namespace b/c we include it from `ollama_chat`:
   + Removed the top-level namespace
 
 ## 2024-10-18 v0.9.0
@@ -587,7 +591,7 @@ and introduced new context files for project structure documentation in
   + Moved case order
   + Renamed `/collection clear [tag]|change` to `/collection (clear|change)`
   + Improved help message, added /info
-* **Update README.md** 
+* **Update README.md**
   + Update README.md to reflect changed/added commands
 * **Add support for reading PostScript**
   + Extracted `pdf_read` method to read PDF files using `PDF::Reader`
@@ -605,7 +609,7 @@ and introduced new context files for project structure documentation in
   + Updated `choose` method to handle cases better where no entry was chosen
 * **Fix Redis cache expiration logic**
   + Update `set` method to delete key expiration time is less than 1 second.
-* **Update dependencies and add source tracking** 
+* **Update dependencies and add source tracking**
   - Remove `sorted_set` dependency from Rakefile
   - Modify `Ollama::Documents` class to track source of tags
   - Update `Ollama::Utils::Tags` class to include source in tag output and add methods for tracking source
@@ -820,28 +824,28 @@ and introduced new context files for project structure documentation in
 
 * Update dependencies and date in gemspec files:
   - Updated `complex_config` dependency to '~> 0.22'
-* Refactor FollowChat#eval_stats to add bold eval rates
-  * Improve formatting in eval_stats using bold and color for better
+* Refactor `FollowChat#eval_stats` to add bold eval rates
+  * Improve formatting in `eval_stats` using bold and color for better
     readability.
-  * Update import_document and add_image methods to handle nil values
+  * Update `import_document` and `add_image` methods to handle nil values
     correctly.
   * Update width method in utils/width.rb to use uncolor when checking line
     length.
 * Refactor eval stats output in FollowChat class
   - Add indentation to eval stats output for better readability
 * FollowChat evaluation stats refactored
-  - Removed hardcoded eval_stats hash and replaced with method call
+  - Removed hardcoded `eval_stats` hash and replaced with method call
     `eval_stats(response)`
   - Added new method `eval_stats(response)` to calculate evaluation statistics
     - Calculates eval duration, prompt eval duration, total duration, and load
       duration
     - Adds eval count, prompt eval count, eval rate, and prompt eval rate
-* Use default to_s tree representation of config.
-  * Update complex_config dependency to ~> 0.21, >= 0.21.1 in Rakefile
-  * Update complex_config dependency to ~> 0.21, >= 0.21.1 in
+* Use default `to_s` tree representation of config.
+  * Update `complex_config` dependency to ~> 0.21, >= 0.21.1 in Rakefile
+  * Update `complex_config` dependency to ~> 0.21, >= 0.21.1 in
     ollama-ruby.gemspec
 * Update dependencies and configuration display
-  * Update 'complex_config' dependency to '~> 0.21'
+  * Update `complex_config` dependency to '~> 0.21'
   * Change OllamaChatConfig to display configuration as a tree instead of yaml
 * Improve /web search command
   * Update infobar dependency to ~> 0.8
@@ -891,9 +895,10 @@ and introduced new context files for project structure documentation in
   + Updated `/summarize` command to handle cases where summarization fails
   + Fix bug in parsing content type of source document
 * **Refactored Options Class and Usage**
-  + Renamed `options` variable to use `Options[]` method in ollama_chat script
+  + Renamed `options` variable to use `Options[]` method in `ollama_chat`
+    script
   + Added `[](value)` method to Ollama::Options class for casting hashes
-  + Updated options_spec.rb with tests for casting hashes and error handling
+  + Updated `options_spec.rb` with tests for casting hashes and error handling
 * **Refactored Web Search Command**
   + Added support for specifying a page number in `/web` command
   + Updated regular expression to match new format
@@ -903,10 +908,11 @@ and introduced new context files for project structure documentation in
   + Renamed `json_create` method to `from_hash` in Ollama::DTO class
   + Updated `as_json` method to remove now unnecessary hash creation
 * **Message and Tool Spec Changes**
-  + Removed `json_class` from JSON serialization in message_spec
-  + Removed `json_class` from JSON serialization in tool_spec
+  + Removed `json_class` from JSON serialization in `message_spec`
+  + Removed `json_class` from JSON serialization in `tool_spec`
 * **Command Spec Changes**
-  + Removed `json_class` from JSON serialization in various command specs (e.g. generate_spec, pull_spec, etc.)
+  + Removed `json_class` from JSON serialization in various command specs (e.g.
+    `generate_spec`, `pull_spec`, etc.)
 * **Miscellaneous Changes**
   + Improved width calculation for text truncation
   + Updated FollowChat class to display evaluation statistics
@@ -919,26 +925,36 @@ and introduced new context files for project structure documentation in
 
 #### Significant Changes
 
-* **Document Splitting and Embedding Functionality**: Added `Ollama::Documents` class with methods for adding documents, checking existence, deleting documents, and finding similar documents.
+* **Document Splitting and Embedding Functionality**: Added `Ollama::Documents`
+  class with methods for adding documents, checking existence, deleting
+  documents, and finding similar documents.
   + Introduced two types of caches: `MemoryCache` and `RedisCache`
-  + Implemented `SemanticSplitter` class to split text into sentences based on semantic similarity
-* **Improved Ollama Chat Client**: Added support for document embeddings and web/file RAG
+  + Implemented `SemanticSplitter` class to split text into sentences based on
+    semantic similarity
+* **Improved Ollama Chat Client**: Added support for document embeddings and
+  web/file RAG
   + Allowed configuration per yaml file
   + Parse user input for URLs or files to send images to multimodal models
-* **Redis Docker Service**: Set `REDIS_URL` environment variable to `redis://localhost:9736`
+* **Redis Docker Service**: Set `REDIS_URL` environment variable to
+  `redis://localhost:9736`
   + Added Redis service to `docker-compose.yml`
-* **Status Display and Progress Updates**: Added infobar.label = response.status when available
-  + Updated infobar with progress message on each call if total and completed are set
+* **Status Display and Progress Updates**: Added infobar.label =
+  response.status when available
+  + Updated infobar with progress message on each call if total and completed
+    are set
   + Display error message from response.error if present
-* **Refactored Chat Commands**: Simplified regular expression patterns for `/pop`, `/save`, `/load`, and `/image` commands
+* **Refactored Chat Commands**: Simplified regular expression patterns for
+  `/pop`, `/save`, `/load`, and `/image` commands
   + Added whitespace to some command patterns for better readability
 
 #### Other Changes
 
-* Added `Character` and `RecursiveCharacter` splitter classes to split text into chunks based on character separators
+* Added `Character` and `RecursiveCharacter` splitter classes to split text
+  into chunks based on character separators
 * Added RSpec tests for the Ollama::Documents class(es)
-* Updated dependencies and added new methods for calculating breakpoint thresholds and sentence embeddings
-* Added 'ollama_update' to executables in Rakefile
+* Updated dependencies and added new methods for calculating breakpoint
+  thresholds and sentence embeddings
+* Added `ollama_update` to executables in Rakefile
 * Started using webmock
 * Refactored chooser and add fetcher specs
 * Added tests for Ollama::Utils::Fetcher
