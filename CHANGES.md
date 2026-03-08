@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-03-08 v1.19.2
+
+- Improve polling loop safety in `ollama_ps`.  
+    - Add a robust rescue block: `rescue => e; warn "Caught #{e.class}: #{e}";
+      sleep duration`.
+
 ## 2026-03-04 v1.19.1
 
 - Fix ps command to fetch models inside loop
