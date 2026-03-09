@@ -1,0 +1,78 @@
+# vim: set ft=ruby:
+
+search do
+  prune_dirs /\A(\.svn|\.git|CVS|tmp|coverage|pkg|\.yardoc|doc)\z/
+  skip_files /(\A\.|\.sw[pon]\z|\.(log|fnm|jpg|jpeg|png|pdf|svg)\z|\A(tags|cscope\.out)\z|~\z)/i
+end
+
+discover do
+  prune_dirs /\A(\.svn|\.git|\.yardoc|CVS|tmp|coverage|corpus|pkg|\.yardoc|doc)\z/
+  skip_files /(\A\.|\.sw[pon]\z|\.log\z|~\z)/
+  index_expire_after 3_600
+end
+
+strip_spaces do
+  prune_dirs /\A(\..*|CVS|pkg|\.yardoc)\z/
+  skip_files /(\A\.|\.sw[pon]\z|\.log\z|~\z)/
+end
+
+probe do
+  test_framework :rspec
+end
+
+ssh_tunnel do
+  terminal_multiplexer :tmux
+  login_session "/home/#{ENV['USER']}"
+end
+
+classify do
+  shift_path_by_default 1
+end
+
+code_indexer do
+  verbose false
+
+  gems = %w[
+    all_images
+    amatch
+    base64
+    bigdecimal
+    complex_config
+    context_spook
+    date
+    excon
+    fileutils
+    gem_hadar
+    infobar
+    irb
+    json
+    kramdown
+    kramdown-ansi
+    kramdown-parser-gfm
+    mize
+    more_math
+    ollama-ruby
+    ostruct
+    pathname
+    readline
+    reline
+    rspec
+    rspec-core
+    rspec-expectations
+    rspec-mocks
+    rspec-support
+    search_ui
+    shellwords
+    stringio
+    term-ansicolor
+    terminal-table
+    tins
+    uri
+    webmock
+    yard
+  ]
+
+  paths {
+    %w[ lib ] + gems.map { `bundle show #{it}` }.map(&:chomp)
+  }
+end
