@@ -41,6 +41,18 @@ class Ollama::Message
   # @return [ Array<Ollama::Image>, nil ] an array of image objects, or nil if no images are associated with the message
   attr_reader :images
 
+  # The tool_calls attribute reader returns the tool call hashes or objects
+  # associated with the message.
+  #
+  # @return [ Array<Hash>, nil ] an array of tool call definitions, or nil if none
+  attr_reader :tool_calls
+
+  # The tool_name attribute reader returns the name of the tool used in the
+  # message, if any.
+  #
+  # @return [ String, nil ] the name of the tool, or nil if not set
+  attr_reader :tool_name
+
   # The initialize method sets up a new Message instance with the specified attributes.
   #
   # @param role [ String ] the role of the message sender, such as 'user' or 'assistant'
@@ -48,9 +60,10 @@ class Ollama::Message
   # @param thinking [ String, nil ] optional thinking content for the message
   # @param images [ Ollama::Image, Array<Ollama::Image>, nil ] optional image objects associated with the message
   # @param tool_calls [ Hash, Array<Hash>, nil ] optional tool calls made in the message
-  def initialize(role:, content:, thinking: nil, images: nil, tool_calls: nil, **)
-    @role, @content, @thinking, @images, @tool_calls =
+  def initialize(role:, content:, thinking: nil, images: nil, tool_calls: nil, tool_name: nil, **)
+    @role, @content, @thinking, @images, @tool_calls, @tool_name =
       role, content, thinking, (Array(images) if images),
-      (Array(tool_calls) if tool_calls)
+      (Array(tool_calls) if tool_calls),
+      tool_name
   end
 end

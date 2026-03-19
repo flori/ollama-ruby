@@ -5,12 +5,18 @@ describe Ollama::Message do
     Ollama::Image.for_string("test")
   end
 
+  let :tool_call do
+    { name: "search", arguments: { query: "ruby" } }
+  end
+
   let :message do
     described_class.new(
       role:    'user',
       content: 'hello world',
       thinking: 'which world?',
-      images:  image
+      images:  image,
+      tool_calls: [ tool_call ],
+      tool_name: 'search'
     )
   end
 
@@ -24,15 +30,17 @@ describe Ollama::Message do
       content: 'hello world',
       thinking: 'which world?',
       images: [ image ],
+      tool_calls: [ tool_call ],
+      tool_name: 'search'
     )
     expect(message.to_json).to eq(
-      '{"role":"user","content":"hello world","thinking":"which world?","images":["dGVzdA=="]}'
+      '{"role":"user","content":"hello world","thinking":"which world?","images":["dGVzdA=="],"tool_calls":[{"name":"search","arguments":{"query":"ruby"}}],"tool_name":"search"}'
     )
   end
 
   it 'can be restored from JSON' do
     expect(described_class.from_hash(JSON(<<~'end'))).to be_a described_class
-      {"role":"user","content":"hello world","thinking":"which world?","images":["dGVzdA==\n"]}
+      {"role":"user","content":"hello world","thinking":"which world?","images":["dGVzdA==\n"],"tool_calls":[{"name":"search","arguments":{"query":"ruby"}}],"tool_name":"search"}
     end
   end
 
