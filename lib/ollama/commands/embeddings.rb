@@ -32,9 +32,10 @@ class Ollama::Commands::Embeddings
   # @param prompt [ String ] the text prompt to generate embeddings for
   # @param options [ Ollama::Options, nil ] optional configuration parameters for the model
   # @param keep_alive [ String, nil ] duration to keep the model loaded in memory
-  def initialize(model:, prompt:, options: nil, keep_alive: nil)
-    @model, @prompt, @options, @keep_alive, @stream =
-      model, prompt, options, keep_alive, false
+  # @param dimensions [ Integer, nil ] number of dimensions for the embedding
+  def initialize(model:, prompt:, options: nil, keep_alive: nil, dimensions: nil)
+    @model, @prompt, @options, @keep_alive, @dimensions, @stream =
+      model, prompt, options, dimensions, keep_alive, false
   end
 
   # The model attribute reader returns the model name associated with the object.
@@ -56,6 +57,12 @@ class Ollama::Commands::Embeddings
   #
   # @return [ String, nil ] duration to keep the model loaded in memory
   attr_reader :keep_alive
+
+  # The dimensions attribute reader returns the dimensions associated with the
+  # object.
+  #
+  # @return [ Integer, nil ]
+  attr_reader :dimensions
 
   # The stream attribute reader returns the streaming behavior setting
   # associated with the object.
