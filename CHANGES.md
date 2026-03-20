@@ -1,5 +1,34 @@
 # Changes
 
+## 2026-03-20 v1.20.0
+
+- Created `.rspec` file with `--force-color` and `-r spec_helper` options.  
+    - Removed `require 'spec_helper'` from all spec files.  
+- Added `dimensions` keyword argument to `initialize` in
+  `lib/ollama/commands/embeddings.rb`.  
+    - Added `@dimensions` instance variable and `attr_reader :dimensions` to
+      `Ollama::Commands::Embeddings`.  
+    - Reordered instance variables in the constructor of
+      `Ollama::Commands::Embeddings`.  
+- Added `.envrc` setting `OLLAMA_CHAT_TOOLS_TEST_RUNNER`.  
+- Added `tool_calls` and `tool_name` reader attributes to `Ollama::Message` in
+  `lib/ollama/message.rb`.  
+    - Extended `initialize` signature of `Ollama::Message` to accept `tool_calls`
+      and `tool_name` and store them.  
+    - Updated `message_spec.rb` to include `tool_calls` and `tool_name` in
+      expectations for JSON serialization and round‑trip.  
+    - Normalized `tool_calls` to an array when provided.  
+- Added `.utilsrc` file with configuration blocks for `search`, `discover`,
+  `strip_spaces`, `probe`, `ssh_tunnel`, `classify`, and `code_indexer`.  
+    - Configured pruning of directories such as `.svn`, `.git`, `CVS`, `tmp`,
+      `coverage`, etc., and skipped files matching patterns like `\.sw[pon]`,
+      `\.(log|fnm|jpg|jpeg|png|pdf|svg)`.  
+    - Set RSpec (`:rspec`) as the test framework in `probe`.  
+    - Enabled tmux terminal multiplexer for SSH tunnels with login session to
+      `/home/${ENV['USER']}` via `ssh_tunnel`.  
+    - Defined a comprehensive gem list (e.g., `all_images`, `amatch`, `base64`, …,
+      `yard`) and included their paths using `bundle show`.
+
 ## 2026-03-08 v1.19.2
 
 - Improve polling loop safety in `ollama_ps`.  
