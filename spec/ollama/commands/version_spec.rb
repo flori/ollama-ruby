@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Commands::Version do
   let :version do
     described_class.new

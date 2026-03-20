@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Tool do
   let :location do
     Ollama::Tool::Function::Parameters::Property.new(

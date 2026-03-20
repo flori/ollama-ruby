@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Commands::Tags do
   let :tags do
     described_class.new

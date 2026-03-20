@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Image do
   let :image do
     described_class.for_filename(asset('kitten.jpg'))

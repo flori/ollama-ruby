@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Commands::Embed do
   it 'can be instantiated' do
     embed = described_class.new(

@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Options do
   let :options do
     described_class.new(

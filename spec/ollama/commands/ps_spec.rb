@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Commands::Ps do
   let :ps do
     described_class.new

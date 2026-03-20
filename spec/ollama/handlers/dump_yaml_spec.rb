@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Handlers::DumpYAML do
   it 'has .call' do
     expect_any_instance_of(described_class).to receive(:call).with(:foo)

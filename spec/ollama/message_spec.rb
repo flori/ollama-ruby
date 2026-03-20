@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Message do
   let :image do
     Ollama::Image.for_string("test")

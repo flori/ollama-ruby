@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 skip_reason = nil
 unless File.executable?(`which say`.chomp)
   skip_reason = 'Command say not in path'

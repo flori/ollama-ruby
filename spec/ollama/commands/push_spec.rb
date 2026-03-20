@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Commands::Push do
   it 'can be instantiated' do
     push = described_class.new(model: 'llama3.1')

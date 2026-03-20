@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Commands::Pull do
   it 'can be instantiated' do
     pull = described_class.new(model: 'llama3.1')

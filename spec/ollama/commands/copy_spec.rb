@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Commands::Copy do
   it 'can be instantiated' do
     copy = described_class.new(source: 'llama3.1', destination: 'camell3')

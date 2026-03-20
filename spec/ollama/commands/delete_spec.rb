@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Commands::Delete do
   it 'can be instantiated' do
     delete = described_class.new(model: 'llama3.1')

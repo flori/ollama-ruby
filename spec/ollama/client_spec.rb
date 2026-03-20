@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Client do
   let :base_url do
     'https://ai.foo.bar'

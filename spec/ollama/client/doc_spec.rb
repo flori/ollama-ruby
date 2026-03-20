@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Client::Doc do
   it 'can document commands' do
     expect(Ollama::Client::Doc.new(:generate).to_s).to match(/generate-a-completion/)

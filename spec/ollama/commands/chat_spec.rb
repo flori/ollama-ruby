@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Commands::Chat do
   it 'can be instantiated' do
     messages = [

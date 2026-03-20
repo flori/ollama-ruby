@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Ollama::Handlers::Print do
   it 'has .to_proc' do
     expect_any_instance_of(described_class).to receive(:call).with(:foo)
