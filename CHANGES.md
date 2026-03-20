@@ -1,5 +1,14 @@
 # Changes
 
+## 2026-03-20 v1.21.0
+
+- Added `to_json` method to `Ollama::Image` class that delegates to `as_json`
+    - Included documentation comments for the new `to_json` method
+    - Ensures `as_json` is properly invoked when serializing `Ollama::Image`
+      objects with Ruby's JSON gems
+- Updated `terminal-table` dependency from `~> 3.0` to `>= 3.0` in Rakefile
+- Updated gemspec dependency for `terminal-table` to `>= 3.0`
+
 ## 2026-03-20 v1.20.0
 
 - Created `.rspec` file with `--force-color` and `-r spec_helper` options.  
