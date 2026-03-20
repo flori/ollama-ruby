@@ -116,4 +116,13 @@ class Ollama::Image
   def as_json(*_args)
     to_s
   end
+
+  # The to_json method converts the object's JSON representation into a JSON
+  # string format.
+  #
+  # @param args [Array] optional arguments passed to JSON serialization
+  # @return [String] a JSON string representation of the object
+  def to_json(*args)
+    as_json.to_json(*args)
+  end
 end
