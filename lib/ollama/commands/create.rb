@@ -48,8 +48,8 @@ class Ollama::Commands::Create
   # @param stream [ TrueClass, FalseClass ] whether to enable streaming for the operation, defaults to true
   # @param quantize [ String, nil ] quantization method to use (e.g., 'Q4_0')
   def initialize(model:, from: nil, files: nil, adapters: nil, template: nil, license: nil, system: nil, parameters: nil, messages: nil, stream: true, quantize: nil)
-    @model, @from, @files, @adapters, @license, @system, @parameters, @messages, @stream, @quantize =
-      model, from, as_hash(files), as_hash(adapters), as_array(license), system,
+    @model, @from, @files, @adapters, @template, @license, @system, @parameters, @messages, @stream, @quantize =
+      model, from, as_hash(files), as_hash(adapters), template, as_array(license), system,
       as_hash(parameters), as_array_of_hashes(messages), stream, quantize
   end
 
@@ -72,6 +72,11 @@ class Ollama::Commands::Create
   #
   # @return [ Hash, nil ] adapter files to use for quantization
   attr_reader :adapters
+
+  # The template attribute reader returns the template associated with the object.
+  #
+  # @return [ String, nil ] the template string or nil if not defined
+  attr_reader :template
 
   # The license attribute reader returns the license(s) associated with the object.
   #

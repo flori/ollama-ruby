@@ -2,6 +2,8 @@
 
 ## 2026-03-20 v1.21.0
 
+- Added a template accessor to Ollama::Commands::Create, exposing a new
+  `attr_reader` :template with a descriptive comment block.
 - Added `to_json` method to `Ollama::Image` class that delegates to `as_json`
     - Included documentation comments for the new `to_json` method
     - Ensures `as_json` is properly invoked when serializing `Ollama::Image`
