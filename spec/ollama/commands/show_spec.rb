@@ -18,7 +18,7 @@ describe Ollama::Commands::Show do
     show = described_class.new(model: 'llama3.1')
     show.client = ollama = double('Ollama::Client')
     expect(ollama).to receive(:request).with(
-      method: :post, path: '/api/show', handler: Ollama::Handlers::NOP ,stream: false,
+      method: :post, path: '/api/show', handler: Ollama::Handlers::NOP, stream: false,
       body: '{"model":"llama3.1","stream":false}'
     )
     show.perform(Ollama::Handlers::NOP)
