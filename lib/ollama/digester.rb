@@ -27,4 +27,15 @@ module Ollama::Digester
   ensure
     io.rewind
   end
+
+  # Ensures a SHA256 digest is prefixed with 'sha256:'.
+  #
+  # If the provided string consists of exactly 64 hexadecimal characters,
+  # the prefix is prepended. Otherwise, the original string is returned.
+  #
+  # @param digest [ String, nil ] the digest to be prefixed
+  # @return [ String, nil ] the prefixed digest or the original value
+  def prefix_sha256(digest)
+    digest&.sub(/\A(?=\h{64}\z)/, 'sha256:')
+  end
 end

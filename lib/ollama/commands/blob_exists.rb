@@ -23,9 +23,8 @@ class Ollama::Commands::BlobExists
   # @param blob [ IO, nil ] the binary data stream to be hashed if no digest is
   #   provided
   def initialize(digest: nil, blob: nil)
-    if digest =~ /\A\h{64}\z/
-      digest = 'sha256:%s' % digest
-    elsif digest.nil? && blob
+    digest = prefix_sha256(digest)
+    if digest.nil? && blob
       digest = compute_digest(blob)
     end
     digest or raise ArgumentError, 'require digest or blob to perform'

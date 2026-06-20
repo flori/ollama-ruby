@@ -18,9 +18,12 @@ class Ollama::Commands::PushBlob
   # hash of the content to be used as the target endpoint path.
   #
   # @param body [ IO, String ] the binary content or file handle to upload
-  def initialize(body:)
+  # @param digest [ String, nil ] optional precomputed SHA256 digest. If provided,
+  #   it takes precedence over computing one from the body.
+  def initialize(body:, digest: nil)
     @body   = body.respond_to?(:read) ? body : StringIO.new(body.to_str)
-    @digest = compute_digest(@body)
+    digest = prefix_sha256(digest)
+    @digest = digest || compute_digest(@body)
     @stream = false
   end
 
