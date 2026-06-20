@@ -125,6 +125,8 @@ class Ollama::Client
 
   command(:blob_exists, default_handler: NOP, skip_doc: true)
 
+  command(:push_blob, default_handler: Progress, skip_doc: true)
+
   # The commands method retrieves and sorts the documented commands available
   # in the client.
   #
@@ -199,6 +201,61 @@ class Ollama::Client
     raise Ollama::Errors::TimeoutError, "Caught #{e.class} #{e.message.inspect} for #{url.to_s.inspect}"
   rescue Excon::Error => e
     raise Ollama::Errors::Error, "Caught #{e.class} #{e.message.inspect} for #{url.to_s.inspect}"
+  end
+
+  # The upload_file method handles the streaming upload of a file to the server.
+  #
+  # This method opens the specified file in binary mode and utilizes Excon's
+  # :request_block to stream the content in chunks. It simultaneously updates
+  # the provided progress handler with current upload stats.
+  #
+  # @param command [ Ollama::Commands::PushBlob ] the command instance containing path logic
+  # @param body [ IO ] the body to be uploaded
+  # @param handler [ Ollama::Handler ] the handler object responsible for processing API responses
+  #
+  # @return [ Ollama::Client ] returns the client instance itself after initiating the request
+  def upload_file(path:, body:, handler:)
+    body.binmode
+    body.rewind
+    total_size = body.size
+    bytes_sent = 0
+    new_headers = {
+      'Content-Type'   => 'application/octet-stream',
+      'Content-Length' => total_size,
+    }
+    request_block = -> do
+      chunk = body.read(Excon.defaults[:chunk_size]).to_s
+      bytes_sent    += chunk.bytesize
+      fake_response  = Ollama::Response.new(
+        completed: bytes_sent,
+        total:     total_size,
+        status:    'Uploading…'
+      )
+      handler.call(fake_response)
+      chunk
+    end
+
+    url = @base_url + path
+    response = excon(url).post(
+      headers:       headers.merge(new_headers),
+      request_block:
+    )
+
+    case response.status
+    when 200, 201
+      # Success
+    else
+      raise Ollama::Errors::Error, "#{response.status} #{response.body.inspect}"
+    end
+    self
+  rescue Excon::Errors::SocketError => e
+    raise Ollama::Errors::SocketError, "Caught #{e.class} #{e.message.inspect} for #{url.to_s.inspect}"
+  rescue Excon::Errors::Timeout => e
+    raise Ollama::Errors::TimeoutError, "Caught #{e.class} #{e.message.inspect} for #{url.to_s.inspect}"
+  rescue Excon::Error => e
+    raise Ollama::Errors::Error, "Caught #{e.class} #{e.message.inspect} for #{url.to_s.inspect}"
+  ensure
+    body.rewind
   end
 
   # The blob_exists? method verifies if a binary blob exists on the Ollama

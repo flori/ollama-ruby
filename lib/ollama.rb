@@ -1,4 +1,5 @@
 require 'json'
+require 'uri'
 require 'excon'
 require 'tins'
 require 'tins/xt/full'
@@ -67,5 +68,6 @@ require 'ollama/commands/embeddings'
 require 'ollama/commands/ps'
 require 'ollama/commands/version'
 require 'ollama/commands/blob_exists'
+require 'ollama/commands/push_blob'
 
 require 'ollama/client'

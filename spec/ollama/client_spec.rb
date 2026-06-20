@@ -211,5 +211,80 @@ describe Ollama::Client do
       )
       expect(exists).to eq false
     end
+
+    it 'can upload a file and return self on success' do
+      body = StringIO.new('dummy content')
+      handler = double('Handler', call: nil)
+
+      expect(excon).to receive(:post).with(
+        headers: hash_including('Content-Type' => 'application/octet-stream'),
+        request_block: an_instance_of(Proc)
+      ).and_return(double(status: 201, body: ''))
+
+      expect(ollama.upload_file(path: '/api/blobs/abc', body: body, handler: handler)).to eq ollama
+    end
+
+    it 'can report progress via the handler' do
+      content = 'Hello Ruby!'
+      body = StringIO.new(content)
+      handler = double('Handler')
+
+      # We capture the block to simulate Excon calling it
+      captured_block = nil
+      expect(excon).to receive(:post) do |args|
+        captured_block = args[:request_block]
+        double(status: 201, body: '')
+      end
+
+      ollama.upload_file(path: '/api/blobs/abc', body: body, handler: handler)
+
+      # Execute the block and verify the fake response is passed to the handler
+      expect(handler).to receive(:call).with(an_instance_of(Ollama::Response))
+      captured_block.call
+    end
+
+    it 'can raise error on non-success status' do
+      body = StringIO.new('dummy content')
+      handler = double('Handler', call: nil)
+
+      expect(excon).to receive(:post).and_return(double(status: 400, body: 'Bad Request'))
+
+      expect {
+        ollama.upload_file(path: '/api/blobs/abc', body: body, handler: handler)
+      }.to raise_error(Ollama::Errors::Error, /400 "Bad Request"/)
+    end
+
+    it 'can map Excon socket errors to Ollama::Errors::SocketError' do
+      body = StringIO.new('dummy content')
+      handler = double('Handler', call: nil)
+
+      expect(excon).to receive(:post).and_raise(Excon::Errors::SocketError)
+
+      expect {
+        ollama.upload_file(path: '/api/blobs/abc', body: body, handler: handler)
+      }.to raise_error(Ollama::Errors::SocketError)
+    end
+
+    it 'can map Excon timeout errors to Ollama::Errors::TimeoutError' do
+      body = StringIO.new('dummy content')
+      handler = double('Handler', call: nil)
+
+      expect(excon).to receive(:post).and_raise(Excon::Errors::Timeout)
+
+      expect {
+        ollama.upload_file(path: '/api/blobs/abc', body: body, handler: handler)
+      }.to raise_error(Ollama::Errors::TimeoutError)
+    end
+
+    it 'can map generic Excon errors to Ollama::Errors::Error' do
+      body = StringIO.new('dummy content')
+      handler = double('Handler', call: nil)
+
+      expect(excon).to receive(:post).and_raise(Excon::Error)
+
+      expect {
+        ollama.upload_file(path: '/api/blobs/abc', body: body, handler: handler)
+      }.to raise_error(Ollama::Errors::Error)
+    end
   end
 end
