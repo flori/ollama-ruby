@@ -1,5 +1,44 @@
 # Changes
 
+## 2026-06-21 v1.22.0
+
+### New Features
+
+- Added support for blob uploads and management:
+    - Implemented `Ollama::Client#upload_file` using `Excon` `:request_block`
+      for memory-efficient streaming.
+    - Introduced `Ollama::Commands::PushBlob` for binary data uploads with
+      automatic SHA256 calculation.
+    - Added `Ollama::Client#blob_exists?` and `Ollama::Commands::BlobExists` to
+      verify blobs via the API.
+- Introduced `Ollama::Digester` for SHA256 binary hashing, featuring
+  `compute_digest` for IO streams and a `prefix_sha256` utility for conditional
+  digest formatting.
+- Added visual progress tracking to digest computation using `infobar`, IEC
+  units, and braille spinner frames.
+
+### Documentation
+
+- Added a "Importing Custom Models" section to the `README.md`, documenting the
+  workflow using `push_blob` and `create` with Ruby **3** shorthand syntax
+  examples.
+- Enhanced YARD documentation for `prefix_sha256` and internal command options.
+
+### Improvements & Refactors
+
+- Mapped network exceptions (`Excon::Errors::SocketError`,
+  `Excon::Errors::Timeout`, and `Excon::Error`) to internal `Ollama::Errors`.
+- Updated `Ollama::Handlers::Concern` to change `result` from an `attr_reader`
+  to an `attr_accessor`.
+- Added a `skip_doc` option to `Ollama::Client::Command.command` to suppress
+  automatic documentation for internal commands.
+- Fixed formatting in `show_spec.rb`.
+
+### Dependencies
+
+- Updated `rubygems_version` in the gemspec to **4.0.10**.
+- Bumped minimum `gem_hadar` development dependency to **2.17.1**.
+
 ## 2026-03-20 v1.21.0
 
 - Added a template accessor to Ollama::Commands::Create, exposing a new
