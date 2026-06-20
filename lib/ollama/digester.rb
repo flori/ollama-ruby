@@ -18,11 +18,23 @@ module Ollama::Digester
   #
   # @return [ String ] the resulting SHA256 digest formatted as 'sha256:<hex>'
   def compute_digest(io, chunk_size: 1 << 16)
+    io.binmode
     io.rewind
+    label    = 'Computing Digest…'
+    total    = io.size
+    message  = {
+      format: '%l %c/%t in %te, ETA %e @%E %s',
+      '%c'  => { format: '%.2f %U', unit: ?B, prefix: :iec_uc },
+      '%t'  => { format: '%2.2f %U', unit: ?B, prefix: :iec_uc },
+      '%s'  => { frames: :braille181 },
+    }
+    infobar.(total:, label:, message:)
     digest = Digest::SHA256.new
     until io.eof?
+      infobar.progress(by: chunk_size)
       digest << io.read(chunk_size)
     end
+    infobar.newline
     'sha256:%s' % digest.hexdigest
   ensure
     io.rewind

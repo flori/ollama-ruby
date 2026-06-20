@@ -76,8 +76,9 @@ class Ollama::Handlers::Progress
   # @param current [ Integer ] the current progress value
   # @param total [ Integer ] the total progress value
   #
-  # @return [ String ] a formatted progress message containing current status,
-  #         time information, and estimated completion details
+  # @return [ Hash ] a formatted progress message containing current status,
+  #         time information, and estimated completion details, with a braille
+  #         spinner.
   def message(current, total)
     progress = '%s/%s' % [ current, total ].map {
       Tins::Unit.format(_1, format: '%.2f %U', unit: ?B, prefix: :iec_uc)
