@@ -123,6 +123,8 @@ class Ollama::Client
 
   command(:version, default_handler: Single)
 
+  command(:blob_exists, default_handler: NOP, skip_doc: true)
+
   # The commands method retrieves and sorts the documented commands available
   # in the client.
   #
@@ -197,6 +199,23 @@ class Ollama::Client
     raise Ollama::Errors::TimeoutError, "Caught #{e.class} #{e.message.inspect} for #{url.to_s.inspect}"
   rescue Excon::Error => e
     raise Ollama::Errors::Error, "Caught #{e.class} #{e.message.inspect} for #{url.to_s.inspect}"
+  end
+
+  # The blob_exists? method verifies if a binary blob exists on the Ollama
+  # server.
+  #
+  # This convenience method checks for the existence of a blob identified by
+  # its digest and returns a boolean value, simplifying the process of
+  # verifying blobs before attempting an upload.
+  #
+  # @param digest [ String ] the SHA256 digest of the blob (e.g., 'sha256:...')
+  # @return [ TrueClass, FalseClass ] true if the blob exists on the server,
+  #   false otherwise
+  def blob_exists?(digest)
+    blob_exists(digest:)
+    true
+  rescue Ollama::Errors::NotFoundError
+    false
   end
 
   # The inspect method returns a string representation of the client instance.

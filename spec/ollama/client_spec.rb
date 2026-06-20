@@ -193,4 +193,23 @@ describe Ollama::Client do
     expect($stdout).to receive(:puts).with(/Commands:.*?chat/)
     ollama.help
   end
+
+  context 'blobs' do
+    it 'can verify that a blob exists' do
+      expect(excon).to receive(:head).
+        and_return(double('Response', status: 200, body: ''))
+      exists = ollama.blob_exists?(
+        'sha256:5ee4f07cdb9beadbbb293e85803c569b01bd37ed059d2715faa7bb405f31caa6'
+      )
+      expect(exists).to eq true
+    end
+
+    it 'can falsify that a blob exists' do
+      expect(excon).to receive(:head).and_raise Ollama::Errors::NotFoundError
+      exists = ollama.blob_exists?(
+        'sha256:5ee4f07cdb9beadbbb293e85803c569b01bd37ed059d2715faa7bb405f31ca6a'
+      )
+      expect(exists).to eq false
+    end
+  end
 end

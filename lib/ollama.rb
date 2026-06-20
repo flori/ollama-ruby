@@ -66,5 +66,6 @@ require 'ollama/commands/embed'
 require 'ollama/commands/embeddings'
 require 'ollama/commands/ps'
 require 'ollama/commands/version'
+require 'ollama/commands/blob_exists'
 
 require 'ollama/client'

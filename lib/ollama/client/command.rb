@@ -23,16 +23,20 @@ module Ollama::Client::Command
     # the command supports streaming and the presence of an explicit handler.
     #
     # @param name [ Symbol ] the name of the command to define
-    # @param default_handler [ Class ] the default handler class to use when no explicit handler is provided
-    # @param stream_handler [ Class, nil ] the handler class to use for streaming responses, if applicable
+    # @param default_handler [ Class ] the default handler class to use when no
+    #   explicit handler is provided
+    # @param stream_handler [ Class, nil ] the handler class to use for
+    #   streaming responses, if applicable
+    # @param skip_doc [ Boolean ] whether to omit this command from the
+    #   client's documented commands list, defaults to false
     #
     # @note Create Command `name`, if `stream` was true, set `stream_handler`
     #   as default, otherwise `default_handler`.
     #
     # @return [ self ] returns the receiver after defining the command method
-    def command(name, default_handler:, stream_handler: nil)
+    def command(name, default_handler:, stream_handler: nil, skip_doc: false)
       klass = Ollama::Commands.const_get(name.to_s.camelize)
-      doc Ollama::Client::Doc.new(name)
+      skip_doc or doc Ollama::Client::Doc.new(name)
       define_method(name) do |**parameters, &handler|
         instance = klass.new(**parameters)
         instance.client = self
