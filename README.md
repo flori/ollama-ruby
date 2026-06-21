@@ -69,37 +69,6 @@ messages = Message.new(role: 'user', content: 'Why is the sky blue?')
 ollama.chat(model: 'llama3.1', stream: true, messages:, &Print)
 ```
 
-### Importing Custom Models
-
-You can import your own model files (e.g., `.gguf`) directly into Ollama. This
-is a two-step process: first, upload the binary file to obtain a SHA256 digest,
-and then create the model using that digest as a reference.
-
-This workflow is particularly convenient in the `ollama_console`:
-
-```ruby
-# 1. Upload the binary blob to get its digest
-# This will show a progress bar for both hashing and uploading
-digest = push_blob(body: File.new('my-model-q4_0.gguf', 'rb'))
-
-# 2. Define the model configuration
-template   = "<|system|>\n{{ .System }}</s>\n<|user|>\n{{ .Prompt }}</s>\n<|assistant|>\n"
-system     = "You are a helpful AI assistant."
-parameters = { stop: ["<|system|>", "<|user|>", "<|assistant|>", "</s>"] }
-
-# 3. Create the model using the digest (using Ruby 3 shorthand)
-create(
-  model: 'my-username/my-model:latest',
-  files: { 'my-model-q4_0.gguf' => digest },
-  template:,
-  system:,
-  parameters:
-)
-```
-
-This method is highly efficient as it uses streaming uploads and avoids
-redundant data transfers if the blob already exists on the server.
-
 ## Try out things in ollama\_console
 
 This is an interactive console where you can try out the different commands
@@ -279,6 +248,37 @@ jj ps
 ```ruby
 jj version
 ```
+
+## Importing Custom Models
+
+You can import your own model files (e.g., `.gguf`) directly into Ollama. This
+is a two-step process: first, upload the binary file to obtain a SHA256 digest,
+and then create the model using that digest as a reference.
+
+This workflow is particularly convenient in the `ollama_console`:
+
+```ruby
+# 1. Upload the binary blob to get its digest
+# This will show a progress bar for both hashing and uploading
+digest = push_blob(body: File.new('my-model-q4_0.gguf', 'rb'))
+
+# 2. Define the model configuration
+template   = "<|system|>\n{{ .System }}</s>\n<|user|>\n{{ .Prompt }}</s>\n<|assistant|>\n"
+system     = "You are a helpful AI assistant."
+parameters = { stop: ["<|system|>", "<|user|>", "<|assistant|>", "</s>"] }
+
+# 3. Create the model using the digest (using Ruby 3 shorthand)
+create(
+  model: 'my-username/my-model:latest',
+  files: { 'my-model-q4_0.gguf' => digest },
+  template:,
+  system:,
+  parameters:
+)
+```
+
+This method is highly efficient as it uses streaming uploads and avoids
+redundant data transfers if the blob already exists on the server.
 
 ## Auxiliary objects
 
