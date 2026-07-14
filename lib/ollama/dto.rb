@@ -16,6 +16,7 @@
 #   end
 module Ollama::DTO
   extend Tins::Concern
+  include Tins::DeepTransform
 
   included do
     self.attributes = Set.new
@@ -116,20 +117,35 @@ module Ollama::DTO
     end
   end
 
-  # The as_json method converts the object's attributes into a JSON-compatible
-  # hash.
+  # The to_hash method converts the object's attributes into a JSON-compatible
+  # hash representation without recursing into child objects.
   #
-  # This method gathers all defined attributes of the object and constructs a
-  # hash representation, excluding any nil values or empty collections.
+  # This provides a "shallow" view of the DTO, excluding any nil values or
+  # empty collections.
   #
   # @param ignored [ Array ] ignored arguments
-  # @return [ Hash ] a hash containing the object's non-nil and non-empty attributes
-  def as_json(*ignored)
+  # @return [ Hash ] a shallow hash containing the object's non-nil and
+  #   non-empty attributes
+  def to_hash(*ignored)
     self.class.attributes.each_with_object({}) { |a, h| h[a] = send(a) }.
       reject { _2.nil? || _2.ask_and_send(:size) == 0 }
   end
 
-  # The == method compares two objects for equality based on their JSON representation.
+  # The as_json method converts the object's attributes into a JSON-compatible
+  # hash.
+  #
+  # This method leverages Tins::HashTransform to recursively collapse the DTO
+  # tree into pure Ruby primitives (Hashes and Arrays), ensuring that no DTO
+  # objects remain in the final output.
+  #
+  # @param ignored [ Array ] ignored arguments
+  # @return [ Hash ] a fully collapsed hash containing the object's attributes
+  def as_json(*ignored)
+    deep_transform(circular: "[Circular Reference]")
+  end
+
+  # The == method compares two objects for equality based on their JSON
+  # representation.
   #
   # This method checks if the JSON representation of the current object is
   # equal to the JSON representation of another object.
@@ -142,12 +158,10 @@ module Ollama::DTO
     as_json == other.as_json
   end
 
-  alias to_hash as_json
-
   # The empty? method checks whether the object has any attributes defined.
   #
   # This method determines if the object contains no attributes by checking
-  # if its hash representation is empty. It is typically used to verify
+  # if its hash representation is empty. This is typically used to verify
   # if an object, such as a DTO, has been initialized with any values.
   #
   # @return [ TrueClass, FalseClass ] true if the object has no attributes,

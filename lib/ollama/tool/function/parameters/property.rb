@@ -37,13 +37,21 @@ class Ollama::Tool::Function::Parameters::Property
   #   property can take, or nil if not set
   attr_reader :enum
 
+  # The properties attribute reader returns the nested properties associated
+  # with the object.
+  #
+  # @return [ Hash, nil ] a map of property names to their corresponding Property objects,
+  #   or nil if not set
+  attr_reader :properties
+
   # The initialize method sets up a new Property instance with the specified
   # attributes.
   #
   # @param type [ String ] the data type of the property
   # @param description [ String ] a detailed explanation of what the property represents
   # @param enum [ Array<String>, nil ] an optional array of valid values that the property can take
-  def initialize(type:, description:, enum: nil)
-    @type, @description, @enum = type, description, Array(enum)
+  # @param properties [ Hash, nil ] optional nested properties for 'object' types
+  def initialize(type:, description:, enum: nil, properties: nil)
+    @type, @description, @enum, @properties = type, description, Array(enum), properties
   end
 end
