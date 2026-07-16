@@ -44,6 +44,11 @@ class Ollama::Tool::Function::Parameters::Property
   #   or nil if not set
   attr_reader :properties
 
+  # The items attribute reader returns the definition of elements for array types.
+  #
+  # @return [ Object, nil ] the schema definition for array items, or nil if not set
+  attr_reader :items
+
   # The initialize method sets up a new Property instance with the specified
   # attributes.
   #
@@ -51,7 +56,8 @@ class Ollama::Tool::Function::Parameters::Property
   # @param description [ String ] a detailed explanation of what the property represents
   # @param enum [ Array<String>, nil ] an optional array of valid values that the property can take
   # @param properties [ Hash, nil ] optional nested properties for 'object' types
-  def initialize(type:, description:, enum: nil, properties: nil)
-    @type, @description, @enum, @properties = type, description, Array(enum), properties
+  # @param items [ Object, nil ] optional schema definition for 'array' type elements
+  def initialize(type:, description:, enum: nil, properties: nil, items: nil)
+    @type, @description, @enum, @properties, @items = type, description, Array(enum), properties, items
   end
 end

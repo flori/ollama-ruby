@@ -157,4 +157,75 @@ describe Ollama::Tool do
       expect(deep_tool.as_json[:function][:parameters][:properties][:details][:properties][:location][:properties][:coordinates][:properties][:lat][:type]).to eq('number')
     end
   end
+
+  context 'with array properties' do
+    let :tags do
+      Ollama::Tool::Function::Parameters::Property.new(
+        type: 'array',
+        description: 'A list of tags',
+        items: 'string'
+      )
+    end
+
+    let :edit_item do
+      Ollama::Tool::Function::Parameters::Property.new(
+        type: 'object',
+        description: 'An edit block',
+        properties: {
+          search: Ollama::Tool::Function::Parameters::Property.new(type: 'string', description: 'Search text'),
+          replace: Ollama::Tool::Function::Parameters::Property.new(type: 'string', description: 'Replace text')
+        }
+      )
+    end
+
+    let :edits do
+      Ollama::Tool::Function::Parameters::Property.new(
+        type: 'array',
+        description: 'A list of edits',
+        items: edit_item
+      )
+    end
+
+    let :array_parameters do
+      Ollama::Tool::Function::Parameters.new(
+        type: 'object',
+        properties: { tags: tags, edits: edits },
+        required: %w[ tags edits ]
+      )
+    end
+
+    let :array_tool do
+      described_class.new(
+        type: 'function',
+        function: Ollama::Tool::Function.new(
+          name: 'update_content',
+          description: 'Update content with tags and edits',
+          parameters: array_parameters
+        )
+      )
+    end
+
+    it 'can serialize simple array properties' do
+      expect(array_tool.as_json[:function][:parameters][:properties][:tags]).to eq({
+        type: 'array',
+        description: 'A list of tags',
+        items: 'string'
+      })
+    end
+
+    it 'can serialize complex array properties (objects)' do
+      expect(array_tool.as_json[:function][:parameters][:properties][:edits]).to eq({
+        type: 'array',
+        description: 'A list of edits',
+        items: {
+          type: 'object',
+          description: 'An edit block',
+          properties: {
+            search: { type: 'string', description: 'Search text' },
+            replace: { type: 'string', description: 'Replace text' }
+          }
+        }
+      })
+    end
+  end
 end
