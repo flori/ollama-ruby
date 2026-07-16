@@ -1,5 +1,22 @@
 # Changes
 
+## 2026-07-17 v1.23.0
+
+### Added
+
+- Support for nested properties in tool definitions by adding the `properties`
+  attribute to `Ollama::Tool::Function::Parameters::Property`.
+- Support for array types in tool property definitions via the `items`
+  attribute in `Ollama::Tool::Function::Parameters::Property`.
+- Implementation of shallow `to_hash` and recursive `as_json` in `Ollama::DTO`
+  to ensure deep serialization into primitives, including the integration of
+  `Tins::DeepTransform`.
+
+### Changed
+
+- Increased the minimum required version of the `tins` gem to **1.54**.
+- Moved the custom models section into its own dedicated section.
+
 ## 2026-06-21 v1.22.0
 
 ### New Features
