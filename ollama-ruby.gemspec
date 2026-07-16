@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
-# stub: ollama-ruby 1.22.0 ruby lib
+# stub: ollama-ruby 1.23.0 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "ollama-ruby".freeze
-  s.version = "1.22.0".freeze
+  s.version = "1.23.0".freeze
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
@@ -35,7 +35,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<excon>.freeze, ["~> 1.0".freeze])
   s.add_runtime_dependency(%q<infobar>.freeze, ["~> 0.8".freeze])
   s.add_runtime_dependency(%q<json>.freeze, ["~> 2.0".freeze])
-  s.add_runtime_dependency(%q<tins>.freeze, ["~> 1".freeze])
+  s.add_runtime_dependency(%q<tins>.freeze, ["~> 1.54".freeze])
   s.add_runtime_dependency(%q<term-ansicolor>.freeze, ["~> 1.11".freeze])
   s.add_runtime_dependency(%q<kramdown-ansi>.freeze, ["~> 0.0".freeze, ">= 0.0.1".freeze])
   s.add_runtime_dependency(%q<ostruct>.freeze, ["~> 0.0".freeze])
