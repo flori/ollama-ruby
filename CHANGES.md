@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-07-23 v1.23.1
+
+- Update `tins` gem dependency to **~> 1.55** in `Rakefile` and
+  `ollama-ruby.gemspec`.
+
 ## 2026-07-17 v1.23.0
 
 ### Added
