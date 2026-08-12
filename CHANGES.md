@@ -1,5 +1,14 @@
 # Changes
 
+## 2026-08-12 v1.23.2
+
+- Optimized terminal rendering in `bin/ollama_ps` polling loop by replacing
+  `clear_screen` with `move_home` and `erase_in_display(nil)` to prevent tmux
+  flicker.
+- Applied the same terminal clearing fix to streaming mode in
+  `lib/ollama/handlers/markdown.rb`.
+- Updated `gem_hadar` development dependency to **>= 2.18.0**.
+
 ## 2026-07-23 v1.23.1
 
 - Update `tins` gem dependency to **~> 1.55** in `Rakefile` and

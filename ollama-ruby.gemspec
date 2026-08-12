@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
-# stub: ollama-ruby 1.23.1 ruby lib
+# stub: ollama-ruby 1.23.2 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "ollama-ruby".freeze
-  s.version = "1.23.1".freeze
+  s.version = "1.23.2".freeze
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
 
   s.specification_version = 4
 
-  s.add_development_dependency(%q<gem_hadar>.freeze, [">= 2.17.1".freeze])
+  s.add_development_dependency(%q<gem_hadar>.freeze, [">= 2.18.0".freeze])
   s.add_development_dependency(%q<all_images>.freeze, ["~> 0.12".freeze])
   s.add_development_dependency(%q<rspec>.freeze, ["~> 3.2".freeze])
   s.add_development_dependency(%q<kramdown>.freeze, ["~> 2.0".freeze])

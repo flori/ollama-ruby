@@ -45,7 +45,7 @@ class Ollama::Handlers::Markdown
       if @stream
         @content << content
         markdown_content = Kramdown::ANSI.parse(@content)
-        @output.print clear_screen, move_home, markdown_content
+        @output.print move_home, erase_in_display(nil), markdown_content
       else
         markdown_content = Kramdown::ANSI.parse(content)
         @output.print markdown_content

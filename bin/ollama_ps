@@ -190,6 +190,8 @@ def ps_table(models)
   puts table
 end
 
+c = Term::ANSIColor
+
 opts = go 'f:i:h'
 
 opts[?h] and usage
@@ -204,7 +206,7 @@ when 'yaml'
 else
   duration = opts[?i].to_i.clamp(0..)
   begin
-    print Term::ANSIColor.clear_screen, Term::ANSIColor.move_home if duration > 0
+    print c.move_home, c.erase_in_display(nil) if duration > 0
     if models = fetch_ps_models.full?
       ps_table(interpret_models(models))
     end
