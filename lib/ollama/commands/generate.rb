@@ -43,7 +43,7 @@ class Ollama::Commands::Generate
   # @param raw [ Boolean, nil ] whether to return raw output without formatting
   # @param keep_alive [ String, nil ] duration to keep the model loaded in memory
   # @param think [ Boolean, String, nil ] whether to enable thinking mode for
-  #   generation. Can be "high", "medium", "low" instead of true
+  #   generation. Can be "max", "high", "medium", "low" instead of true
   def initialize(model:, prompt:, suffix: nil, images: nil, format: nil, options: nil, system: nil, template: nil, context: nil, stream: nil, raw: nil, keep_alive: nil, think: nil)
     @model, @prompt, @suffix, @images, @format, @options, @system, @template, @context, @stream, @raw, @keep_alive, @think =
       model, prompt, suffix, (Array(images) if images), format, options, system, template, context, stream, raw, keep_alive, think

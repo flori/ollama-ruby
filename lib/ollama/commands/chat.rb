@@ -40,7 +40,7 @@ class Ollama::Commands::Chat
   # @param stream [ TrueClass, FalseClass, nil ] whether to enable streaming for the operation
   # @param keep_alive [ String, nil ] duration to keep the model loaded in memory
   # @param think [ Boolean, String, nil ] whether to enable thinking mode for
-  #   generation. Can be "high", "medium", "low" instead of true
+  #   generation. Can be "max", "high", "medium", "low" instead of true
   def initialize(model:, messages:, tools: nil, format: nil, options: nil, stream: nil, keep_alive: nil, think: nil)
     @model, @messages, @tools, @format, @options, @stream, @keep_alive, @think =
       model, as_array_of_hashes(messages), as_array_of_hashes(tools),
