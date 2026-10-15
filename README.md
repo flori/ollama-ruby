@@ -533,6 +533,7 @@ including:
 Usage: ollama_ps [OPTIONS]
 
   -f FORMAT      output format: json, yaml, or table (default)
+  -i INTERVAL    output the ps table every INTERVAL seconds
   -h             this help
 ```
 

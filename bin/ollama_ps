@@ -210,10 +210,14 @@ else
     if models = fetch_ps_models.full?
       ps_table(interpret_models(models))
     end
-    duration == 0 and break
+    duration == 0 and exit 0
     sleep duration
+  rescue Interrupt
+    puts "\n *** Interrupted."
+    exit 0
   rescue => e
     warn "Caught #{e.class}: #{e}"
     sleep duration
-  end while duration
+  end while duration > 0
+  exit 1
 end
