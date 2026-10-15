@@ -68,6 +68,9 @@ class Ollama::Options
     # Maximum number of tokens to predict - limits generation length
     num_predict:       Integer,
 
+    # Number of tokens for draft model - speculative decoding
+    draft_num_predict: Integer,
+
     # Top-K sampling - limits sampling to top K tokens
     top_k:             Integer,
 
@@ -112,7 +115,7 @@ class Ollama::Options
 
     # Stop sequences - array of strings that will stop generation
     stop:              Array,
-  }
+  }.freeze
 
   @@types.each do |name, type|
     attr_reader name
@@ -157,5 +160,52 @@ class Ollama::Options
   #   attributes
   def self.[](value)
     new(**value.to_h)
+  end
+
+  # The from_string method creates a new instance of the class from a
+  # multi-line parameter string.
+  #
+  # This class method parses a string in the format used by the Ollama
+  # `show` endpoint's `parameters` field, where each line contains a
+  # parameter name and its value separated by whitespace. It infers the
+  # Ruby type for each value (Boolean, Integer, Float) based on the
+  # pattern, and accumulates array-typed parameters (e.g. `stop`)
+  # into an array. Unknown or unparseable lines are silently skipped.
+  #
+  # @example Parsing a `show` parameter block
+  #   Options.from_string(<<~PARAMS)
+  #     temperature  0.8
+  #     top_k        40
+  #     top_p        0.9
+  #     stop <|start_header_id|>
+  #     stop <|end_header_id|>
+  #   PARAMS
+  #   # => #<Ollama::Options temperature=0.8, top_k=40, …
+  #
+  # @param string [ String ] a multi-line parameter string as returned by
+  #   the `show` endpoint's `parameters` field
+  #
+  # @return [ self ] a new instance of the class with the parsed attributes
+  def self.from_string(string)
+    self[
+      string.lines.each_with_object({}) do |l, h|
+        k, v = l.chomp.split(/\s+/, 2)
+        k    = k.to_sym
+        h[k] =
+          case v
+          when 'true'          then true
+          when 'false'         then false
+          when /\A(?:-)?\d+\z/ then Integer(v)
+          else
+            if @@types[k] == Array
+              (h[k] ||= []) << v
+            else
+              Float(v)
+            end
+          end
+      rescue
+        nil
+      end.compact
+    ]
   end
 end

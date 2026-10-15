@@ -280,6 +280,16 @@ create(
 This method is highly efficient as it uses streaming uploads and avoids
 redundant data transfers if the blob already exists on the server.
 
+You can also import parameters from an existing model using the `show`
+endpoint. `Options.from_string` parses the multi-line `parameters` field into
+a typed `Options` instance that can be passed to `create(…, parameters:)`:
+
+```ruby
+info    = show(model: 'llama3.1')
+options = Options.from_string(info.parameters)
+create(model: 'my-clone', from: 'llama3.1', parameters: options)
+```
+
 ## Auxiliary objects
 
 The following objects are provided to interact with the ollama server. You can
@@ -554,7 +564,7 @@ The script displays a formatted table with columns:
 * **PROCESSOR** - CPU/GPU allocation percentage
 * **CONTEXT** - Context window size
 * **PARAMS** - Parameter count (e.g., 30.5B, 23M)
-* **QUANT** - Quantization level (e.g., Q4_K_M, F16)
+* **QUANT** - Quantization level (e.g., `Q4_K_M`, `F16`)
 * **UNTIL** - Time until model expiration
 
 Example output:
