@@ -1,5 +1,25 @@
 # Changes
 
+## 2026-10-16 v1.24.0
+
+*   Add `Options.from_string` to parse `show`-format parameter strings with
+    type inference for `Boolean`, `Integer`, `Float`, and `Array` types.
+*   Add `draft_num_predict: Integer` to the `@@types` registry and freeze the
+    `@@types` hash to prevent accidental mutation.
+*   Fix an infinite loop in `bin/ollama_ps` by correcting the `while` condition
+    to `duration > 0` and ensuring explicit exit codes (`exit 0` for success,
+    `exit 1` for failure).
+*   Add `rescue Interrupt` handling in `bin/ollama_ps` for clean `Ctrl+C` exit
+    messages.
+*   Update YARD documentation for the `think` parameter in
+    `Ollama::Commands::Chat` and `Ollama::Commands::Generate` to include
+    `"max"` as an accepted thinking level.
+*   Document the `show` → `create` parameter import workflow in `README.md`.
+*   Add `-i INTERVAL` to the `ollama_ps` usage block in `README.md`.
+*   Fix backtick formatting for `Q4_K_M` and `F16` in the `ollama_ps` QUANT
+    column documentation.
+*   Remove vim modeline comments from `Gemfile` and `Rakefile`.
+
 ## 2026-08-12 v1.23.2
 
 - Optimized terminal rendering in `bin/ollama_ps` polling loop by replacing
