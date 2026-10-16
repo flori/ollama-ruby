@@ -58,6 +58,6 @@ class Ollama::Tool::Function::Parameters::Property
   # @param properties [ Hash, nil ] optional nested properties for 'object' types
   # @param items [ Object, nil ] optional schema definition for 'array' type elements
   def initialize(type:, description:, enum: nil, properties: nil, items: nil)
-    @type, @description, @enum, @properties, @items = type, description, Array(enum), properties, items
+    @type, @description, @enum, @properties, @items = type, description, enum&.to_a, properties, items
   end
 end

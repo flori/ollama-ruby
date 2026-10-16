@@ -128,7 +128,7 @@ module Ollama::DTO
   #   non-empty attributes
   def to_hash(*ignored)
     self.class.attributes.each_with_object({}) { |a, h| h[a] = send(a) }.
-      reject { _2.nil? || _2.ask_and_send(:size) == 0 }
+      reject { _2.nil? }
   end
 
   # The as_json method converts the object's attributes into a JSON-compatible
