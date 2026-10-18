@@ -10,7 +10,7 @@ an ollama server via the
 
 Complete API documentation is available at: [GitHub.io](https://flori.github.io/ollama-ruby/)
 
-## Installation (gem &amp; bundler)
+## Installation (gem & bundler)
 
 To install Ollama, you can use the following methods:
 
@@ -89,7 +89,7 @@ Commands: chat,copy,create,delete,embeddings,generate,help,ps,pull,push,show,tag
 
 ## API
 
-This Ollama library provides commands to interact with the the [Ollama REST
+This Ollama library provides commands to interact with the [Ollama REST
 API](https://github.com/ollama/ollama/blob/main/docs/api.md)
 
 
@@ -131,9 +131,9 @@ The following standard handlers are available for the commands below:
 Their `output` IO handle can be changed by e. g. passing `Print.new(output:
 io)` with `io` as the IO handle to the _generate_ command.
 
-If you don't pass a handler explicitly, either the `stream_handler` is choosen
+If you don't pass a handler explicitly, either the `stream_handler` is chosen
 if the command expects a streaming response or the `default_handler` otherwise.
-See the following commdand descriptions to find out what these defaults are for
+See the following command descriptions to find out what these defaults are for
 each command. These commands can be tried out directly in the `ollama_console`.
 
 ### Chat
@@ -280,15 +280,62 @@ create(
 This method is highly efficient as it uses streaming uploads and avoids
 redundant data transfers if the blob already exists on the server.
 
+> **Note:** `push_blob` returns the digest with the `sha256:` prefix already
+> included. The keys in the `files` map must be the **basename** of the file
+> (e.g., `my-model-q4_0.gguf`), not a path or digest.
+
 You can also import parameters from an existing model using the `show`
 endpoint. `Options.from_string` parses the multi-line `parameters` field into
 a typed `Options` instance that can be passed to `create(…, parameters:)`:
 
 ```ruby
-info    = show(model: 'llama3.1')
-options = Options.from_string(info.parameters)
-create(model: 'my-clone', from: 'llama3.1', parameters: options)
+info       = show(model: 'llama3.1')
+parameters = Options.from_string(info.parameters)
+create(model: 'my-clone', from: 'llama3.1', parameters:)
 ```
+
+### Vision (Multimodal) Models
+
+For vision-capable models (e.g., Gemma 4, Qwen VL), you push **two** blobs:
+the language model weights and the vision projector. The `mmproj-*` filename
+convention is what tells Ollama a file is a projector — there is no Modelfile
+directive for it.
+
+This workflow is particularly convenient in the `ollama_console`:
+
+```ruby
+# Point at your local files (full paths from hf download)
+gp = '/home/flori/.cache/huggingface/hub/…/model.i1-Q5_K_S.gguf'  # Large Language Model
+mp = '/home/flori/.cache/huggingface/hub/…/model.mmproj-f16.gguf' # Vision Encoder
+
+# Push both blobs (digests come back sha256:-prefixed)
+digest_gp = push_blob(body: File.new(gp, 'rb'))
+digest_mp = push_blob(body: File.new(mp, 'rb'))
+
+# Build the files map: basename => digest
+files = {
+  File.basename(gp) => digest_gp,
+  File.basename(mp) => digest_mp
+}
+
+# Inherit template & parameters from a same-architecture reference
+ref        = show(model: 'gemma4:31b-it-q4_K_M')
+template   = ref.template
+parameters = Ollama::Options.from_string(ref.parameters)
+
+# Create the model
+create(
+  model: 'flori/my-visual-model:i1-Q5_K_S',
+  files:,
+  template:,
+  parameters:
+)
+```
+
+> **Tip:** Verify exact filenames via the HF API
+> (`/api/models/<repo_id>` → `siblings[].rfilename`) or the repo file tree
+> before downloading. Model card tables may use display names (e.g., "BF16")
+> that differ from actual filenames (e.g., `mmproj-f16.gguf`).
 
 ## Auxiliary objects
 
@@ -297,7 +344,7 @@ run all of the examples in the `ollama_console`.
 
 ### Message
 
-Messages can be be created by using the **Message** class:
+Messages can be created by using the **Message** class:
 
 ```ruby
 message = Message.new role: 'user', content: 'hello world'
@@ -317,10 +364,10 @@ It's possible to create an **Image** object via `for_base64(data)`,
 
 ### Options
 
-For `chat` and `generate` commdands it's possible to pass an **Options** object
+For `chat` and `generate` commands it's possible to pass an **Options** object
 to configure different
 [parameters](https://github.com/ollama/ollama/blob/main/docs/modelfile.md#parameter)
-for the running model. To set the `temperature` can be done via:
+for the running model. To set the `temperature` you can:
 
 ```ruby
 options = Options.new(temperature: 0.999)
@@ -603,7 +650,6 @@ the following command:
 ```bash
 gem install ollama-chat
 ```
-- Set default format to **table** when no `-f` flag is provided
 
 Once installed, you can run `ollama_chat` from your terminal or command prompt.
 This will launch a chat interface where you can interact with an LLM.
