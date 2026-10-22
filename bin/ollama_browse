@@ -15,6 +15,7 @@ require 'excon'
 require 'nokogiri'
 
 model      = ARGV.shift or fail 'model name as first argument is required'
+model      = model.gsub(/:.*/, '')
 url_prefix = 'https://ollama.com/library'
 tags_url   = '%s/%s/tags' % [ url_prefix, model ]
 result       = Excon.get(tags_url)
