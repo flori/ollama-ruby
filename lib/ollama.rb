@@ -23,8 +23,10 @@ module Ollama
 end
 
 require 'ollama/handlers'
+require 'ollama/base_url'
 module Ollama
   include Ollama::Handlers
+  extend Ollama::BaseURL
 end
 
 require 'ollama/version'

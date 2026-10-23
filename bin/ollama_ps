@@ -60,12 +60,12 @@ end
 # The base_url method returns the Ollama API base URL.
 #
 # It first checks for the OLLAMA_URL environment variable.
-# If not set, it defaults to 'http://' followed by the OLLAMA_HOST environment
-# variable.
+# If not set, it falls back to the OLLAMA_HOST environment variable.
+# The result is normalized via {Ollama.base_url}.
 #
-# @return [ String ] the base URL for the Ollama API
+# @return [URI, nil] the normalized base URL for the Ollama API
 def base_url
-  ENV['OLLAMA_URL'] || 'http://%s' % ENV.fetch('OLLAMA_HOST')
+  Ollama.base_url(ENV['OLLAMA_URL'] || ENV.fetch('OLLAMA_HOST'))
 end
 
 # The format_bytes method formats a number of bytes into a human-readable
