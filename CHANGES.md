@@ -1,5 +1,50 @@
 # Changes
 
+## 2026-10-23 v1.26.0
+
+### Features
+
+- Added `Ollama::BaseURL` module with a `base_url` method to normalize host
+  specifications into `URI` objects, automatically prepending `http://` when no
+  scheme is present.
+- Exposed `Ollama.base_url` as the public entry point for resolving base URLs.
+
+### Fixes
+
+- Updated `bin/ollama_browse` to strip the tag suffix from the model argument
+  before querying the tags URL, preventing 404 errors for models with tags
+  (e.g., `qwen3-coder:latest`).
+
+### Improvements
+
+- Replaced inline base URL construction in `bin/ollama_cli`,
+  `bin/ollama_console`, `bin/ollama_ps`, and `bin/ollama_update` with calls to
+  `Ollama.base_url`.
+
+### Build & CI
+
+- Updated the `gem_hadar` development dependency to **2.20.1**.
+
+### Testing
+
+- Added `spec/ollama/base_url_spec.rb` to cover bare host:port strings,
+  IP:port, full `http://`/`https://` URLs, `URI` object pass-through, and
+  `fallback: false` behavior.
+
+### Documentation
+
+- Added a "Vision (Multimodal) Models" section to the README with a workflow
+  for importing vision models using `push_blob` and `create`.
+- Added a note clarifying that `push_blob` returns `sha256:`-prefixed digests
+  and that `files` map keys must be basenames.
+- Added a tip to verify exact filenames via the Hugging Face API
+  `siblings[].rfilename`.
+- Simplified the `show`/`create` parameter-inheritance example in the README to
+  use Ruby 3.1+ hash shorthand.
+- Fixed various typos in the README, including `&amp;` to `&`, "the the",
+  "choosen" to "chosen", "commdand(s)" to "command(s)", and "can be be created"
+  to "can be created".
+
 ## 2026-10-17 v1.25.0
 
 * `DTO#to_hash` now only rejects `nil` attribute values instead of also
