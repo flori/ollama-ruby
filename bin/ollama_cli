@@ -221,6 +221,6 @@ if handler.is_a?(Ollama::Handlers::ChatStart)
     )
   end
   if STDERR.tty?
-    STDERR.puts "\nContinue the chat with:\n  ollama_chat -c '%s'" % filename
+    STDERR.puts "\nContinue the chat in ollama_chat with:\n  /input %s" % filename
   end
 end
