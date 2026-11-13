@@ -1,5 +1,22 @@
 # Changes
 
+## 2026-11-13 v1.26.1
+
+### Fixes
+
+- Buffer JSONL lines in the streaming path of `Ollama::Client#request` to
+  prevent `JSON::ParserError` when the server flushes partial JSON lines.
+
+### Improvements
+
+- Update the chat continuation hint in `bin/ollama_cli` to suggest using the
+  `/input` command instead of the removed `-c` flag.
+
+### Build & CI
+
+- Raise minimum development dependency `gem_hadar` to **2.21.0**.
+- Update `rubygems_version` to **4.0.24** in `ollama-ruby.gemspec`.
+
 ## 2026-10-23 v1.26.0
 
 ### Features
