@@ -5,7 +5,8 @@ script: &script |-
   echo -e "\e[1m"
   ruby -v
   echo -e "\e[0m"
-  bundle install --jobs=$(getconf _NPROCESSORS_ONLN)
+  bundle install --jobs=$(nproc)
+  git config --global --add safe.directory /work
   bundle exec rake spec
 
 before: |-
