@@ -170,9 +170,13 @@ class Ollama::Client
     url = @base_url + path
     responses = Enumerator.new do |yielder|
       if stream
-        response_block = -> chunk, remaining_bytes, total_bytes do
-          response_line = parse_json(chunk)
-          response_line and yielder.yield response_line
+        buf = +''
+        response_block = -> chunk, _remaining_bytes, _total_bytes do
+          buf << chunk
+          while (idx = buf.index(?\n))
+            line, buf = buf.slice!(0..idx), buf
+            (response_line = parse_json(line)) and yielder.yield response_line
+          end
         end
         response = excon(url).send(method, headers:, body:, response_block:)
       else
