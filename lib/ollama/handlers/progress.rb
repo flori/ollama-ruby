@@ -59,6 +59,10 @@ class Ollama::Handlers::Progress
         force: true
       )
     end
+    if response.status == 'success'
+      infobar.finish(message: message(@current, @total))
+      infobar.newline
+    end
     if error = response.error
       infobar.puts bold { "Error: " } + red { error }
     end
