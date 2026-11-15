@@ -1,5 +1,34 @@
 # Changes
 
+## 2026-11-15 v1.26.2
+
+### Fixes
+
+- Call `infobar.finish` and `infobar.newline` in `Progress#call` when
+  `response.status == 'success'` to commit the progress bar to scrollback and
+  move the cursor below it, preventing subsequent output from overwriting the
+  bar.
+
+### Improvements
+
+- Replaced `getconf _NPROCESSORS_ONLN` with `nproc` for `bundle install` job
+  count detection.
+
+### Build & CI
+
+- Added `git config --global --add safe.directory /work` to resolve permission
+  errors in CI environments.
+
+### Documentation
+
+- Replaced the YARD cheatsheet in `.contexts/yard.md` with a comprehensive
+  `Document` class example.
+- Updated instructions to generate only YARD comment blocks, excluding
+  executable code.
+- Defined rules to omit `@return [void]` clauses.
+- Demonstrated usage of `@!attribute`, `@overload`, `@yield`, and `@deprecated`
+  tags.
+
 ## 2026-11-13 v1.26.1
 
 ### Fixes
