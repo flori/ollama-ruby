@@ -1,93 +1,96 @@
-# YARD CHEATSHEET http://yardoc.org
 
-## May 2020 - updated fork: https://gist.github.com/phansch/db18a595d2f5f1ef16646af72fe1fb0e
+# YARD Documentation Example
 
-cribbed from http://pastebin.com/xgzeAmBn
+**You**, as an AI assistant, are tasked with generating only YARD documentation
+comments for Ruby code, not executable code itself.
 
-Templates to remind you of the options and formatting for the different types of objects you might
-want to document using YARD.
+## Your Documentation Responsibilities
 
-## Modules
+When generating Ruby documentation, you must:
 
-    # Namespace for classes and modules that handle serving documentation over HTTP
-    # @since 0.6.0
+### 1. **Generate Only Documentation Comments**
+- Provide `#` prefixed comment blocks only
+- Do not generate actual method bodies or class implementations
+- Do not include executable code like `def`, `class`, `attr_reader`, etc.
+- Focus solely on the documentation portions
 
-## Classes
+### 2. **Follow the Exact Structure from Example**
+Here are the documentation comments from the Document class:
 
-    # Abstract base class for CLI utilities. Provides some helper methods for
-    # the option parser
-    #
-    # @author Full Name
-    # @abstract
-    # @since 0.6.0
-    # @attr [Types] attribute_name a full description of the attribute
-    # @attr_reader [Types] name description of a readonly attribute
-    # @attr_writer [Types] name description of writeonly attribute
-    # @deprecated Describe the reason or provide alt. references here
+```ruby
+# Represents a generic document in a document management system.
+# @example How to create a document
+#   document = Document.new('Hello World')
+class Document
+  # @!attribute [r] title
+  #   @return [String]
+  attr_reader :title
 
-## Methods
+  # @!attribute [w] description
+  #   @return [String]
+  attr_writer :description
 
-    # An alias to {Parser::SourceParser}'s parsing method
-    #
-    # @author Donovan Bray
-    #
-    # @see http://example.com Description of URL
-    # @see SomeOtherClass#method
-    #
-    # @deprecated Use {#my_new_method} instead of this method because
-    #   it uses a library that is no longer supported in Ruby 1.9.
-    #   The new method accepts the same parameters.
-    #
-    # @abstract
-    # @private
-    #
-    # @param opts [Hash] the options to create a message with.
-    # @option opts [String] :subject The subject
-    # @option opts [String] :from ('nobody') From address
-    # @option opts [String] :to Recipient email
-    # @option opts [String] :body ('') The email's body
-    #
-    # @param (see User#initialize)
-    # @param [OptionParser] opts the option parser object
-    # @param [Array<String>] args the arguments passed from input. This
-    #   array will be modified.
-    # @param [Array<String, Symbol>] list the list of strings and symbols.
-    #
-    # The options parsed out of the commandline.
-    # Default options are:
-    #   :format => :dot
-    #
-    # @example Reverse a string
-    #   "mystring.reverse" #=> "gnirtsym"
-    #
-    # @example Parse a glob of files
-    #   YARD.parse('lib/**/*.rb')
-    #
-    # @raise [ExceptionClass] description
-    #
-    # @return [optional, types, ...] description
-    # @return [true] always returns true
-    # @return [void]
-    # @return [String, nil] the contents of our object or nil
-    #   if the object has not been filled with data.
-    #
-    # We don't care about the "type" here:
-    # @return the object
-    #
-    # @return [String, #read] a string or object that responds to #read
-    # @return description here with no types
+  # @!attribute [rw] sections
+  #   @api private
+  #   @return [Array<Section>]
+  attr_accessor :sections
 
-## Anywhere
+  # Initializes a new Document instance.
+  # @note This method should be called with care.
+  #
+  # @param title [String] the title of the document
+  # @param description [String] the description of the document
+  # @param options [Hash] additional configuration options
+  # @option options [Boolean] :editable whether the document can be edited
+  # @yieldparam [String] content The content of the document.
+  # @yieldreturn [String] Returns a modified content.
+  #
+  # @raise [ArgumentError] if the title is nil
+  #
+  # @return [Document] a new Document instance
+  def initialize(title, description, options = {})
+    # Do NOT generate executable code
+  end
 
-    # @todo Add support for Jabberwocky service
-    #   There is an open source Jabberwocky library available
-    #   at http://somesite.com that can be integrated easily
-    #   into the project.
+  # Edits the document content.
+  #
+  # @overload edit(new_content)
+  #   @param new_content [String] the new content for the document
+  #   @return [Boolean] true if editing was successful, false otherwise
+  #
+  # @overload edit
+  #   @yield Gives a block to process the current content.
+  #   @yieldreturn [String] Returns the new content after processing.
+  #   @return [Boolean] true if editing was successful, false otherwise
+  #
+  # @deprecated Use `modify` method instead.
+  def edit(new_content = nil)
+    # Do NOT generate executable code
+  end
 
-## Blocks
+  # @todo Implement a proper save mechanism
+  def save
+    # Do NOT generate executable code
+  end
 
-    # for block {|a, b, c| ... }
-    # @yield [a, b, c] Description of block
-    #
-    # @yieldparam [optional, types, ...] argname description
-    # @yieldreturn [optional, types, ...] description
+  # Views the document
+  #
+  # @example Viewing the document title
+  #   document.view_title #=> "Sample Document"
+  #
+  # @see #edit
+  # @return [String] the title of the document
+  def view_title
+    # Do NOT generate executable code
+  end
+end
+```
+
+## Key Rules
+
+-**DO NOT GENERATE ANY EXECUTABLE CODE** - only documentation comments that
+would be placed above actual Ruby methods and classes. The example shows what
+the documentation comments should look like, not the actual executable Ruby
+code.
+-**DO NOT ADD @return void CLAUSES** - Just omit the @return tag if the return
+is not important.
