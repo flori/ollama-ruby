@@ -30,7 +30,7 @@ GemHadar do
   required_ruby_version  '>= 3.1'
 
   dependency             'excon',                 '~> 1.0'
-  dependency             'infobar',               '~> 0.8'
+  dependency             'infobar',               '~> 0.15'
   dependency             'json',                  '~> 2.0'
   dependency             'tins',                  '~> 1.55'
   dependency             'term-ansicolor',        '~> 1.11'

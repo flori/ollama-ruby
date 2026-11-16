@@ -33,7 +33,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency(%q<simplecov>.freeze, [">= 0".freeze])
   s.add_development_dependency(%q<context_spook>.freeze, [">= 0".freeze])
   s.add_runtime_dependency(%q<excon>.freeze, ["~> 1.0".freeze])
-  s.add_runtime_dependency(%q<infobar>.freeze, ["~> 0.8".freeze])
+  s.add_runtime_dependency(%q<infobar>.freeze, ["~> 0.15".freeze])
   s.add_runtime_dependency(%q<json>.freeze, ["~> 2.0".freeze])
   s.add_runtime_dependency(%q<tins>.freeze, ["~> 1.55".freeze])
   s.add_runtime_dependency(%q<term-ansicolor>.freeze, ["~> 1.11".freeze])
