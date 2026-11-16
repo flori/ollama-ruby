@@ -1,5 +1,14 @@
 # Changes
 
+## 2026-11-16 v1.26.3
+
+### Breaking
+
+- Bumped the `infobar` dependency requirement from `~> 0.8` to `~> 0.15` in the
+  `Rakefile` and `ollama-ruby.gemspec`. This change is required to ensure the
+  inclusion of the `Display#newline` position fix, which was not present in
+  versions `0.8` through `0.14`.
+
 ## 2026-11-15 v1.26.2
 
 ### Fixes
