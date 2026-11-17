@@ -1,5 +1,23 @@
 # Changes
 
+## 2026-11-17 v1.26.4
+
+### Fixes
+
+- Handle `nil` `@total` in `Ollama::Handlers::Progress#call` when the server
+  sends a `success` status without prior progress (e.g., cached model),
+  preventing a `NoMethodError` from `Tins::Unit.format`. The finish message now
+  falls back to `'%l ✓'` when no progress bar was created.
+
+### Build & CI
+
+- Bump `gem_hadar` development dependency minimum version constraint from **2.21.0** to **2.22.1**.
+
+### Testing
+
+- Add specs for `Ollama::Handlers::Progress` covering both success paths: with
+  prior progress and without prior progress.
+
 ## 2026-11-16 v1.26.3
 
 ### Breaking
