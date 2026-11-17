@@ -60,7 +60,7 @@ class Ollama::Handlers::Progress
       )
     end
     if response.status == 'success'
-      infobar.finish(message: message(@current, @total))
+      infobar.finish(message: @total ? message(@current, @total) : '%l ✓')
       infobar.newline
     end
     if error = response.error
