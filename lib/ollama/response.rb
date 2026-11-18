@@ -1,3 +1,5 @@
+require 'json/generic_object'
+
 # A subclass of JSON::GenericObject that represents responses from the Ollama API.
 #
 # This class serves as a specialized response object that extends
