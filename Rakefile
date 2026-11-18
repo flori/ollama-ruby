@@ -31,7 +31,8 @@ GemHadar do
 
   dependency             'excon',                 '~> 1.0'
   dependency             'infobar',               '~> 0.15'
-  dependency             'json',                  '~> 2.0'
+  dependency             'json',                  '>= 2.0', '< 4'
+  dependency             'json-generic_object'
   dependency             'tins',                  '~> 1.55'
   dependency             'term-ansicolor',        '~> 1.11'
   dependency             'kramdown-ansi',         '~> 0.0', '>= 0.0.1'

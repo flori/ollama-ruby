@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
-# stub: ollama-ruby 1.26.4 ruby lib
+# stub: ollama-ruby 1.27.0 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "ollama-ruby".freeze
-  s.version = "1.26.4".freeze
+  s.version = "1.27.0".freeze
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
 
   s.specification_version = 4
 
-  s.add_development_dependency(%q<gem_hadar>.freeze, [">= 2.22.1".freeze])
+  s.add_development_dependency(%q<gem_hadar>.freeze, [">= 2.24.0".freeze])
   s.add_development_dependency(%q<all_images>.freeze, ["~> 0.12".freeze])
   s.add_development_dependency(%q<rspec>.freeze, ["~> 3.2".freeze])
   s.add_development_dependency(%q<kramdown>.freeze, ["~> 2.0".freeze])
@@ -34,7 +34,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency(%q<context_spook>.freeze, [">= 0".freeze])
   s.add_runtime_dependency(%q<excon>.freeze, ["~> 1.0".freeze])
   s.add_runtime_dependency(%q<infobar>.freeze, ["~> 0.15".freeze])
-  s.add_runtime_dependency(%q<json>.freeze, ["~> 2.0".freeze])
+  s.add_runtime_dependency(%q<json>.freeze, [">= 2.0".freeze, "< 4".freeze])
+  s.add_runtime_dependency(%q<json-generic_object>.freeze, [">= 0".freeze])
   s.add_runtime_dependency(%q<tins>.freeze, ["~> 1.55".freeze])
   s.add_runtime_dependency(%q<term-ansicolor>.freeze, ["~> 1.11".freeze])
   s.add_runtime_dependency(%q<kramdown-ansi>.freeze, ["~> 0.0".freeze, ">= 0.0.1".freeze])
