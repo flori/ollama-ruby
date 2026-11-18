@@ -1,5 +1,18 @@
 # Changes
 
+## 2026-11-18 v1.27.0
+
+### Improvements
+
+- Relaxed the `json` runtime dependency constraint from `~> 2.0` to `>= 2.0`,
+  `< 4`.
+- Added `json-generic_object` as a runtime dependency to ensure
+  `JSON::GenericObject` availability on `json` 3.x.
+
+### Build & CI
+
+- Bumped the `gem_hadar` development dependency requirement to `>= 2.24.0`.
+
 ## 2026-11-17 v1.26.4
 
 ### Fixes
