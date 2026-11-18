@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
 
   s.specification_version = 4
 
-  s.add_development_dependency(%q<gem_hadar>.freeze, [">= 2.24.0".freeze])
+  s.add_development_dependency(%q<gem_hadar>.freeze, [">= 2.24.1".freeze])
   s.add_development_dependency(%q<all_images>.freeze, ["~> 0.12".freeze])
   s.add_development_dependency(%q<rspec>.freeze, ["~> 3.2".freeze])
   s.add_development_dependency(%q<kramdown>.freeze, ["~> 2.0".freeze])
