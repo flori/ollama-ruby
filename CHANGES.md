@@ -1,5 +1,13 @@
 # Changes
 
+## 2026-11-18 v1.27.2
+
+### Fixes
+
+- Explicitly require `json/generic_object` in `response.rb` to resolve the
+  superclass reference, as `json` **3.x** no longer autoloads
+  `JSON::GenericObject`.
+
 ## 2026-11-18 v1.27.1
 
 ### Build & CI
