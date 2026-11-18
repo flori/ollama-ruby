@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-11-18 v1.27.1
+
+### Build & CI
+
+- Updated the `gem_hadar` development dependency requirement in
+  `ollama-ruby.gemspec` from `>= 2.24.0` to `>= 2.24.1`.
+
 ## 2026-11-18 v1.27.0
 
 ### Improvements
