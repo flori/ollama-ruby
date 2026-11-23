@@ -18,28 +18,28 @@ Gem::Specification.new do |s|
   s.licenses = ["MIT".freeze]
   s.rdoc_options = ["--title".freeze, "Ollama-ruby - Interacting with the Ollama API".freeze, "--main".freeze, "README.md".freeze]
   s.required_ruby_version = Gem::Requirement.new(">= 3.1".freeze)
-  s.rubygems_version = "4.0.24".freeze
+  s.rubygems_version = "4.1.0".freeze
   s.summary = "Interacting with the Ollama API".freeze
   s.test_files = ["spec/ollama/base_url_spec.rb".freeze, "spec/ollama/client/doc_spec.rb".freeze, "spec/ollama/client_spec.rb".freeze, "spec/ollama/commands/blob_exists_spec.rb".freeze, "spec/ollama/commands/chat_spec.rb".freeze, "spec/ollama/commands/copy_spec.rb".freeze, "spec/ollama/commands/create_spec.rb".freeze, "spec/ollama/commands/delete_spec.rb".freeze, "spec/ollama/commands/embed_spec.rb".freeze, "spec/ollama/commands/embeddings_spec.rb".freeze, "spec/ollama/commands/generate_spec.rb".freeze, "spec/ollama/commands/ps_spec.rb".freeze, "spec/ollama/commands/pull_spec.rb".freeze, "spec/ollama/commands/push_blob_spec.rb".freeze, "spec/ollama/commands/push_spec.rb".freeze, "spec/ollama/commands/show_spec.rb".freeze, "spec/ollama/commands/tags_spec.rb".freeze, "spec/ollama/commands/version_spec.rb".freeze, "spec/ollama/digester_spec.rb".freeze, "spec/ollama/handlers/collector_spec.rb".freeze, "spec/ollama/handlers/dump_json_spec.rb".freeze, "spec/ollama/handlers/dump_yaml_spec.rb".freeze, "spec/ollama/handlers/markdown_spec.rb".freeze, "spec/ollama/handlers/nop_spec.rb".freeze, "spec/ollama/handlers/print_spec.rb".freeze, "spec/ollama/handlers/progress_spec.rb".freeze, "spec/ollama/handlers/say_spec.rb".freeze, "spec/ollama/handlers/single_spec.rb".freeze, "spec/ollama/image_spec.rb".freeze, "spec/ollama/message_spec.rb".freeze, "spec/ollama/options_spec.rb".freeze, "spec/ollama/tool_spec.rb".freeze, "spec/spec_helper.rb".freeze]
 
   s.specification_version = 4
 
-  s.add_development_dependency(%q<gem_hadar>.freeze, [">= 2.24.1".freeze])
-  s.add_development_dependency(%q<all_images>.freeze, ["~> 0.12".freeze])
-  s.add_development_dependency(%q<rspec>.freeze, ["~> 3.2".freeze])
-  s.add_development_dependency(%q<kramdown>.freeze, ["~> 2.0".freeze])
-  s.add_development_dependency(%q<webmock>.freeze, [">= 0".freeze])
-  s.add_development_dependency(%q<debug>.freeze, [">= 0".freeze])
-  s.add_development_dependency(%q<simplecov>.freeze, [">= 0".freeze])
-  s.add_development_dependency(%q<context_spook>.freeze, [">= 0".freeze])
-  s.add_runtime_dependency(%q<excon>.freeze, ["~> 1.0".freeze])
-  s.add_runtime_dependency(%q<infobar>.freeze, ["~> 0.15".freeze])
-  s.add_runtime_dependency(%q<json>.freeze, [">= 2.0".freeze, "< 4".freeze])
-  s.add_runtime_dependency(%q<json-generic_object>.freeze, [">= 0".freeze])
-  s.add_runtime_dependency(%q<tins>.freeze, ["~> 1.55".freeze])
-  s.add_runtime_dependency(%q<term-ansicolor>.freeze, ["~> 1.11".freeze])
-  s.add_runtime_dependency(%q<kramdown-ansi>.freeze, ["~> 0.0".freeze, ">= 0.0.1".freeze])
-  s.add_runtime_dependency(%q<ostruct>.freeze, ["~> 0.0".freeze])
-  s.add_runtime_dependency(%q<terminal-table>.freeze, [">= 3.0".freeze])
-  s.add_runtime_dependency(%q<nokogiri>.freeze, ["~> 1.0".freeze])
+  s.add_development_dependency("gem_hadar".freeze, [">= 2.27.1".freeze])
+  s.add_development_dependency("all_images".freeze, ["~> 0.12".freeze])
+  s.add_development_dependency("rspec".freeze, ["~> 3.2".freeze])
+  s.add_development_dependency("kramdown".freeze, ["~> 2.0".freeze])
+  s.add_development_dependency("webmock".freeze, [">= 0".freeze])
+  s.add_development_dependency("debug".freeze, [">= 0".freeze])
+  s.add_development_dependency("simplecov".freeze, [">= 0".freeze])
+  s.add_development_dependency("context_spook".freeze, [">= 0".freeze])
+  s.add_runtime_dependency("excon".freeze, ["~> 1.0".freeze])
+  s.add_runtime_dependency("infobar".freeze, ["~> 0.15".freeze])
+  s.add_runtime_dependency("json".freeze, [">= 2.0".freeze, "< 4".freeze])
+  s.add_runtime_dependency("json-generic_object".freeze, [">= 0".freeze])
+  s.add_runtime_dependency("tins".freeze, ["~> 1.55".freeze])
+  s.add_runtime_dependency("term-ansicolor".freeze, ["~> 1.11".freeze])
+  s.add_runtime_dependency("kramdown-ansi".freeze, ["~> 0.0".freeze, ">= 0.0.1".freeze])
+  s.add_runtime_dependency("ostruct".freeze, ["~> 0.0".freeze])
+  s.add_runtime_dependency("terminal-table".freeze, [">= 3.0".freeze])
+  s.add_runtime_dependency("nokogiri".freeze, ["~> 1.0".freeze])
 end
